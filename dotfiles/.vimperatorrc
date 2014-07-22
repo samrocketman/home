@@ -1,0 +1,10 @@
+"3.2 (created: 2011/06/03 11:51:34)
+
+set titlestring=' Mozilla Firefox'
+nmap K gt
+nmap J gT
+set hintchars=hjklasdfgyuiopqwertnmzxcvb
+set "hinttags=//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @role='link' or @role='button'] | //input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | //xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | //div[contains(@class,'J-K-I J-J5-Ji')]"
+source! /home/sam/.vimperatorrc.local
+
+" vim: set ft=vimperator:

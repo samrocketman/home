@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#Sanity configuration checking
+if [ -z "$(head -n1 /etc/clusters | sed 's/\s\+//g')" ];then
+  echo "The first line of /etc/clusters must not be blank"
+  exit 1
+elif [ ! "$(head -n1 /etc/clusters | awk '{print $1}')" = "All_clusters" ];then
+  echo "All_clusters must be the first entry in /etc/clusters"
+  exit 1
+fi
+
+#sort all of the entries on the first line
+head -n1 /etc/clusters | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/ \(.*\)/\1\n\n/' > /tmp/clusters
+
+#sort all following lines
+grep -v '^All_clusters' /etc/clusters | sort | grep -v '^$' | while read line;do echo -e "${line}\n";done >> /tmp/clusters
+
+#overwrite the current cluster configuration
+cat /tmp/clusters > /etc/clusters
+\rm /tmp/clusters

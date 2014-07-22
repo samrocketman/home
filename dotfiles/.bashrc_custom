@@ -1,0 +1,20 @@
+#set up some common aliases
+if ! which vim &> /dev/null;then
+  alias vim="vi"
+fi
+alias x='exit'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+
+#other terminal fun stuff
+if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
+  export PATH="${PATH}:~/bin"
+fi
+export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
+export EDITOR="vim"
+if [ "$(id -u)" -eq "0" ];then
+  export HOME="/root"
+  export HISTFILE="$HOME/.bash_history"
+  export MAIL="/var/spool/mail/root"
+fi

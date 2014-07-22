@@ -1,0 +1,4 @@
+#!/bin/bash
+#Created by Sam Gleske
+
+man -t "${1}" | ps2pdf - > "${1}.pdf"

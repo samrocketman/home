@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#your /etc/clusters cssh file must have all aliases designated with one of the following prefixes: cluster_ host_ All_
+
+#output the servers
+#cat /etc/clusters | tr ' ' '\n' | grep -v '^$\|cluster_\|host_\|All_' | sort -u | wc -l
+cat /etc/clusters | tr ' ' '\n' | grep -v '^$\|cluster_\|host_\|All_' | sort -u
