@@ -1,0 +1,12 @@
+#!/bin/bash
+#Sam Gleske
+#Wed Jul 23 18:44:58 EDT 2014
+#Fedora release 16 (Verne)
+#Linux 3.6.11-4.fc16.x86_64 x86_64
+#GNU bash, version 4.2.37(1)-release (x86_64-redhat-linux-gnu)
+#htmldoc 1.8.27
+
+html="${1}"
+htmlfile="${html##*/}"
+
+htmldoc --book --webpage -f "./${htmlfile%.*}.pdf" "${html}"
