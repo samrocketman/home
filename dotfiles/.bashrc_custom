@@ -2,6 +2,7 @@
 if ! which vim &> /dev/null;then
   alias vim="vi"
 fi
+alias g='git'
 alias x='exit'
 alias l.='ls -d .* --color=auto'
 alias ll='ls -l --color=auto'
