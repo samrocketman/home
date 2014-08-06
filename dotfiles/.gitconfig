@@ -18,3 +18,6 @@
 	m = merge
 [push]
 	default = simple
+[core]
+	editor = vim
+	excludesfile = /home/sam/.gitignore_global
