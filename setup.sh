@@ -9,7 +9,7 @@ if [ ! -d "${HOME}/git/home" ];then
 fi
 
 ln -s ~/git/home/dotfiles/.[a-z]* ~/
-if [ ! -e ~/bin ];then
+if [ ! -e "${HOME}/bin" ];then
   ln -s ~/git/home/bin ~/bin
 fi
 
