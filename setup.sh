@@ -13,4 +13,4 @@ if [ ! -e ~/bin ];then
   ln -s ~/git/home/bin ~/bin
 fi
 
-grep '.bashrc_custom' ~/.bashrc || echo '. ~/.bashrc_custom' > ~/.bashrc
+grep '.bashrc_custom' ~/.bashrc || echo '. ~/.bashrc_custom' >> ~/.bashrc
