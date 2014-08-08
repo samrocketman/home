@@ -50,18 +50,21 @@ cmap w!! %!sudo tee > /dev/null %
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
 
-if &t_Co > 1 
+:filetype on
+if &t_Co > 1
   syntax enable
 endif
-
-:filetype on
-:au FileType c,cpp,java set cindent
-"will display the trailing space
+"filetype setting options
+:autocmd FileType c,cpp set cindent
+:autocmd FileType java set cindent shiftwidth=4 tabstop=4 softtabstop=4 backspace=4
+:autocmd FileType py,md set shiftwidth=4 tabstop=4 softtabstop=4 backspace=4
+:autocmd FileType Makefile set shiftwidth=4 tabstop=4 softtabstop=4 noexpandtab backspace=1
+"will highlight trailing white space with grey
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
-:au BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
+:autocmd BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
 "highlight lines longer than 80 chars in red
-:au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+:autocmd BufWinEnter *.md,*.sh let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 
 
 """""""""""
