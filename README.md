@@ -1,6 +1,7 @@
 # home
 
-In other words files for my `$HOME`.  This is a handy little git repository I use to track all of the files I use in day to day stuff.
+In other words files for my `$HOME`.  This is a handy little git repository I
+use to track all of the files I use in day to day stuff.
 
 ## List of README files.
 
@@ -30,7 +31,8 @@ vim
 
 # vim tips
 
-I use the following selection substitute command for converting bash variables from `$var` to `${var}`.
+I use the following selection substitute command for converting bash variables
+from `$var` to `${var}`.
 
     :'<,'>s#$\([^0-9(\{]\{1\}[^/{} '"()\\;.|`+*-]\+\)#${\1}#g
 
