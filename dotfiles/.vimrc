@@ -1,17 +1,16 @@
 "this is a comment
 "type :help command to see the vim help docs for that command
-:filetype on
-:au FileType c,cpp,java set cindent
-"will display the trailing space
-:highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
-:autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
-:au BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
-"highlight lines longer than 80 chars in red
-":au BufWinEnter *.py let w:m2=matchadd('ErrorMsg', '\%>79v.\+', -1)
 
+"this should be first always according to help docs if going to set
 set nocompatible
+
+
+""""""""""""""""
+" STATIC OPTIONS
+""""""""""""""""
+
 set shiftwidth=2
-"showmode indicates input or replace mode at botto
+"showmode indicates input or replace mode at bottom
 set showmode
 set showmatch
 "shortcut for toggling paste while in insert mode, press F2 key
@@ -28,25 +27,46 @@ set number
 set tabstop=4
 set expandtab
 set softtabstop=2
-
+set incsearch
 "always show status and tabs
 set laststatus=2
 "set showtabline=2
-
 "ignore case
 set ignorecase
-
 "set background=light
 set background=dark
 set autoindent
-if &t_Co > 1 
-  syntax enable
-endif
+
+
+""""""""""""""""
+" CHARACTER MAPS
+""""""""""""""""
 
 ":w!! will ask for password when trying to write to system files
 cmap w!! %!sudo tee > /dev/null %
 
-set incsearch
+
+"""""""""""""""""""""""""""""
+" AUTOCMD FILE LOGIC BEHAVIOR
+"""""""""""""""""""""""""""""
+
+if &t_Co > 1 
+  syntax enable
+endif
+
+:filetype on
+:au FileType c,cpp,java set cindent
+"will display the trailing space
+:highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
+:autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
+:au BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
+"highlight lines longer than 80 chars in red
+:au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+
+
+"""""""""""
+" FUNCTIONS
+"""""""""""
 
 "This executes a command and puts output into a throw away scratch pad
 "source: http://vim.wikia.com/wiki/Display_output_of_shell_commands_in_new_window
@@ -75,5 +95,10 @@ function! s:ExecuteInShell(command, bang)
     silent! syntax on
   endif
 endfunction
+
+""""""""""
+" COMMANDS
+""""""""""
+
 command! -complete=shellcmd -nargs=* -bang Scratchpad call s:ExecuteInShell(<q-args>, '<bang>')
 command! -complete=shellcmd -nargs=* -bang Scp call s:ExecuteInShell(<q-args>, '<bang>')
