@@ -1,21 +1,43 @@
-#set up some common aliases
+# SET UP SOME COMMON ALIASES
 if ! which vim &> /dev/null;then
   alias vim="vi"
 fi
-alias g='git'
+#Mac specific aliases
+if uname -rms | grep Darwin &> /dev/null;then
+  alias flushdns='dscacheutil -flushcache'
+  alias l.='ls -Gd .*'
+  alias ll='ls -Gl'
+  alias ls='ls -G'
+  alias g=/usr/local/bin/git
+  alias git=/usr/local/bin/git
+else
+  #aliases that don't work on Mac
+  alias l.='ls -d .* --color=auto'
+  alias ll='ls -l --color=auto'
+  alias ls='ls --color=auto'
+  alias g='git'
+fi
+alias rspec='rspec --color --format nested'
+alias ...='while read line; do echo -n "."; done && echo ""'
 alias x='exit'
-alias l.='ls -d .* --color=auto'
-alias ll='ls -l --color=auto'
-alias ls='ls --color=auto'
 
-#other terminal fun stuff
+# ENVIRONMENT VARIABLES
 if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
   export PATH="${PATH}:~/bin"
 fi
+# happy face if last command successful or sadface if last command failed
 export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
 export EDITOR="vim"
-if [ "$(id -u)" -eq "0" ];then
+if [ ! -z "${SUDO_USER}" -a "$(id -u)" -eq "0" ];then
   export HOME="/root"
   export HISTFILE="$HOME/.bash_history"
   export MAIL="/var/spool/mail/root"
 fi
+export HISTIGNORE="&:ls:[bf]g:exit:history"
+export HISTCONTROL="ignoredups:&:ls:[bf]g:exit:history"
+export HISTFILESIZE=5000
+export HISTSIZE=5000
+
+# SHELL OPTIONS
+shopt -s cmdhist
+set -o vi
