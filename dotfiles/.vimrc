@@ -5,7 +5,7 @@
 "will display the trailing space
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
-:au BufWinEnter *.py let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
+:au BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
 "highlight lines longer than 80 chars in red
 ":au BufWinEnter *.py let w:m2=matchadd('ErrorMsg', '\%>79v.\+', -1)
 
