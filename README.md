@@ -18,6 +18,16 @@ This is user bin scripts I put in my ~/bin directory.
 
 Some common dotfiles which I personally like to customize.
 
+# Package must haves
+
+I need the following packages to be highly productive at a minimum.
+
+```
+git
+screen
+vim
+```
+
 # vim tips
 
 I use the following selection substitute command for converting bash variables from `$var` to `${var}`.
