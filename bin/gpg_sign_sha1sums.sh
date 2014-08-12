@@ -17,12 +17,12 @@
 #  when, for example, uploading your encrypted files to a cloud
 #  filesharing service.
 
-if [ -z "$!" -a ! -d "$1" ];then
+if [ -z "$!" -a ! -d "$1" ]; then
   echo "Error: must provide a directory as an argument." 1>&2
   exit 1
 fi
 
-find "$1" -type f -name 'sha1sum.txt' | while read x;do
+find "$1" -type f -name 'sha1sum.txt' | while read x; do
   gpg --output "$x.sig" --detach-sign "$x"
   echo "Signed $x" 1>&2
 done
