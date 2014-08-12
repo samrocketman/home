@@ -17,21 +17,22 @@
 #  sha1sum.txt files and fail the validation if no signatures are
 #  provided.
 
-if [ -z "$!" -a ! -d "$1" ];then
+if [ -z "$!" -a ! -d "$1" ]; then
   echo "Error: must provide a directory as an argument." 1>&2
   exit 1
 fi
 
-find "$1" -type d | while read x;do
+find "$1" -type d | while read x; do
   set -e
   pushd "$x" &> /dev/null
-  if [ ! -f sha1sum.txt.sig ];then
+  if [ ! -f sha1sum.txt.sig ]; then
     echo -e "\nLocation: $x" 1>&2
     echo -e "Error: No sha1sum.txt.sig!\n" 1>&2
     exit 1
   fi
-  if ! gpg --verify "sha1sum.txt.sig";then
-    echo -e "\nLocation: $x\nError: sha1sum.txt.sig contains a bad signature.\n" 1>&2
+  if ! gpg --verify "sha1sum.txt.sig"; then
+    echo -en "\nLocation: $x\n" 1>&2
+    echo -e "Error: sha1sum.txt.sig contains a bad signature.\n" 1>&2
     exit 1
   fi
   popd &> /dev/null
