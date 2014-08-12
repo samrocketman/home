@@ -16,20 +16,21 @@
 #  the contents of a gpg_encrypt_individual_files.sh encrypted 
 #  directory maintains its integrity.  This script eases that process.
 
-if [ -z "$!" -a ! -d "$1" ];then
+if [ -z "$!" -a ! -d "$1" ]; then
   echo "Error: must provide a directory as an argument." 1>&2
   exit 1
 fi
 
-find "$1" -type d | while read x;do
+find "$1" -type d | while read x; do
   pushd "$x" &> /dev/null
-  if [ ! -f sha1sum.txt ];then
+  if [ ! -f sha1sum.txt ]; then
     echo -e "\nLocation: $x" 1>&2
     echo -e "Error: No sha1sum.txt!\n" 1>&2
     exit 1
   fi
-  if [ "$(find . -maxdepth 1 -type f | grep -v 'sha1sum\.txt\.sig' | wc -l)" -gt "1" ];then
-    if ! sha1sum -c sha1sum.txt;then
+  if [ "$(find . -maxdepth 1 -type f \
+    | grep -v 'sha1sum\.txt\.sig' | wc -l)" -gt "1" ]; then
+    if ! sha1sum -c sha1sum.txt; then
       echo -e "\nLocation: $x" 1>&2
       echo "sha1sum failed:" 1>&2
       sha1sum -c sha1sum.txt 2> /dev/null | grep FAILED
