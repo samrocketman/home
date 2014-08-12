@@ -9,28 +9,33 @@
 #DESCRIPTION
 #  This script will decrypt all *.gpg files located in a sub directory.
 
-#remove the original encrypted file?; this value can be overridden by environment
+#remove the original encrypted file?
+#this value can be overridden by environment
 remove_original="${remove_original:-true}"
+
+#Additional options for gpg commands
+#gpg_opts="${gpg_opts:---use-agent}"
 
 #DO NOT EDIT ANY MORE VARIABLES
 #exit on first error
 set -e
 
-#this will individually decrypt all files in the folder; this value can be overridden by environment
-if [ -z "${folder_to_decrypt}" ];then
+#this will individually decrypt all files in the folder
+#this value can be overridden by environment
+if [ -z "${folder_to_decrypt}" ]; then
   folder_to_decrypt="${1}"
 fi
 
-if [ -z "${folder_to_decrypt}" -o ! -d "${folder_to_decrypt}" ];then
+if [ -z "${folder_to_decrypt}" -o ! -d "${folder_to_decrypt}" ]; then
   echo "Must provide a valid folder as an argument!"
   exit 1
 fi
 
 #decrypt all individually encrypted files in the folder
-find "${folder_to_decrypt}" -type f -name '*.gpg' | while read x;do
-  echo "${x}" | gpg --multifile --decrypt --
+find "${folder_to_decrypt}" -type f -name '*.gpg' | while read x; do
+  echo "${x}" | gpg ${gpg_opts} --multifile --decrypt --
   echo -n "decrypted ${x}"
-  if ${remove_original};then
+  if ${remove_original}; then
     rm -f -- "${x}"
     echo " and removed original."
   else
