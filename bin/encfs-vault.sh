@@ -16,7 +16,7 @@
 #    umount-encfsvault.sh
 
 #DESCRIPTION
-#  A simple script to mount and unmount an encfs filesystem.  
+#  A simple script to mount and unmount an encfs filesystem.
 #  This command executes different
 
 #INSTALL
