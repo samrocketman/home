@@ -11,9 +11,9 @@ sendmail sam.mxracer@gmail.com << EOF
 Subject: rsync backup started
 A recent backup has been run
 EOF
-mv "${backupfolder}/My Files.2.bak.tc" "${backupfolder}/My Files.3.bak.tc"
-mv "${backupfolder}/My Files.1.bak.tc" "${backupfolder}/My Files.2.bak.tc"
-mv "${backupfolder}/My Files.tc" "${backupfolder}/My Files.1.bak.tc"
+#mv "${backupfolder}/My Files.2.bak.tc" "${backupfolder}/My Files.3.bak.tc"
+#mv "${backupfolder}/My Files.1.bak.tc" "${backupfolder}/My Files.2.bak.tc"
+#mv "${backupfolder}/My Files.tc" "${backupfolder}/My Files.1.bak.tc"
 rsync -av --delete-before --exclude=*.bak.tc /media/backup/ "${backupfolder}"
 #rsync -rptvog --delete-before /media/raid/ /media/tripleredundancy
 sendmail sam.mxracer@gmail.com << EOF
