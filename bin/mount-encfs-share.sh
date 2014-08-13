@@ -6,13 +6,13 @@
 #GNU bash, version 4.2.37(1)-release (x86_64-redhat-linux-gnu)
 
 #USAGE
-#  mount-encfs-share.sh ~
+#  mount-encfs-share.sh sample_folder
 
 #CONVENTION OVER CONFIGURATION
-#  encfs encrypted folders will always follow a convetion.
+#  For this script encfs encrypted folders will always follow a convention.
 #
 #  sample_folder (unencrypted)
-#  .encfs_sample_folder (encrypted vault)
+#  .encfs_sample_folder (encrypted vault in the same directory)
 
 #If not running as root then switch to it
 if [ ! "${USER}" = "root" ]; then
