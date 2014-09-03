@@ -34,7 +34,7 @@ if [ ! -z "${SUDO_USER}" -a "$(id -u)" -eq "0" ];then
   export MAIL="/var/spool/mail/root"
 fi
 export HISTIGNORE="&:ls:[bf]g:exit:history"
-export HISTCONTROL="ignoredups:&:ls:[bf]g:exit:history"
+export HISTCONTROL="ignorespace:ignoredups:&:ls:[bf]g:exit:history"
 export HISTFILESIZE=5000
 export HISTSIZE=5000
 
