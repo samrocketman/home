@@ -29,6 +29,12 @@ screen
 vim
 ```
 
+# bash tips
+
+See the exit status of each command in a one liner pipeline.
+
+    echo ${PIPESTATUS[@]}
+
 # vim tips
 
 I use the following selection substitute command for converting bash variables
