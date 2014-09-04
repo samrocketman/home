@@ -6,7 +6,7 @@
 
 PROJECT_HOME="${PROJECT_HOME:-${HOME}/git/home}"
 
-if [ ! -d "" ];then
+if [ ! -d "${PROJECT_HOME}" ];then
   echo "ERR: home repo not cloned in ~/git?" >&2
   exit 1
 fi
