@@ -1,0 +1,45 @@
+#!/bin/bash
+#Created by Sam Gleske
+#Thu Sep  4 00:06:15 EDT 2014
+#Ubuntu 14.04.1 LTS
+#Linux 3.13.0-35-generic x86_64
+#GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
+
+#DESCRIPTION:
+#  This short script is designed to execute port knocking on a remote host
+#  which has knockd running on it.  For more information about knockd:
+#    http://www.zeroflux.org/projects/knock/
+#    https://github.com/jvinet/knock
+
+#USAGE:
+#  knock open
+#  knock close
+#  host="somehost" knock open
+#  host="somehost" knock close
+
+host="${host:-defaulthost}"
+open_order=(7000 8000 9000)
+close_order=(9000 8000 7000)
+
+function openSSH() {
+  for x in ${open_order[*]};do
+    timeout 1 nc -z ${host} ${x}
+  done
+}
+
+function closeSSH() {
+  for x in ${close_order[*]};do
+    timeout 1 nc -z ${host} ${x}
+  done
+}
+
+case "$1" in
+  open)
+    openSSH
+    ;;
+  close)
+    closeSSH
+    ;;
+  *)
+    echo "usage: $0 (open|close|help)"
+esac
