@@ -1,5 +1,5 @@
 #!/bin/bash
-#Sam Gleske
+#Created by Sam Gleske (github @samrocketman)
 #Wed Aug 13 00:05:24 EDT 2014
 #Fedora release 16 (Verne)
 #Linux 3.6.11-4.fc16.x86_64 x86_64
@@ -7,18 +7,85 @@
 
 #USAGE
 #  mount-encfs-share.sh sample_folder
+#  mount-encfs-share.sh -h
 
-#CONVENTION OVER CONFIGURATION
-#  For this script encfs encrypted folders will always follow a convention.
-#
-#  sample_folder (unencrypted)
-#  .encfs_sample_folder (encrypted vault in the same directory)
+PROGNAME="${0##*/}"
+PROGVERSION="0.2"
+DEFAULT_ENCFS_OPTS="--public"
+
+function usage() {
+cat <<EOF
+${PROGNAME} ${PROGVERSION} - MIT License by Sam Gleske (github @samrocketman)
+
+SYNOPSIS
+    ${PROGNAME} [ENCFS_OPTS] FOLDER
+
+DESCRIPTION
+    This is a wrapper script around the encfs utility which automatically
+    creates and mounts encfs volumes.  When the volume is unmounted the mount
+    point folder has permissions 0000.  This way an unmounted volume is not
+    accidentally written to.
+
+OPTIONS:
+    [ENCFS_OPTS]              One or more options to be passed through to the
+                              encfs utility.  See encfs(1) man page for options.
+
+    FOLDER                    The folder to mount or create an encrypted volume.
+                              This must always be the last argument.
+
+CONVENTION OVER CONFIGURATION
+    For this script encfs encrypted folders will always follow a convention for
+    folders it is mounting.
+
+    sample_folder (unencrypted)
+    .encfs_sample_folder (encrypted vault in the same directory)
+
+    For example lets say you have a folder: "sample_folder".  It is intended to
+    be an encfs mount point where the unencrypted contents are accessed.  The
+    encrypted vault will be located at: ".encfs_sample_folder".  If the
+    encrypted vault doesn't exist then this script will automatically create it.
+
+EXAMPLES
+    In the following examples the folder "somevolume" is an encfs vault with
+
+    Mount an encrypted volume (or if it doesn't exist create it).
+        ${PROGNAME} somevolume
+
+    Mount an encrypted volume and read the password from stdin.
+        echo password | ${PROGNAME} -S somevolume
+
+    Unmount the encfs volume.
+        sudo umount somevolume
+EOF
+}
+
+#since we automatically switch to root try to figure out if the help doc is
+#being invoked.  If so might as well display help instead of trying to be root.
+if echo "$@" | grep -- '-h$\|--help$' &> /dev/null; then
+  usage
+  exit 1
+fi
 
 #If not running as root then switch to it
 if [ ! "${USER}" = "root" ]; then
-  sudo -s $0 "$@"
+  sudo -s "$0" "$@"
   exit
 fi
+
+#Read any potential options
+while true; do
+  case "$1" in
+    -h|--help)
+        usage
+        exit 1
+      ;;
+  esac
+  if [ "$#" -eq "1" ]; then
+    break
+  fi
+  ENCFS_OPTS="${ENCFS_OPTS} $1"
+  shift
+done
 
 #remove trailing slash if in path
 mount_point="${1%/}"
@@ -64,4 +131,5 @@ if [ ! -d "${encrypted_vault}" ]; then
 fi
 
 #mount the encrypted vault FINALLY
-encfs --public "${encrypted_vault}" "${mount_point}"
+#the <&0 reads from stdin in case the -S option is used in $ENCFS_OPTS
+encfs ${DEFAULT_ENCFS_OPTS} ${ENCFS_OPTS} "${encrypted_vault}" "${mount_point}" <&0
