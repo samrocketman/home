@@ -18,17 +18,17 @@
 #  Check /proc directory for programs with open file handles to
 #  deleted files.  Meaning the program is using the file in memory but the
 #  it has been removed from the filesystem (such as a library).
-#  
+#
 #  The purpose of this script is to safely determine which services should
 #  be restarted after updating many packages on a server.
 #
-#  Note that a few entries in this list are "normal" e.g. a program opens a 
-#  file for temporary storage, and then deletes it (but keeps the handle), 
-#  but most will indicate a process that needs to be restarted to reload 
+#  Note that a few entries in this list are "normal" e.g. a program opens a
+#  file for temporary storage, and then deletes it (but keeps the handle),
+#  but most will indicate a process that needs to be restarted to reload
 #  files from a new package.
 
 
-#USAGE: 
+#USAGE:
 #  Run with default behavior.  This will group by file name.
 #    python wasted-ram-updates.py
 #  Group output by pids so that you can see which files the process has open.
@@ -42,13 +42,13 @@ import sys
 
 # Decent (UK/US English only) number formatting.
 import locale
-locale.setlocale(locale.LC_ALL, '') 
+locale.setlocale(locale.LC_ALL, '')
 
 #help documentation
 if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
   print """
 NAME:
-    wasted-ram-updates.py - discovers programs with open file handles to 
+    wasted-ram-updates.py - discovers programs with open file handles to
                             deleted files.
 
 SYNOPSIS:
@@ -65,13 +65,14 @@ DESCRIPTION:
 
 OPTIONS:
     By default executing this program with no arguments will organize the
-    output by file handle to deleted file.
+    output by pid to deleted files.  This makes it useful to know which
+    services to restart after upgrading packages on a system.
 
     -h, --help
         show this help documentation
 
-    pids
-        Organize the output by PID
+    files
+        Organize the output by file handle
 
     summary
         Only displays summary information.
@@ -81,7 +82,7 @@ EXAMPLES:
         Run with default behavior.  This will group by file name.
 
     wasted-ram-updates.py pids
-        Group output by pids so that you can see which files the process 
+        Group output by pids so that you can see which files the process
         has open.
 
     wasted-ram-updates.py summary
@@ -169,7 +170,7 @@ for pid in pids.keys():
                 print "DBG: Bad line:", lines[off - 1]
                 print "DBG:     data=", data
                 continue
-                
+
             if dev == 0:
                 continue
             if ino == 0:
@@ -180,7 +181,7 @@ for pid in pids.keys():
             key = "%s:%d" % (data[3], ino)
             if key not in files:
                 files[key] = lambda x: x # Hack
-                
+
                 files[key].s_size          = 0
                 files[key].s_rss           = 0
                 files[key].s_shared_clean  = 0
@@ -188,11 +189,11 @@ for pid in pids.keys():
                 files[key].s_private_clean = 0
                 files[key].s_private_dirty = 0
                 files[key].referenced      = 0
-                
+
                 files[key].vsz  = 0
                 files[key].pids = set()
                 files[key].name = data[5]
-                
+
             num = map_sz(data[0])
             pids[pid].vsz  += num
             pids[pid].files.update([key])
@@ -234,7 +235,7 @@ for pid in pids.keys():
                         pass
             except:
                 print "DBG: Bad data:", lines[off - 1]
-                
+
     except:
         pass
 
@@ -247,9 +248,9 @@ s_private_clean = 0
 s_private_dirty = 0
 referenced      = 0
 
-out_type = "files"
-if len(sys.argv) > 1 and sys.argv[1] == "pids":
-    out_type = "pids"
+out_type = "pids"
+if len(sys.argv) > 1 and sys.argv[1] == "files":
+    out_type = "files"
 if len(sys.argv) > 1 and sys.argv[1] == "summary":
     out_type = "summary"
 
