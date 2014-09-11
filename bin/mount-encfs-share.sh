@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/bash -e
 #Created by Sam Gleske (github @samrocketman)
 #Wed Aug 13 00:05:24 EDT 2014
-#Fedora release 16 (Verne)
-#Linux 3.6.11-4.fc16.x86_64 x86_64
-#GNU bash, version 4.2.37(1)-release (x86_64-redhat-linux-gnu)
+#Ubuntu 14.04.1 LTS
+#Linux 3.13.0-35-generic x86_64
+#GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
 
 #USAGE
 #  mount-encfs-share.sh sample_folder
@@ -22,9 +22,7 @@ SYNOPSIS
 
 DESCRIPTION
     This is a wrapper script around the encfs utility which automatically
-    creates and mounts encfs volumes.  When the volume is unmounted the mount
-    point folder has permissions 0000.  This way an unmounted volume is not
-    accidentally written to.
+    creates and mounts encfs volumes.
 
 OPTIONS:
     [ENCFS_OPTS]              One or more options to be passed through to the
@@ -46,8 +44,6 @@ CONVENTION OVER CONFIGURATION
     encrypted vault doesn't exist then this script will automatically create it.
 
 EXAMPLES
-    In the following examples the folder "somevolume" is an encfs vault with
-
     Mount an encrypted volume (or if it doesn't exist create it).
         ${PROGNAME} somevolume
 
@@ -55,7 +51,7 @@ EXAMPLES
         echo password | ${PROGNAME} -S somevolume
 
     Unmount the encfs volume.
-        sudo umount somevolume
+        fusermount -u somevolume
 EOF
 }
 
@@ -66,10 +62,14 @@ if echo "$@" | grep -- '-h$\|--help$' &> /dev/null; then
   exit 1
 fi
 
-#If not running as root then switch to it
-if [ ! "${USER}" = "root" ]; then
-  sudo -s "$0" "$@"
-  exit
+#If not running as root then switch to it if --public option used.
+if echo "${DEFAULT_ENCFS_OPTS}" | grep -- '--public' &> /dev/null \
+  || echo "${ENCFS_OPTS}" | grep -- '--public' &> /dev/null; then
+
+  if [ ! "${USER}" = "root" ]; then
+    sudo -s "$0" "$@"
+    exit
+  fi
 fi
 
 #Read any potential options
@@ -113,7 +113,9 @@ if [ ! -d "${mount_point}" ]; then
     chown ${SUDO_USER}\: "${mount_point}"
   fi
   #useful if dir is unmounted
-  chmod 000 "${mount_point}"
+  if [ "${USER}" = "root" ]; then
+    chmod 000 "${mount_point}"
+  fi
 fi
 
 #set the encrypted_vault path based on the mount_point
