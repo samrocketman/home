@@ -27,6 +27,10 @@ I need the following packages to be highly productive at a minimum.
 git
 screen
 vim
+automake
+autoconf
+make
+build-essential
 ```
 
 # bash tips
