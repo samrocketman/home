@@ -9,7 +9,7 @@ use to track all of the files I use in day to day stuff.
 
 Generate bullet list of readme files:
 
-    find | grep -i readme | while read x;do readme="$(echo $x | sed 's#^\.##' | sed 's#^/##')";echo "* [$readme]($readme)";done
+    find . -type f -iname 'readme*' | while read x;do echo "* [${x#./}](${x#./})";done
 
 # ./bin/
 
