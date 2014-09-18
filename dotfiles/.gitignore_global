@@ -1,1 +1,32 @@
+#common file editing temporary files (e.g. vim, kate, etc)
 *.swp
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+.*.kate-swp
+.swp.*
+
+# Cloud9 IDE - http://c9.io
+.c9revisions
+.c9
+
+#MAC IGNORE RULES
+.DS_Store
+.AppleDouble
+.LSOverride
+# Icon must end with two \r
+Icon
+# Thumbnails
+._*
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
