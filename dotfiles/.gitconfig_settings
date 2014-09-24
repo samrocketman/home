@@ -13,8 +13,8 @@
 	a = add
 	c = commit
 	m = merge
-    f = fetch
-    gerrit = push origin HEAD:refs/for/master
+	f = fetch
+	gerrit = push origin HEAD:refs/for/master
 [push]
 	default = simple
 [core]

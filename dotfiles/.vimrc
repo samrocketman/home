@@ -1,20 +1,28 @@
 "this is a comment
 "type :help command to see the vim help docs for that command
 
-"this should be first always according to help docs if going to set
+"this should be first always according to help docs if going to set it
 set nocompatible
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" OPTIONS FOR ALL FILES UNLESS OVERRIDDEN BY FILETYPE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-""""""""""""""""
-" STATIC OPTIONS
-""""""""""""""""
-
+"if the number of colors supported by terminal is > 1 enable syntax highlighting
+if &t_Co > 1
+  syntax enable
+endif
+"enable filetype detection
+:filetype on
+"number of spaces to shift when using >> or << command in normal mode
 set shiftwidth=2
 "showmode indicates input or replace mode at bottom
 set showmode
+"showmatch briefly jumps to the line as you search
 set showmatch
 "shortcut for toggling paste while in insert mode, press F2 key
 set pastetoggle=<f2>
+"when backspacing will backspace over eol, autoindent, and start
 set backspace=2
 "hlsearch for when there is a previous search pattern, highlight all its matches.
 set hlsearch
@@ -24,17 +32,20 @@ set ruler
 set number
 "expandtab means tabs create spaces in insert mode, softtabstop is the number of spaces created
 "tabstop affects visual representation of tabs only
-set tabstop=4
+set tabstop=8
 set expandtab
 set softtabstop=2
 set incsearch
-"always show status and tabs
+"always show status bar at bottom
 set laststatus=2
+"always show tab bar at the top
 "set showtabline=2
-"ignore case
+"ignore case sensitivity
 set ignorecase
+"Modify vim terminal colors based on the terminal background being light or dark
 "set background=light
 set background=dark
+"when pressing ENTER will automatically indent the line
 set autoindent
 
 
@@ -43,22 +54,20 @@ set autoindent
 """"""""""""""""
 
 ":w!! will ask for password when trying to write to system files
+"useful if you open a file as a user but need sudo to write to it as root
 cmap w!! %!sudo tee > /dev/null %
 
 
 """""""""""""""""""""""""""""
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
-
-:filetype on
-if &t_Co > 1
-  syntax enable
-endif
-"filetype setting options
-:autocmd FileType c,cpp set cindent
-:autocmd FileType java set cindent shiftwidth=4 tabstop=4 softtabstop=4 backspace=4
-:autocmd FileType py,md set shiftwidth=4 tabstop=4 softtabstop=4 backspace=4
-:autocmd FileType Makefile set shiftwidth=4 tabstop=4 softtabstop=4 noexpandtab backspace=1
+"Set options in a specific way based on what type of file is opened
+:autocmd FileType java,python,markdown,make,gitconfig set shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType c,cpp,java set cindent
+"indent with tabs when following FileTypes are opened
+:autocmd FileType make,gitconfig set noexpandtab
+"auto newline at 80 characters as you type
+:autocmd FileType markdown set textwidth=80
 "will highlight trailing white space with grey
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
