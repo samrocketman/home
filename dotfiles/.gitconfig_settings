@@ -1,20 +1,28 @@
 [alias]
+	#shorthand commands
+	a = add
+	b = branch
+	c = commit
+	co = checkout
+	d = diff
+	f = fetch
+	#shorthand for git gerrit <branch>
+	g = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/master || git push origin HEAD:refs/for/$1; }; g"
+	l = log
+	lr = ls-remote
+	m = merge
+	rb = rebase
+	rs = reset
+	s = status
+	sr = show-ref
+	#shorthand for git tree
+	t = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
+
+	#longer custom commands
+	files = "!f() { git diff --name-status $1^ $1; }; f"
+	gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/master || git push origin HEAD:refs/for/$1; }; g"
 	tree = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
 	tree2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(bold white). %an%C(reset)' --abbrev-commit
-	t = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
-	l = log
-	s = status
-	b = branch
-	co = checkout
-	rs = reset
-	rb = rebase
-	lr = ls-remote
-	d = diff
-	a = add
-	c = commit
-	m = merge
-	f = fetch
-	gerrit = push origin HEAD:refs/for/master
 [push]
 	default = simple
 [core]
