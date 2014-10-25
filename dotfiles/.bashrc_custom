@@ -37,6 +37,11 @@ export HISTIGNORE="&:ls:[bf]g:exit:history"
 export HISTCONTROL="ignorespace:ignoredups:&:ls:[bf]g:exit:history"
 export HISTFILESIZE=5000
 export HISTSIZE=5000
+#preserve all bash history
+if [ ! -d "${HOME}/.bash_cmd_history" ]; then
+  mkdir "${HOME}/.bash_cmd_history"
+fi
+export HISTFILE="${HOME}/.bash_cmd_history/bash_history_$(date +%Y-%m-%d-%s)"
 
 # SHELL OPTIONS
 shopt -s cmdhist
