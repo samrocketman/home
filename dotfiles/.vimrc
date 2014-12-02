@@ -62,8 +62,8 @@ cmap w!! %!sudo tee > /dev/null %
 
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 "Set options in a specific way based on what type of file is opened
-:autocmd FileType java,python,markdown,make,gitconfig set shiftwidth=4 tabstop=4 softtabstop=4
-:autocmd FileType c,cpp,java set cindent
+:autocmd FileType java,python,markdown,make,gitconfig,groovy set shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType c,cpp,java,groovy set cindent
 "indent with tabs when following FileTypes are opened
 :autocmd FileType make,gitconfig set noexpandtab
 "auto newline at 80 characters as you type
