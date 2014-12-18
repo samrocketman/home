@@ -10,6 +10,7 @@ if uname -rms | grep Darwin &> /dev/null;then
   alias ls='ls -G'
   alias g=/usr/local/bin/git
   alias git=/usr/local/bin/git
+  export PATH="${PATH}:/usr/local/sbin"
 else
   #aliases that don't work on Mac
   alias l.='ls -d .* --color=auto'
@@ -18,12 +19,13 @@ else
   alias g='git'
 fi
 alias rspec='rspec --color --format nested'
-alias ...='while read line; do echo -n "."; done && echo ""'
+#alias ...='while read line; do echo -n "."; done && echo ""'
+alias ...='spinner.py'
 alias x='exit'
 
 # ENVIRONMENT VARIABLES
 if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
-  export PATH="${PATH}:~/bin"
+  export PATH="~/bin:${PATH}"
 fi
 # happy face if last command successful or sadface if last command failed
 export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
