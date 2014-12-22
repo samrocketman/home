@@ -11,6 +11,7 @@
 	l = log
 	lr = ls-remote
 	m = merge
+	r = rev-parse --show-toplevel
 	rb = rebase
 	rs = reset
 	s = status
@@ -21,8 +22,9 @@
 	#longer custom commands
 	files = "!f() { git diff --name-status $1^ $1; }; f"
 	gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/master || git push origin HEAD:refs/for/$1; }; g"
-	tree = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
+	root = rev-parse --show-toplevel
 	tree2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(bold white). %an%C(reset)' --abbrev-commit
+	tree = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
 [push]
 	default = simple
 [core]
