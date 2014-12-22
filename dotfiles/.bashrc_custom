@@ -35,8 +35,8 @@ if [ ! -z "${SUDO_USER}" -a "$(id -u)" -eq "0" ];then
   export HISTFILE="$HOME/.bash_history"
   export MAIL="/var/spool/mail/root"
 fi
-export HISTIGNORE="&:ls:[bf]g:exit:history"
-export HISTCONTROL="ignorespace:ignoredups:&:ls:[bf]g:exit:history"
+export HISTIGNORE="&:ls:[bf]g:exit:history:history2"
+export HISTCONTROL="ignorespace:ignoredups:&:ls:[bf]g:exit:history:history2"
 export HISTFILESIZE=5000
 export HISTSIZE=5000
 #preserve all bash history
@@ -44,6 +44,10 @@ if [ ! -d "${HOME}/.bash_history_dir" ]; then
   mkdir "${HOME}/.bash_history_dir"
 fi
 export HISTFILE="${HOME}/.bash_history_dir/bash_history_$(date +%Y-%m-%d-%s)"
+function history2() {
+  ls -1tr ~/.bash_history_dir/ | xargs -I '{}' cat "${HOME}/.bash_history_dir/{}"
+  #grep -r '.*' ~/.bash_cmd_history/ | python -c 'import sys;map(lambda x: sys.stdout.write(x.split(":",1)[1]),sys.stdin.readlines())'
+}
 
 # SHELL OPTIONS
 shopt -s cmdhist
