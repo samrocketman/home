@@ -24,6 +24,10 @@ alias ...='spinner.py'
 alias x='exit'
 #run last command as sudo
 alias please='sudo $(history -p !!)'
+alias ..2='cd ../../'
+alias ..3='cd ../../../'
+alias ..4='cd ../../../../'
+alias ..5='cd ../../../../../'
 
 # ENVIRONMENT VARIABLES
 if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
