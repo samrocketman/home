@@ -71,3 +71,7 @@ explanation of options.
 
     curl -siI -w "%{http_code}\\n" -o /dev/null https://www.google.com/
 
+# Create a socks proxy using SSH
+
+`ssh -ND 1080 <some other host>` and then configure your normal browser to use
+that as a proxy (`localhost:1080`).
