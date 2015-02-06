@@ -61,8 +61,10 @@ cmap w!! %!sudo tee > /dev/null %
 """""""""""""""""""""""""""""
 
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
+:autocmd BufNewFile,BufRead build.gradle setlocal filetype=groovy
+:autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
 "Set options in a specific way based on what type of file is opened
-:autocmd FileType java,python,markdown,make,gitconfig,groovy set shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType java,xml,python,markdown,make,gitconfig,groovy set shiftwidth=4 tabstop=4 softtabstop=4
 :autocmd FileType c,cpp,java,groovy set cindent
 "indent with tabs when following FileTypes are opened
 :autocmd FileType make,gitconfig set noexpandtab
