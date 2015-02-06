@@ -1,0 +1,45 @@
+#!/bin/bash
+#By Sam Gleske (sag47)
+#Created on Fri Feb  8 13:01:21 EST 2013
+#GNU bash, version 4.2.28(1)-release (x86_64-redhat-linux-gnu)
+#Linux 3.6.6-1.fc16.x86_64 x86_64 GNU/Linux
+#curl 7.21.7 (x86_64-redhat-linux-gnu) libcurl/7.21.7 NSS/3.13.5.0 zlib/1.2.5 libidn/1.22 libssh2/1.2.7
+#
+#Description:
+#  A hacked together script to check the wordpress version of a blog so that immediate updates can be maintained.
+#  Uses the same Wordpress API as Wordpress itself but doesn't use PHP to parse.
+#Usage:
+#  check_wordpress http(s)://wordpressblogsiteurl
+
+#CA_CERT="--cacert /var/www/domains/stealth/gp_ca.crt"
+
+#exit status
+UNKNOWN=3
+OK=0
+WARNING=1
+CRITICAL=2
+
+if [ "$1" = "-h" ];then
+  echo "check_wordpress http(s)://wordpressblogsiteurl"
+  exit $UNKNOWN
+fi
+
+current_version="$(curl --connect-timeout 5 http://api.wordpress.org/core/version-check/1.6/ 2>/dev/null | tr ';' '\n' | awk 'BEGIN {FS="\""};$2 == "current" {foundversion=1;next};foundversion{print $2;exit}')"
+my_version="$(curl $CA_CERT --connect-timeout 3 $1 2>/dev/null | grep '<meta' | grep 'generator' | awk 'BEGIN{FS="\""};{print $4};' | awk '{print $2}')"
+
+if [ -z "$current_version" ];then
+  echo "Problem getting latest Wordpress version from Wordpress API!"
+  exit $UNKNOWN
+fi
+if [ -z "$my_version" ];then
+  echo "$1 Problem getting Wordpress version!"
+  exit $UNKNOWN
+fi
+
+if [ "$current_version" = "$my_version" ];then
+  echo "$1 using Wordpress latest stable"
+  exit $OK
+else
+  echo "$1 upgrade Wordpress ${my_version} -> ${current_version}!"
+  exit $CRITICAL
+fi
