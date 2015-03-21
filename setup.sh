@@ -6,6 +6,10 @@
 
 PROJECT_HOME="${PROJECT_HOME:-${HOME}/git/home}"
 
+if [ -d "${HOME}/git/github/home" -a ! -d "${PROJECT_HOME}" ]; then
+  ln -s ~/git/github/home ${PROJECT_HOME}
+fi
+
 if [ ! -d "${PROJECT_HOME}" ];then
   echo "ERR: home repo not cloned in ~/git?" >&2
   exit 1
@@ -17,3 +21,28 @@ if [ ! -e "${HOME}/bin" ];then
 fi
 
 grep '.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bashrc
+
+if grep -q 'Raspbian' /etc/issue; then
+  echo "Setting up raspberry pi..."
+  #raspbian on raspberry pi detected
+  if [ ! -e "/etc/init.d/piglow-daemon.py" ]; then
+    echo "Setting up piglow-daemon.py."
+    #install piglow-daeomon.py prerequisites
+    if [ ! -d "${HOME}/git/github/PyGlow" ]; then
+      sudo apt-get install python-smbus
+      (
+        mkdir -p ~/git/github
+        cd ~/git/github
+        git clone https://github.com/benleb/PyGlow.git
+        cd PyGlow
+        sudo python setup.py install
+      )
+    fi
+    sudo ln -s /home/pi/git/home/raspi/piglow-daemon.py /etc/init.d/
+    sudo update-rc.d piglow-daemon.py start
+  fi
+  if [ ! -e "/etc/init.d/force-update-date.sh" ]; then
+    sudo ln -s /home/pi/git/home/raspi/force-update-date.sh /etc/init.d/
+    sudo update-rc.d force-update-date.sh start
+  fi
+fi
