@@ -22,6 +22,7 @@ fi
 
 grep '.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bashrc
 
+#Raspberry pi only setup
 if grep -q 'Raspbian' /etc/issue; then
   echo "Setting up raspberry pi..."
   #raspbian on raspberry pi detected
@@ -42,6 +43,7 @@ if grep -q 'Raspbian' /etc/issue; then
     sudo update-rc.d piglow-daemon.py start
   fi
   if [ ! -e "/etc/init.d/force-update-date.sh" ]; then
+    echo "Setting up forced NTP time sync on startup."
     sudo ln -s /home/pi/git/home/raspi/force-update-date.sh /etc/init.d/
     sudo update-rc.d force-update-date.sh start
   fi
