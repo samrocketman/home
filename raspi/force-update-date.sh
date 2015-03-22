@@ -26,6 +26,6 @@ set -e
 
 #only synchronize on startup
 if [ "${1:-}" = "start" ];then
-  echo "Synchronize time with us.pool.ntp.org."
-  ntpdate -s us.pool.ntp.org
+  /bin/echo "Synchronize time with us.pool.ntp.org."
+  /usr/sbin/ntpdate -s us.pool.ntp.org
 fi
