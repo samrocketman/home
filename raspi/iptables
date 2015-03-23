@@ -1,0 +1,29 @@
+#!/bin/bash
+#Created by Sam Gleske
+#Mon Mar 23 01:07:52 EDT 2015
+#Raspbian GNU/Linux 7 \n \l
+#Linux 3.18.7-v7+ armv7l
+#GNU bash, version 4.2.37(1)-release (arm-unknown-linux-gnueabihf)
+
+#DESCRIPTION
+#  iptables firewall
+
+### BEGIN INIT INFO
+# Provides:          iptables
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: iptables firewall.
+### END INIT INFO
+
+set -e
+
+#only synchronize on startup
+if [ "${1:-}" = "start" ];then
+  echo "Restoring iptables rules."
+  iptables-restore < /etc/iptables.rules
+elif [ "${1:-}" = "stop" ];then
+  echo "Flushing iptables rules."
+  iptables -F
+fi
