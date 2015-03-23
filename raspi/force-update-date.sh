@@ -14,11 +14,11 @@
 #update-rc.d hwclock.sh remove
 
 ### BEGIN INIT INFO
-# Provides:        force-update-date
+# Provides:          force-update-date
 # Required-Start:    $all
 # Required-Stop:     $all
 # Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
+# Default-Stop:
 # Short-Description: Synchronize time with us.pool.ntp.org.
 ### END INIT INFO
 
