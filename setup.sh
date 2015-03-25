@@ -24,6 +24,11 @@ grep '.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.
 
 #Raspberry pi only setup
 if grep -q 'Raspbian' /etc/issue; then
+  function createservice() {
+    sudo ln -s "${1}" /etc/init.d/
+    sudo update-rc.d ${1##*/} defaults
+    sudo /etc/init.d/${1##*/} start
+  }
   echo "Setting up raspberry pi..."
   #raspbian on raspberry pi detected
   if [ ! -e "/etc/init.d/piglow-daemon.py" ]; then
@@ -39,12 +44,15 @@ if grep -q 'Raspbian' /etc/issue; then
         sudo python setup.py install
       )
     fi
-    sudo ln -s /home/pi/git/home/raspi/piglow-daemon.py /etc/init.d/
-    sudo update-rc.d piglow-daemon.py start
+    createservice /home/pi/git/home/raspi/piglow-daemon.py
   fi
   if [ ! -e "/etc/init.d/force-update-date.sh" ]; then
     echo "Setting up forced NTP time sync on startup."
-    sudo ln -s /home/pi/git/home/raspi/force-update-date.sh /etc/init.d/
-    sudo update-rc.d force-update-date.sh start
+    createservice /home/pi/git/home/raspi/force-update-date.sh
+  fi
+  if [ ! -e "/etc/init.d/iptables" ]; then
+    echo "Setting up iptables firewall."
+    sudo ln -s /home/pi/git/home/raspi/iptables.rules /etc/
+    createservice /home/pi/git/home/raspi/iptables
   fi
 fi
