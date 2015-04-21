@@ -23,7 +23,7 @@ alias rspec='rspec --color --format nested'
 alias ...='spinner.py'
 alias x='exit'
 #run last command as sudo
-alias please='sudo $(history -p !!)'
+alias please='eval "sudo $(history -p !!)"'
 alias ..2='cd ../../'
 alias ..3='cd ../../../'
 alias ..4='cd ../../../../'
