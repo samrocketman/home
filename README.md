@@ -60,6 +60,10 @@ Here's that expression broken down.
         ]\+ - END character class one or more characters
       \) - END regex group
     #${\1}#g - replace expression to act globally on the line
+    
+Multi-file editing with `:bufdo`.  e.g.
+
+    :bufdo %s/foo/bar/g
 
 # Get HTTP status from URL using HEAD method
 
