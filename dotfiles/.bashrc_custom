@@ -63,8 +63,22 @@ set -o vi
 #
 # setup ssh-agent
 #
-# set environment variables if user's agent already exists
-SSH_AUTH_SOCK=$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep $(whoami) | awk '{print $9}')
-SSH_AGENT_PID=$(echo $SSH_AUTH_SOCK | cut -d. -f2)
+#start running ssh-agent if it is not already.
+if ! pgrep -q ssh-agent; then
+  eval "$(ssh-agent)" > /dev/null
+fi
+if [ -n "$SSH_AUTH_SOCK" -a -n "$SSH_AGENT_PID" ]; then
+  # set environment variables if user's agent already exists
+  if uname -rms | grep -q 'Darwin';then
+    #this is a Mac
+    SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "ssh-[^/]*/agent\.[0-9]\+$" | tr ' ' '\n' | tail -n1)"
+    SSH_AGENT_PID="$(echo $SSH_AUTH_SOCK | cut -d. -f2)"
+  else
+    #this is not a Mac (perhaps the mac way is best for all *nix variants using lsof?)
+    #this way is meant for Linux
+    SSH_AUTH_SOCK="$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep "${USER}" | awk '{print $9}')"
+    SSH_AGENT_PID="$(echo $SSH_AUTH_SOCK | cut -d. -f2)"
+  fi
+fi
 [ -n "$SSH_AUTH_SOCK" ] && export SSH_AUTH_SOCK
 [ -n "$SSH_AGENT_PID" ] && export SSH_AGENT_PID
