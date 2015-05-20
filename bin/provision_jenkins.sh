@@ -1,5 +1,5 @@
 #!/bin/bash
-#Created by Sam Gleske
+#Created by Sam Gleske (https://github.com/samrocketman)
 #Wed May 20 11:09:18 EDT 2015
 #Mac OS X 10.9.5
 #Darwin 13.4.0 x86_64
