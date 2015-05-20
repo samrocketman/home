@@ -1,15 +1,6 @@
 #!/bin/bash
 #Created by Sam Gleske
 #Wed May 20 11:09:18 EDT 2015
-
-#DESCRIPTION
-#  Provisions a fresh Jenkins on a local laptop, updates the plugins, and runs
-#  it.
-#  1. Creates a JAVA_HOME.
-#  1. Downloads Jenkins.
-#  1. Updates the Jenkins plugins to the latest version.
-
-#Environment info
 #Mac OS X 10.9.5
 #Darwin 13.4.0 x86_64
 #GNU bash, version 3.2.53(1)-release (x86_64-apple-darwin13)
@@ -18,6 +9,31 @@
 #java version "1.7.0_55"
 #Java(TM) SE Runtime Environment (build 1.7.0_55-b13)
 #Java HotSpot(TM) 64-Bit Server VM (build 24.55-b03, mixed mode)
+
+#DESCRIPTION
+#  Provisions a fresh Jenkins on a local laptop, updates the plugins, and runs
+#  it.
+#    1. Creates a JAVA_HOME.
+#    2. Downloads Jenkins.
+#    3. Updates the Jenkins plugins to the latest version.
+
+#USAGE
+#  Automatically provision and start Jenkins on your laptop.
+#    mkdir ~/jenkins_testing
+#    cd ~/jenkins_testing
+#    provision_jenkins.sh
+#  Kill and completely delete your provisioned Jenkins.
+#    cd ~/jenkins_testing
+#    provision_jenkins.sh purge
+#  Update all plugins to the latest version using jenkins-cli
+#    cd ~/jenkins_testing
+#    provision_jenkins.sh update-plugins
+#  Start or restart Jenkins.
+#    cd ~/jenkins_testing
+#    provision_jenkins.sh start
+#    provision_jenkins.sh restart
+#  Stop Jenkins.
+#    provision_jenkins.sh stop
 
 #
 # USER CUSTOMIZED VARIABLES
@@ -76,6 +92,20 @@ function start_or_restart_jenkins() {
   echo "$!" > jenkins.pid
 }
 
+function stop_jenkins() {
+  if [ -e "jenkins.pid" ]; then
+    echo -n 'Jenkins might be running so attempting to stop it.'
+    kill $(cat jenkins.pid)
+    #wait for jenkins to stop
+    while ps aux | grep -v 'grep' | grep "$(cat jenkins.pid)" &> /dev/null; do
+      echo -n '.'
+      sleep 1
+    done
+    rm jenkins.pid
+    echo 'stopped.'
+  fi
+}
+
 function update_jenkins_plugins() {
   jenkins_cli='java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth'
   #download the jenkins-cli.jar client
@@ -114,8 +144,11 @@ case "$1" in
     rm -f console.log jenkins-cli.jar jenkins.pid jenkins.war
     rm -rf "${JENKINS_HOME}"
     ;;
-  restart)
+  start|restart)
     start_or_restart_jenkins
+    ;;
+  stop)
+    stop_jenkins
     ;;
   *)
     #provision Jenkins by default
