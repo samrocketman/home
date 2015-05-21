@@ -88,7 +88,7 @@ function start_or_restart_jenkins() {
     echo 'stopped.'
   fi
   echo 'Starting Jenkins.'
-  java -jar jenkins.war &> console.log &
+  java -jar jenkins.war &>> console.log &
   echo "$!" > jenkins.pid
 }
 
@@ -135,6 +135,10 @@ function force-stop() {
 #
 
 case "$1" in
+  install-plugins)
+    shift
+    install_jenkins_plugins $@
+    ;;
   update-plugins)
     update_jenkins_plugins
     echo 'Jenkins may need to be restarted.'
@@ -149,6 +153,74 @@ case "$1" in
     ;;
   stop)
     stop_jenkins
+    ;;
+  --help|-h)
+    cat <<- "EOF"
+SYNOPSIS
+  provision_jenkins.sh [command] [additional arguments]
+
+DESCRIPTION
+  Additional arguments are only available for commands that support it.
+  Otherwise, additional arguments will be ignored.
+
+  Provisions a fresh Jenkins on a local laptop, updates the plugins, and runs
+  it.  Creates a JAVA_HOME.  Downloads Jenkins.  Updates the Jenkins plugins to
+  the latest version.
+
+COMMANDS
+  (default behavior)         If no command is specified then the default
+                             behavior is to provision Jenkins.  Creates a
+                             JAVA_HOME, downloads Jenkins, and updates the
+                             plugins to the latest version.  Additionally, it
+                             will install the git, github, and github-oauth
+                             plugins.
+
+  install-plugins [args]     This command takes additional options.  The
+                             additional arguments are one or more Jenkins plugin
+                             IDs.
+
+  purge                      WARNING: destructive command.  Deletes all files
+                             related to the provisioned Jenkins including the
+                             war file and JENKINS_HOME.  If Jenkins is running
+                             it will be sent SIGKILL.
+
+  start or                   start and restart do the same thing.  If Jenkins is
+  restart                    not running then it will start it.  If Jenkins is
+                             already running then it will stop Jenkins and start
+                             it again.
+
+  stop                       Will gracefully shutdown Jenkins and leave the
+                             JENKINS_HOME intact.
+
+  update-plugins             Updates all unpinned plugins in Jenkins to their
+                             latest versions.
+
+EXAMPLE USAGE
+  Automatically provision and start Jenkins on your laptop.
+    mkdir ~/jenkins_testing
+    cd ~/jenkins_testing
+    provision_jenkins.sh
+
+  Kill and completely delete your provisioned Jenkins.
+    cd ~/jenkins_testing
+    provision_jenkins.sh purge
+
+  Update all plugins to the latest version using jenkins-cli
+    cd ~/jenkins_testing
+    provision_jenkins.sh update-plugins
+
+  Install additional plugins e.g. the slack plugin.
+    cd ~/jenkins_testing
+    provision_jenkins.sh install-plugins slack
+
+  Start or restart Jenkins.
+    cd ~/jenkins_testing
+    provision_jenkins.sh start
+    provision_jenkins.sh restart
+
+  Stop Jenkins.
+    provision_jenkins.sh stop
+EOF
     ;;
   *)
     #provision Jenkins by default
