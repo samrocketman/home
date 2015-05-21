@@ -88,7 +88,7 @@ function start_or_restart_jenkins() {
     echo 'stopped.'
   fi
   echo 'Starting Jenkins.'
-  java -jar jenkins.war &>> console.log &
+  java -jar jenkins.war >> console.log 2>&1 &
   echo "$!" > jenkins.pid
 }
 
