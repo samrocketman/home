@@ -63,15 +63,15 @@ function download_file() {
   #see bash man page and search for Parameter Expansion
   url="$1"
   file="${1##*/}"
-  [ ! -e "${file}" ] && (
-    echo -n "Waiting for ${url} to become available."
-    while [ ! "200" = "$(curl -sLiI -w "%{http_code}\\n" -o /dev/null ${url})" ]; do
-      echo -n '.'
-      sleep 1
-    done
-    echo 'ready.'
+  echo -n "Waiting for ${url} to become available."
+  while [ ! "200" = "$(curl -sLiI -w "%{http_code}\\n" -o /dev/null ${url})" ]; do
+    echo -n '.'
+    sleep 1
+  done
+  echo 'ready.'
+  if [ ! -e "${file}" ]; then
     curl -SLo "${file}" "${url}"
-  )
+  fi
 }
 
 function start_or_restart_jenkins() {
