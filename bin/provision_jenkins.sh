@@ -143,6 +143,25 @@ function force-stop() {
 #
 
 case "$1" in
+  bootstrap)
+    #provision Jenkins by default
+    #download jenkins.war
+    download_file ${jenkins_url}
+
+    #create a JENKINS_HOME directory
+    mkdir -p "${JENKINS_HOME}"
+    echo "JENKINS_HOME=${JENKINS_HOME}"
+
+    start_or_restart_jenkins
+
+    update_jenkins_plugins
+
+    install_jenkins_plugins git github github-oauth
+
+    start_or_restart_jenkins
+
+    echo 'Jenkins is ready.  Visit http://localhost:8080/'
+    ;;
   cli)
     shift
     jenkins_cli $@
@@ -166,7 +185,7 @@ case "$1" in
   stop)
     stop_jenkins
     ;;
-  --help|-h)
+  *)
     cat <<- "EOF"
 SYNOPSIS
   provision_jenkins.sh [command] [additional arguments]
@@ -180,12 +199,11 @@ DESCRIPTION
   the latest version.
 
 COMMANDS
-  (default behavior)         If no command is specified then the default
-                             behavior is to provision Jenkins.  Creates a
-                             JAVA_HOME, downloads Jenkins, and updates the
-                             plugins to the latest version.  Additionally, it
-                             will install the git, github, and github-oauth
-                             plugins.
+  bootstrap                  The bootstrap behavior is to provision Jenkins.
+                             This command creates a JAVA_HOME, downloads
+                             Jenkins, and updates the plugins to the latest
+                             version.  Additionally, it will install the git,
+                             github, and github-oauth plugins.
 
   cli [args]                 This command takes additional arguments.  All
                              arguments are passed through to jenkins-cli.jar.
@@ -214,7 +232,7 @@ EXAMPLE USAGE
   Automatically provision and start Jenkins on your laptop.
     mkdir ~/jenkins_testing
     cd ~/jenkins_testing
-    provision_jenkins.sh
+    provision_jenkins.sh bootstrap
 
   Kill and completely delete your provisioned Jenkins.
     cd ~/jenkins_testing
@@ -243,24 +261,5 @@ EXAMPLE USAGE
     provision_jenkins.sh cli create-job my_job < config.xml
 
 EOF
-    ;;
-  *)
-    #provision Jenkins by default
-    #download jenkins.war
-    download_file ${jenkins_url}
-
-    #create a JENKINS_HOME directory
-    mkdir -p "${JENKINS_HOME}"
-    echo "JENKINS_HOME=${JENKINS_HOME}"
-
-    start_or_restart_jenkins
-
-    update_jenkins_plugins
-
-    install_jenkins_plugins git github github-oauth
-
-    start_or_restart_jenkins
-
-    echo 'Jenkins is ready.  Visit http://localhost:8080/'
 esac
 
