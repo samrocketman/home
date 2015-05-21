@@ -125,6 +125,14 @@ function install_jenkins_plugins() {
   $jenkins_cli install-plugin $@
 }
 
+function jenkins_cli() {
+  jenkins_cli='java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth'
+  #download the jenkins-cli.jar client
+  download_file 'http://localhost:8080/jnlpJars/jenkins-cli.jar'
+  echo "Executing: ${jenkins_cli} $@"
+  $jenkins_cli $@
+}
+
 function force-stop() {
   kill -9 $(cat jenkins.pid)
   rm -f jenkins.pid
@@ -135,6 +143,10 @@ function force-stop() {
 #
 
 case "$1" in
+  cli)
+    shift
+    jenkins_cli $@
+    ;;
   install-plugins)
     shift
     install_jenkins_plugins $@
@@ -175,7 +187,10 @@ COMMANDS
                              will install the git, github, and github-oauth
                              plugins.
 
-  install-plugins [args]     This command takes additional options.  The
+  cli [args]                 This command takes additional arguments.  All
+                             arguments are passed through to jenkins-cli.jar.
+
+  install-plugins [args]     This command takes additional arguments.  The
                              additional arguments are one or more Jenkins plugin
                              IDs.
 
@@ -220,6 +235,13 @@ EXAMPLE USAGE
 
   Stop Jenkins.
     provision_jenkins.sh stop
+
+  See Jenkins CLI help documentation.
+    provision_jenkins.sh cli help
+
+  Create a Job using Jenkins CLI.
+    provision_jenkins.sh cli create-job my_job < config.xml
+
 EOF
     ;;
   *)
