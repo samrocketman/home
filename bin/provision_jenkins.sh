@@ -44,6 +44,7 @@ jenkins_url='http://mirrors.jenkins-ci.org/war/latest/jenkins.war'
 #LTS Jenkins URL
 #jenkins_url='http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war'
 JENKINS_HOME="${JENKINS_HOME:-my_jenkins_home}"
+JENKINS_CLI="${JENKINS_CLI:-java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth}"
 
 #Get JAVA_HOME for java 1.7 on Mac OS X
 #will only run if OS X is detected
@@ -54,7 +55,7 @@ if uname -rms | grep Darwin &> /dev/null; then
   java -version
 fi
 
-export jenkins_url JENKINS_HOME JAVA_HOME PATH
+export jenkins_url JENKINS_HOME JAVA_HOME PATH JENKINS_CLI
 
 #
 # FUNCTIONS
@@ -107,30 +108,27 @@ function stop_jenkins() {
 }
 
 function update_jenkins_plugins() {
-  jenkins_cli='java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth'
   #download the jenkins-cli.jar client
   download_file 'http://localhost:8080/jnlpJars/jenkins-cli.jar'
   echo 'Updating Jenkins Plugins using jenkins-cli.'
-  UPDATE_LIST="$( $jenkins_cli list-plugins | awk '$0 ~ /\)$/ { print $1 }' )"
+  UPDATE_LIST="$( ${JENKINS_CLI} list-plugins | awk '$0 ~ /\)$/ { print $1 }' )"
   if [ ! -z "${UPDATE_LIST}" ]; then
-    $jenkins_cli install-plugin ${UPDATE_LIST}
+    ${JENKINS_CLI} install-plugin ${UPDATE_LIST}
   fi
 }
 
 function install_jenkins_plugins() {
-  jenkins_cli='java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth'
   #download the jenkins-cli.jar client
   download_file 'http://localhost:8080/jnlpJars/jenkins-cli.jar'
   echo 'Install Jenkins Plugins using jenkins-cli.'
-  $jenkins_cli install-plugin $@
+  ${JENKINS_CLI} install-plugin $@
 }
 
 function jenkins_cli() {
-  jenkins_cli='java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth'
   #download the jenkins-cli.jar client
   download_file 'http://localhost:8080/jnlpJars/jenkins-cli.jar'
-  echo "Executing: ${jenkins_cli} $@"
-  $jenkins_cli $@
+  echo "Executing: ${JENKINS_CLI} $@"
+  ${JENKINS_CLI} $@
 }
 
 function force-stop() {
