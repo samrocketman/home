@@ -40,9 +40,9 @@
 #
 
 #Latest Release
-jenkins_url='http://mirrors.jenkins-ci.org/war/latest/jenkins.war'
+jenkins_url="${jenkins_url:-http://mirrors.jenkins-ci.org/war/latest/jenkins.war}"
 #LTS Jenkins URL
-#jenkins_url='http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war'
+#jenkins_url="${jenkins_url:-http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war}"
 JENKINS_HOME="${JENKINS_HOME:-my_jenkins_home}"
 JENKINS_CLI="${JENKINS_CLI:-java -jar ./jenkins-cli.jar -s http://localhost:8080/ -noKeyAuth}"
 
