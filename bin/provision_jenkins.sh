@@ -160,6 +160,11 @@ case "$1" in
 
     echo 'Jenkins is ready.  Visit http://localhost:8080/'
     ;;
+  clean)
+    force-stop
+    rm -f console.log jenkins.pid
+    rm -rf "${JENKINS_HOME}"
+    ;;
   cli)
     shift
     jenkins_cli $@
@@ -205,6 +210,12 @@ COMMANDS
 
   cli [args]                 This command takes additional arguments.  All
                              arguments are passed through to jenkins-cli.jar.
+
+  clean                      WARNING: destructive command.  Kills the current
+                             instance of Jenkins, deletes JENKINS_HOME, removes
+                             the jenkins.pid file, and removes the console.log.
+                             Use this when you want start from scratch but don't
+                             want to download the latest Jenkins.
 
   install-plugins [args]     This command takes additional arguments.  The
                              additional arguments are one or more Jenkins plugin
