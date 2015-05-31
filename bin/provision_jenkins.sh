@@ -81,7 +81,7 @@ function start_or_restart_jenkins() {
     echo -n 'Jenkins might be running so attempting to stop it.'
     kill $(cat jenkins.pid)
     #wait for jenkins to stop
-    while ps aux | grep -v 'grep' | grep "$(cat jenkins.pid)" &> /dev/null; do
+    while ps aux | grep -v 'grep' | grep 'jenkins\.war' | grep "$(cat jenkins.pid)" &> /dev/null; do
       echo -n '.'
       sleep 1
     done
@@ -151,6 +151,10 @@ case "$1" in
     echo "JENKINS_HOME=${JENKINS_HOME}"
 
     start_or_restart_jenkins
+
+    #disable automatic submission of usage statistics to Jenkins for privacy
+    download_file 'http://localhost:8080/jnlpJars/jenkins-cli.jar'
+    curl -d "script=Jenkins.instance.setNoUsageStatistics(true)" http://localhost:8080/scriptText
 
     update_jenkins_plugins
 
