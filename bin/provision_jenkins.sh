@@ -61,19 +61,34 @@ export jenkins_url JENKINS_HOME JAVA_HOME PATH JENKINS_CLI
 #
 # FUNCTIONS
 #
-function download_file() {
-  #see bash man page and search for Parameter Expansion
+function url_ready() {
   url="$1"
-  file="${1##*/}"
   echo -n "Waiting for ${url} to become available."
   while [ ! "200" = "$(curl -sLiI -w "%{http_code}\\n" -o /dev/null ${url})" ]; do
     echo -n '.'
     sleep 1
   done
   echo 'ready.'
+}
+function download_file() {
+  #see bash man page and search for Parameter Expansion
+  url="$1"
+  file="${1##*/}"
+  url_ready "${url}"
   if [ ! -e "${file}" ]; then
     curl -SLo "${file}" "${url}"
   fi
+}
+
+function jenkins_status() {
+    #check to see if jenkins is running
+    #will return exit status 0 if running or 1 if not running
+    STATUS=1
+    if [ -e "jenkins.pid" ]; then
+      ps aux | grep -v 'grep' | grep 'jenkins\.war' | grep "$(cat jenkins.pid)" &> /dev/null
+      STATUS=$?
+    fi
+    return ${STATUS}
 }
 
 function start_or_restart_jenkins() {
@@ -82,7 +97,7 @@ function start_or_restart_jenkins() {
     echo -n 'Jenkins might be running so attempting to stop it.'
     kill $(cat jenkins.pid)
     #wait for jenkins to stop
-    while ps aux | grep -v 'grep' | grep 'jenkins\.war' | grep "$(cat jenkins.pid)" &> /dev/null; do
+    while jenkins_status; do
       echo -n '.'
       sleep 1
     done
@@ -181,6 +196,10 @@ case "$1" in
 
     echo 'Jenkins is ready.  Visit http://localhost:8080/'
     ;;
+  download-file)
+    shift
+    download_file "$1"
+    ;;
   clean)
     force-stop
     rm -f console.log jenkins.pid
@@ -206,8 +225,21 @@ case "$1" in
   start|restart)
     start_or_restart_jenkins
     ;;
+  status)
+    if jenkins_status; then
+      echo 'Jenkins is running.'
+      exit 0
+    else
+      echo 'Jenkins is not running.'
+      exit 1
+    fi
+    ;;
   stop)
     stop_jenkins
+    ;;
+  url-ready)
+    shift
+    url_ready "$1"
     ;;
   *)
     cat <<- "EOF"
@@ -238,6 +270,10 @@ COMMANDS
                              Use this when you want start from scratch but don't
                              want to download the latest Jenkins.
 
+  download-file URL          Wait for a file to become available and then
+                             download it.  This command is useful for
+                             automation.
+
   install-plugins [args]     This command takes additional arguments.  The
                              additional arguments are one or more Jenkins plugin
                              IDs.
@@ -257,6 +293,9 @@ COMMANDS
 
   update-plugins             Updates all unpinned plugins in Jenkins to their
                              latest versions.
+
+  url-ready URL              Wait for a URL to become available.  This command
+                             is useful for automation.
 
 EXAMPLE USAGE
   Automatically provision and start Jenkins on your laptop.
