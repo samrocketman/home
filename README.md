@@ -6,6 +6,7 @@ use to track all of the files I use in day to day stuff.
 ## List of README files.
 
 * [bin/README.md](bin/README.md)
+* [raspi/README.md](raspi/README.md)
 
 Generate bullet list of readme files:
 
