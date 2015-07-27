@@ -22,6 +22,7 @@ alias rspec='rspec --color --format nested'
 #alias ...='while read line; do echo -n "."; done && echo ""'
 alias ...='spinner.py'
 alias x='exit'
+alias startproxy='while true;do ssh -vND 1080 home; echo "press ctrl+c again to quit.";sleep 3;done'
 #run last command as sudo
 alias please='eval "sudo $(history -p !!)"'
 alias ..2='cd ../../'
