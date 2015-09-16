@@ -48,14 +48,6 @@ set background=dark
 "when pressing ENTER will automatically indent the line
 set autoindent
 
-""""""""""""""""
-" CHARACTER MAPS
-""""""""""""""""
-
-":w!! will ask for password when trying to write to system files
-"useful if you open a file as a user but need sudo to write to it as root
-cmap w!! %!sudo tee > /dev/null %
-
 """""""""""""""""""""""""""""
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
@@ -87,6 +79,14 @@ cmap w!! %!sudo tee > /dev/null %
 :autocmd BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
 "highlight lines longer than 80 chars in red
 :autocmd BufWinEnter *.md,*.sh let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+
+""""""""""""""""
+" CHARACTER MAPS
+""""""""""""""""
+
+":w!! will ask for password when trying to write to system files
+"useful if you open a file as a user but need sudo to write to it as root
+cmap w!! %!sudo tee > /dev/null %
 
 """""""""""
 " FUNCTIONS
