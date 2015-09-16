@@ -60,6 +60,13 @@ cmap w!! %!sudo tee > /dev/null %
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
 
+"These are custom settings depending on which filetype is opened.  For
+"instance, vim can behave diferently when it has a Java file open vs a shell
+"script.
+"To detect the filetype of your currenlty opened file then type the following:
+"    :set filetype?
+"Then create a setting which applies only to that filetype.
+
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle setlocal filetype=groovy
 :autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
@@ -72,6 +79,8 @@ cmap w!! %!sudo tee > /dev/null %
 :autocmd FileType make,gitconfig set noexpandtab
 "auto newline at 80 characters as you type
 :autocmd FileType markdown set textwidth=80
+"auto newline at 73 chars as you type. git commit messages are 73 chars wide on GitHub
+:autocmd FileType gitcommit set textwidth=73
 "will highlight trailing white space with grey
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
