@@ -15,7 +15,7 @@
 exec 1>&2
 
 #Use authors for different domains if true
-if [ "$(git config --global --get authordomains.enabled)" = 'true' -a -z "$(git config --local user.email)" ]; then
+if [ "$(git config --global --get authordomains.enabled)" = 'true' -a -z "$(git config --local user.name)" -a -z "$(git config --local user.email)" ]; then
   if [ ! -z "$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^(?:[-a-zA-Z0-9]+@)?([^:]*):.*$/')" ]; then
     domain="$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^(?:[-a-zA-Z0-9]+@)?([^:]*):.*$/')"
   fi
