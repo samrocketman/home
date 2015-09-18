@@ -1,8 +1,9 @@
 # Dynamic authors for git
-This template directory is for git pre-commit hooks that determins which
-author settings should be used depending on what domain is being committed.
-This was created out of the desire to have different authorship depending on
-what git service is being used.
+
+This template directory is for git `pre-commit` hooks that determines which
+author settings should be used depending on what origin domain is being
+committed.  This was created out of the desire to have different authorship
+depending on what git service is being used.
 
 Research includes:
 
@@ -30,7 +31,7 @@ repository.  Under the hood it's basically doing the following.
 ### Setup
 
 First, you need to copy this `.git_template` directory to your `$HOME`
-directory.  Tell git that it needs to use your template for a pre-commit hook
+directory.  Tell git that it needs to use your template for a `pre-commit` hook
 when it clones new repositories.
 
     git config --global init.templatedir '~/.git_template'
@@ -53,8 +54,8 @@ copy to help you set up your name and email for that domain.
 
 ### Disable dynamic authors
 
-If you ever need to disable the behavior of this pre-commit hook then simply set
-the `authordomains.enabled` setting to any value other than `true`.  e.g.
+If you ever need to disable the behavior of this `pre-commit` hook then simply
+set the `authordomains.enabled` setting to any value other than `true`.  e.g.
 
     git config --global authordomains.enabled false
 
@@ -83,5 +84,5 @@ liner.
 
     find . -type d -name '.git' | (while read x;do cp ~/.git_template/hooks/pre-commit "${x}"/hooks/;done)
 
-[global-hooks]: http://stackoverflow.com/questions/2293498/git-commit-hooks-global-settings
 [email-exists]: https://orrsella.com/2013/08/10/git-using-different-user-emails-for-different-repositories/
+[global-hooks]: http://stackoverflow.com/questions/2293498/git-commit-hooks-global-settings
