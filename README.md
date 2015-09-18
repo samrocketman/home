@@ -5,7 +5,11 @@ use to track all of the files I use in day to day stuff.
 
 ## List of README files.
 
+Here is a summary of README files in this repository where you can learn more
+about that area.
+
 * [bin/README.md](bin/README.md)
+* [dotfiles/.git_template/README.md](dotfiles/.git_template/README.md)
 * [raspi/README.md](raspi/README.md)
 
 Generate bullet list of readme files:

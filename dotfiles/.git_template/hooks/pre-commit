@@ -1,0 +1,49 @@
+#!/bin/bash
+#Created by Sam Gleske
+#Fri Sep 18 14:44:44 PDT 2015
+#Mac OS X 10.9.5
+#Darwin 13.4.0 x86_64
+#GNU bash, version 3.2.53(1)-release (x86_64-apple-darwin13)
+#git version 1.9.3 (Apple Git-50)
+
+#to activate this script e.g.
+#git config --global authordomains.enabled true
+#git config --global authordomains.github.com.name 'Your Name'
+#git config --global authordomains.github.com.email 'youremail@domain.com'
+
+#output to stderr
+exec 1>&2
+
+#Use authors for different domains if true
+if [ "$(git config --global --get authordomains.enabled)" = 'true' -a -z "$(git config --local user.email)" ]; then
+  if [ ! -z "$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^(?:[-a-zA-Z0-9]+@)?([^:]*):.*$/')" ]; then
+    domain="$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^(?:[-a-zA-Z0-9]+@)?([^:]*):.*$/')"
+  fi
+  if [ ! -z "$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^[a-zA-Z]+:\/\/(?:[-a-zA-Z0-9]+@)?([^\/]+)\/.*$/')" ];then
+    domain="$(git config --local --get remote.origin.url | ruby -e 'print $1 if STDIN.gets =~ /^[a-zA-Z]+:\/\/(?:[-a-zA-Z0-9]+@)?([^\/]+)\/.*$/')"
+  fi
+  if [ -z "${domain}" ]; then
+    echo 'Error: remote domain could not be detected'
+    echo 'Tried detecting: git config --local --get remote.origin.url'
+    git config --local --get remote.origin.url
+    exit 1
+  fi
+  name="$(git config --global --get authordomains."${domain}".name)"
+  email="$(git config --global --get authordomains."${domain}".email)"
+  if [ -z "${name}" -o -z "${email}" ]; then
+    echo "Missing authorship for domain: ${domain}"
+    echo 'Execute the following:'
+    global_name="$(git config --global user.name)"
+    global_email="$(git config --global user.email)"
+    if [ -z "${global_name}" -o -z "${global_email}" ]; then
+      echo $"  git config --global authordomains.${domain}.name 'Your Name'"
+      echo $"  git config --global authordomains.${domain}.email 'youremail@domain.com'"
+    else
+      echo $"  git config --global authordomains.${domain}.name '${global_name}'"
+      echo $"  git config --global authordomains.${domain}.email '${global_email}'"
+    fi
+    exit 1
+  fi
+  git config --local user.name "${name}"
+  git config --local user.email "${email}"
+fi

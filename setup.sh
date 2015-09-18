@@ -19,6 +19,22 @@ ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~/
 if [ ! -e "${HOME}/bin" ];then
   ln -s "${PROJECT_HOME}"/bin ~/bin
 fi
+#configure the include file
+if ! git config --global -l | grep 'include.path=~/\.gitconfig_settings' &> /dev/null; then
+  echo 'Adding include.path=~/.gitconfig_settings to git settings.'
+  git config --global --add include.path '~/.gitconfig_settings'
+fi
+#configure authordomains in git
+if ! git config --global --bool authordomains.enabled &> /dev/null; then
+  git config --global authordomains.enabled true
+  for x in github.com gitlab.com; do
+    if ! git config --global -l | grep "^authordomains.${x}" &> /dev/null; then
+      echo "Setting authordomains.${x}"
+      git config --global "authordomains.${x}.name" 'Sam Gleske'
+      git config --global "authordomains.${x}.email" 'sam.mxracer@gmail.com'
+    fi
+  done
+fi
 
 grep '.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bashrc
 
