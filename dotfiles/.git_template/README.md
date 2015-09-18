@@ -75,5 +75,13 @@ commands with those settings as recommended defaults.
     git config --global user.name 'Your Name'
     git config --global user.email 'youremail@domain.com'
 
+### Already cloned repositories?
+
+If you already have repositories cloned then they will not have the `pre-commit`
+hook in place.  You can copy that `pre-commit` hook in with the following one
+liner.
+
+    find . -type d -name '.git' | (while read x;do cp ~/.git_template/hooks/pre-commit "${x}"/hooks/;done)
+
 [global-hooks]: http://stackoverflow.com/questions/2293498/git-commit-hooks-global-settings
 [email-exists]: https://orrsella.com/2013/08/10/git-using-different-user-emails-for-different-repositories/
