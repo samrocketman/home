@@ -59,7 +59,7 @@ set the `authordomains.enabled` setting to any value other than `true`.  e.g.
 
     git config --global authordomains.enabled false
 
-_*Please note:* this will only stop setting the local authors in your
+_**Please note:** this will only stop setting the local authors in your
 repositories.  It will not remove them after they've been added.  Therefore, if
 you want to use the global settings then you'll have to delete the settings
 yourself._
@@ -79,8 +79,8 @@ commands with those settings as recommended defaults.
 ### Already cloned repositories?
 
 If you already have repositories cloned then they will not have the `pre-commit`
-hook in place.  You can copy that `pre-commit` hook in with the following one
-liner.
+hook in place.  You can copy that `pre-commit` hook in with the following
+one-liner.
 
     find . -type d -name '.git' | (while read x;do cp ~/.git_template/hooks/pre-commit "${x}"/hooks/;done)
 
