@@ -19,7 +19,7 @@ Sometimes I would work at a public source code hosting site (like GitHub).
 
 This was born out of the fact that I needed this.  This hooks directory provides
 what I like to call `authordomains`.  That is a different author depending on
-what domain you're using.
+what domain you've cloned code from.
 
 You set your author settings for different domains.  Then a `pre-commit` git
 hook will take those settings and set the name and email just for that
@@ -40,7 +40,7 @@ Now, enable `authordomains` in your git settings.
 
     git config --global authordomains.enabled true
 
-Add the credentials for your first domain (e.g. `github.com`).
+Add the author for your first domain (e.g. `github.com`).
 
     git config --global authordomains.github.com.name 'Your Name'
     git config --global authordomains.github.com.email 'youremail@domain.com'
@@ -83,6 +83,12 @@ hook in place.  You can copy that `pre-commit` hook in with the following
 one-liner.
 
     find . -type d -name '.git' | (while read x;do cp ~/.git_template/hooks/pre-commit "${x}"/hooks/;done)
+
+### Expanded settings?
+
+Although the `pre-commit` hook doesn't support it right now.  The script could
+be expanded to include per-domain defaults if desired.  For me, I only need the
+customized author for different domains.
 
 [email-exists]: https://orrsella.com/2013/08/10/git-using-different-user-emails-for-different-repositories/
 [global-hooks]: http://stackoverflow.com/questions/2293498/git-commit-hooks-global-settings
