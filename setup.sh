@@ -22,7 +22,7 @@ fi
 # USE MY DOTFILES
 #
 #link all dotfiles to $HOME directory
-ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~/
+ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~
 #is this a Mac?
 if uname -rms | grep Darwin &> /dev/null;then
   #yes it is a Mac
@@ -73,7 +73,7 @@ fi
 #
 # RASPBERRY PI ONLY SETUP
 #
-if grep -q 'Raspbian' /etc/issue; then
+if (uname -rms | grep -v 'Darwin' &> /dev/null) && grep -q 'Raspbian' /etc/issue; then
   function createservice() {
     sudo ln -s "${1}" /etc/init.d/
     sudo update-rc.d ${1##*/} defaults
