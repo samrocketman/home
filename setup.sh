@@ -4,6 +4,9 @@
 #Linux 3.13.0-24-generic x86_64
 #GNU bash, version 4.3.8(1)-release (x86_64-pc-linux-gnu)
 
+#
+# HOME REPOSITORY CONFIGURATION AND SAFETY CHECKS
+#
 PROJECT_HOME="${PROJECT_HOME:-${HOME}/git/home}"
 
 if [ -d "${HOME}/git/github/home" -a ! -d "${PROJECT_HOME}" ]; then
@@ -15,9 +18,28 @@ if [ ! -d "${PROJECT_HOME}" ];then
   exit 1
 fi
 
+#
+# USE MY DOTFILES
+#
+#link all dotfiles to $HOME directory
 ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~/
-if [ ! -e "${HOME}/bin" ];then
-  ln -s "${PROJECT_HOME}"/bin ~/bin
+#is this a Mac?
+if uname -rms | grep Darwin &> /dev/null;then
+  #yes it is a Mac
+  grep '\.bashrc_custom' ~/.bash_profile &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bash_profile
+else
+  #it is not a Mac
+  grep '\.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bashrc
+fi
+
+#
+# CONFIGURE GLOBAL GIT SETTINGS
+#
+#set default user
+if ! git config --global -l 2> /dev/null | grep 'user\.email=sam\.mxracer' &> /dev/null; then
+  echo 'Setting global author to sam.mxracer email.'
+  git config --global user.name 'Sam Gleske'
+  git config --global user.email 'sam.mxracer@gmail.com'
 fi
 #configure the include file
 if ! git config --global -l | grep 'include.path=~/\.gitconfig_settings' &> /dev/null; then
@@ -26,6 +48,7 @@ if ! git config --global -l | grep 'include.path=~/\.gitconfig_settings' &> /dev
 fi
 #configure authordomains in git
 if ! git config --global --bool authordomains.enabled &> /dev/null; then
+  echo 'Enable authordomains.'
   git config --global authordomains.enabled true
   for x in github.com gitlab.com; do
     if ! git config --global -l | grep "^authordomains.${x}" &> /dev/null; then
@@ -35,10 +58,21 @@ if ! git config --global --bool authordomains.enabled &> /dev/null; then
     fi
   done
 fi
+#copy pre-commit hook into existing git repositories.
+if [ -e "${HOME}/git" ]; then
+  (
+    cd "${HOME}/git"
+    find . -type d -name '.git' | while read x;do
+      if [ ! -e "${x}/hooks/pre-commit" ]; then
+        cp "${HOME}/.git_template/hooks/pre-commit" "${x}/hooks/"
+      fi
+    done
+  )
+fi
 
-grep '.bashrc_custom' ~/.bashrc &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bashrc
-
-#Raspberry pi only setup
+#
+# RASPBERRY PI ONLY SETUP
+#
 if grep -q 'Raspbian' /etc/issue; then
   function createservice() {
     sudo ln -s "${1}" /etc/init.d/

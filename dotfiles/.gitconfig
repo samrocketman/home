@@ -1,5 +1,0 @@
-[user]
-	name = Sam Gleske
-	email = sam.mxracer@gmail.com
-[include]
-	path = ~/.gitconfig_settings
