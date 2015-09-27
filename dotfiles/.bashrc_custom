@@ -86,4 +86,5 @@ if ! uname -rms | grep Darwin &> /dev/null; then
 fi
 [ -n "${SSH_AUTH_SOCK}" ] && export SSH_AUTH_SOCK
 [ -n "${SSH_AGENT_PID}" ] && export SSH_AGENT_PID
-true
+
+export recipient_list=3EA54321
