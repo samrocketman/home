@@ -50,7 +50,7 @@ fi
 if ! git config --global --bool authordomains.enabled &> /dev/null; then
   echo 'Enable authordomains.'
   git config --global authordomains.enabled true
-  for x in github.com gitlab.com; do
+  for x in github.com gitlab.com git.gnome.org; do
     if ! git config --global -l | grep "^authordomains.${x}" &> /dev/null; then
       echo "Setting authordomains.${x}"
       git config --global "authordomains.${x}.name" 'Sam Gleske'
