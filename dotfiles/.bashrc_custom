@@ -66,25 +66,27 @@ set -o vi
 #
 #start running ssh-agent if it is not already.
 #unset SSH_AUTH_SOCK SSH_AGENT_PID
-if ! pgrep ssh-agent &> /dev/null && ! uname -rms | grep Darwin &> /dev/null; then
-  eval "$(ssh-agent -t 3600)" > /dev/null
-fi
-if ! uname -rms | grep Darwin &> /dev/null; then
-  #Mac is a special little snow flake
-  #SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "launch-.*/Listeners" | tr ' ' '\n' | tail -n1)"
-  #SSH_AGENT_PID="$(pgrep ssh-agent | head -n1 )"
-#else
-  if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
-      #first time failed so try again.
-      SSH_AUTH_SOCK="$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep "${USER}" | awk '{print $9}' | tail -n1)"
+if [ ! 'root' = "${USER}" ]; then
+  if ! pgrep ssh-agent &> /dev/null && ! uname -rms | grep Darwin &> /dev/null; then
+    eval "$(ssh-agent -t 3600)" > /dev/null
+  fi
+  if ! uname -rms | grep Darwin &> /dev/null; then
+    #Mac is a special little snow flake
+    #SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "launch-.*/Listeners" | tr ' ' '\n' | tail -n1)"
+    #SSH_AGENT_PID="$(pgrep ssh-agent | head -n1 )"
+  #else
+    if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
+        #first time failed so try again.
+        SSH_AUTH_SOCK="$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep "${USER}" | awk '{print $9}' | tail -n1)"
+        SSH_AGENT_PID="$(echo ${SSH_AUTH_SOCK} | cut -d. -f2)"
+    fi
+    if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
+      SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "ssh-[^/]*/agent\.[0-9]\+$" | tr ' ' '\n' | tail -n1)"
       SSH_AGENT_PID="$(echo ${SSH_AUTH_SOCK} | cut -d. -f2)"
+    fi
   fi
-  if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
-    SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "ssh-[^/]*/agent\.[0-9]\+$" | tr ' ' '\n' | tail -n1)"
-    SSH_AGENT_PID="$(echo ${SSH_AUTH_SOCK} | cut -d. -f2)"
-  fi
+  [ -n "${SSH_AUTH_SOCK}" ] && export SSH_AUTH_SOCK
+  [ -n "${SSH_AGENT_PID}" ] && export SSH_AGENT_PID
 fi
-[ -n "${SSH_AUTH_SOCK}" ] && export SSH_AUTH_SOCK
-[ -n "${SSH_AGENT_PID}" ] && export SSH_AGENT_PID
 
 export recipient_list=3EA54321
