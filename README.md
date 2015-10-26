@@ -84,3 +84,18 @@ explanation of options.
 
 `ssh -ND 1080 <some other host>` and then configure your normal browser to use
 that as a proxy (`localhost:1080`).
+
+# Cherry-pick merge commits as single diff
+
+This is useful to cherry-pick merged changes rather performing a squash on all
+of the commits.  This is essentially the same thing.
+
+    git cherry-pick -m 1 5a5f9c5
+
+Where `5a5f9c5` is a merge commit.  One can also see the changelog of a branch
+only showing merge commits.
+
+    git log --first-parent master
+
+This is essentially the equivalent of squashing commits from the branch where
+the changes were merged from.
