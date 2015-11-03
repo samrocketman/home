@@ -90,5 +90,17 @@ Although the `pre-commit` hook doesn't support it right now.  The script could
 be expanded to include per-domain defaults if desired.  For me, I only need the
 customized author for different domains.
 
+### Known issues
+
+The first commit after `git init` uses the author from the `core.email` and
+`core.name` no matter what the authordomains settings are.
+
+Workarounds include:
+
+* After committing the initial commit execute
+  `git commit --amend --reset-author`.
+* Run `git commit` without staging any files.  Git will try to commit but fail.
+  In the process it sets up the author information.
+
 [email-exists]: https://orrsella.com/2013/08/10/git-using-different-user-emails-for-different-repositories/
 [global-hooks]: http://stackoverflow.com/questions/2293498/git-commit-hooks-global-settings
