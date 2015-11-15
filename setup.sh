@@ -23,9 +23,9 @@ fi
 #
 #link all dotfiles to $HOME directory
 ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~
-#is this a Mac?
-if uname -rms | grep Darwin &> /dev/null;then
-  #yes it is a Mac
+#if login shell then use .bash_profile
+if shopt -q login_shell;then
+  #yes it is a login shell
   grep '\.bashrc_custom' ~/.bash_profile &> /dev/null || echo '. ~/.bashrc_custom' >> ~/.bash_profile
 else
   #it is not a Mac
