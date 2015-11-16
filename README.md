@@ -65,10 +65,18 @@ Here's that expression broken down.
         ]\+ - END character class one or more characters
       \) - END regex group
     #${\1}#g - replace expression to act globally on the line
-    
+
 Multi-file editing with `:bufdo`.  e.g.
 
     :bufdo %s/foo/bar/g
+
+Auto-format blocks of text to 80 chars wide.
+
+    #select block of text
+    V
+    #format block of text
+    gq
+    #see also :help gq
 
 # Get HTTP status from URL using HEAD method
 
