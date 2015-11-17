@@ -65,14 +65,14 @@ set autoindent
 "cfengine promises files
 :autocmd BufNewFile,BufRead *.cf setlocal filetype=conf
 "Set options in a specific way based on what type of file is opened
-:autocmd FileType java,xml,python,markdown,make,gitconfig,groovy set shiftwidth=4 tabstop=4 softtabstop=4
-:autocmd FileType c,cpp,java,groovy set cindent
+:autocmd FileType java,xml,python,markdown,make,gitconfig,groovy setlocal shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType c,cpp,java,groovy setlocal cindent
 "indent with tabs when following FileTypes are opened
-:autocmd FileType make,gitconfig set noexpandtab
+:autocmd FileType make,gitconfig setlocal noexpandtab
 "auto newline at 80 characters as you type
-:autocmd FileType markdown set textwidth=80
+:autocmd FileType markdown setlocal textwidth=80
 "auto newline at 73 chars as you type. git commit messages are 73 chars wide on GitHub
-:autocmd FileType gitcommit set textwidth=73
+:autocmd FileType gitcommit setlocal textwidth=73
 "will highlight trailing white space with grey
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
