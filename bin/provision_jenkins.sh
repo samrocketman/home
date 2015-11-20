@@ -44,9 +44,11 @@ jenkins_url="${jenkins_url:-http://mirrors.jenkins-ci.org/war/latest/jenkins.war
 #LTS Jenkins URL
 #jenkins_url="${jenkins_url:-http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war}"
 JENKINS_HOME="${JENKINS_HOME:-my_jenkins_home}"
-JENKINS_URL="${JENKINS_URL:-http://localhost:8080}"
-JENKINS_CLI="${JENKINS_CLI:-java -jar ./jenkins-cli.jar -s ${JENKINS_URL}/ -noKeyAuth}"
+JENKINS_WEB="${JENKINS_WEB:-http://localhost:8080/}"
+JENKINS_CLI="${JENKINS_CLI:-java -jar ./jenkins-cli.jar -s ${JENKINS_WEB} -noKeyAuth}"
 JENKINS_START="${JENKINS_START:-java -jar jenkins.war}"
+#remove trailing slash
+JENKINS_WEB="${JENKINS_WEB%/}"
 
 #Get JAVA_HOME for java 1.7 on Mac OS X
 #will only run if OS X is detected
@@ -57,7 +59,7 @@ if uname -rms | grep Darwin &> /dev/null; then
   java -version
 fi
 
-export jenkins_url JENKINS_HOME JAVA_HOME PATH JENKINS_CLI JENKINS_URL
+export jenkins_url JENKINS_HOME JAVA_HOME PATH JENKINS_CLI
 
 #
 # FUNCTIONS
@@ -126,7 +128,7 @@ function stop_jenkins() {
 
 function update_jenkins_plugins() {
   #download the jenkins-cli.jar client
-  download_file "${JENKINS_URL}/jnlpJars/jenkins-cli.jar"
+  download_file "${JENKINS_WEB}/jnlpJars/jenkins-cli.jar"
   echo 'Updating Jenkins Plugins using jenkins-cli.'
   UPDATE_LIST="$( ${JENKINS_CLI} list-plugins | awk '$0 ~ /\)$/ { print $1 }' )"
   if [ ! -z "${UPDATE_LIST}" ]; then
@@ -136,21 +138,23 @@ function update_jenkins_plugins() {
 
 function install_jenkins_plugins() {
   #download the jenkins-cli.jar client
-  download_file "${JENKINS_URL}/jnlpJars/jenkins-cli.jar"
+  download_file "${JENKINS_WEB}/jnlpJars/jenkins-cli.jar"
   echo 'Install Jenkins Plugins using jenkins-cli.'
   ${JENKINS_CLI} install-plugin $@
 }
 
 function jenkins_cli() {
   #download the jenkins-cli.jar client
-  download_file "${JENKINS_URL}/jnlpJars/jenkins-cli.jar"
+  download_file "${JENKINS_WEB}/jnlpJars/jenkins-cli.jar"
   echo "Executing: ${JENKINS_CLI} $@"
   ${JENKINS_CLI} $@
 }
 
 function force-stop() {
-  kill -9 $(cat jenkins.pid)
-  rm -f jenkins.pid
+  if [ -e 'jenkins.pid' ]; then
+    kill -9 $(cat jenkins.pid)
+    rm -f jenkins.pid
+  fi
 }
 
 #
@@ -184,8 +188,8 @@ case "$1" in
     start_or_restart_jenkins
 
     #disable automatic submission of usage statistics to Jenkins for privacy
-    download_file "${JENKINS_URL}/jnlpJars/jenkins-cli.jar"
-    curl -d 'script=Jenkins.instance.setNoUsageStatistics(true)' ${JENKINS_URL}/scriptText
+    download_file "${JENKINS_WEB}/jnlpJars/jenkins-cli.jar"
+    curl -d 'script=Jenkins.instance.setNoUsageStatistics(true)' ${JENKINS_WEB}/scriptText
 
     update_jenkins_plugins
 
@@ -195,7 +199,7 @@ case "$1" in
       start_or_restart_jenkins
     fi
 
-    echo "Jenkins is ready.  Visit ${JENKINS_URL}/"
+    echo "Jenkins is ready.  Visit ${JENKINS_WEB}/"
     ;;
   download-file)
     shift
