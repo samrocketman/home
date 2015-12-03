@@ -48,6 +48,9 @@ set background=dark
 "when pressing ENTER will automatically indent the line
 set autoindent
 
+"filebrowser settings
+let g:netrw_liststyle=3
+
 """""""""""""""""""""""""""""
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
@@ -69,8 +72,8 @@ set autoindent
 :autocmd FileType c,cpp,java,groovy setlocal cindent
 "indent with tabs when following FileTypes are opened
 :autocmd FileType make,gitconfig setlocal noexpandtab
-"auto newline at 80 characters as you type and auto-format
-:autocmd FileType markdown setlocal textwidth=80 formatoptions+=a
+"auto newline at 80 characters as you type and auto-format formatoptions+=a or fo+=a
+:autocmd FileType markdown setlocal textwidth=80
 "auto newline at 73 chars as you type. git commit messages are 73 chars wide on GitHub
 :autocmd FileType gitcommit setlocal textwidth=73
 "will highlight trailing white space with grey
