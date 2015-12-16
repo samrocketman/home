@@ -11,7 +11,7 @@
 #  Supports subject alternative names.
 
 #USAGE:
-#  Genearte a cert for one domain:
+#  Generate a cert for one domain:
 #    ./genSAN.sh example.com
 #  Generate a cert for two domains:
 #    ./genSAN.sh example.com alt.example.com
