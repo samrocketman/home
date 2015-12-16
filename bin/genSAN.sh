@@ -32,6 +32,11 @@ Additional domain arguments are treated as subject alternative names.
 EOF
 }
 
+if [ "$#" -eq '0' ]; then
+  usage
+  exit 1
+fi
+
 ask=true
 dedup=false
 server=""
