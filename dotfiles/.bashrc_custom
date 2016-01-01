@@ -89,4 +89,4 @@ if [ ! 'root' = "${USER}" ]; then
   [ -n "${SSH_AGENT_PID}" ] && export SSH_AGENT_PID
 fi
 
-export recipient_list=3EA54321
+export recipient_list=7257E65F
