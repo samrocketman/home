@@ -24,9 +24,25 @@ DESCRIPTION:
   Generate SSL SAN certificates.
 
 OPTIONS:
-  -h,--help      show help
-  -y,-q,--quiet  suppress overwrite prompt
-  -d,--dedup     don't duplicate CN to SAN entry
+  -h,--help      Show help.
+  -y,-q,--quiet  Suppress overwrite prompt when overwriting and generating
+                 private key.
+  -d,--dedup     Don't duplicate CN to SAN entry.  This happens by default for
+                 client compatibility reasons.
+  -e,--extended-key-usage
+                 Adds extended key usage for server auth and client auth in the
+                 X509 v3 certificate extension config format to the certificate
+                 signing request.
+
+Environment vars:
+  The following environment variables can be overridden before executing
+  genSAN.sh.
+
+  extendedKeyUsageConf
+                 Customize what configuration is applied when -e option is used.
+                 e.g. extendedKeyUsageConf="extendedKeyUsage = codeSigning"
+  SUBJ           Override the value passed to -subj option of openssl req.  SUBJ
+                 must end with CN= because the common name is appended.
 
 Additional domain arguments are treated as subject alternative names.
 EOF
@@ -39,6 +55,7 @@ fi
 
 ask=true
 dedup=false
+extendedKeyUsage=false
 server=""
 SANs=()
 while [ "$#" -gt '0' ]; do
@@ -53,6 +70,10 @@ while [ "$#" -gt '0' ]; do
       ;;
     -d|--dedup)
       dedup=true
+      shift
+      ;;
+    -e|--extended-key-usage)
+      extendedKeyUsage=true
       shift
       ;;
     *)
@@ -82,6 +103,10 @@ done
 
 SUBJ="${SUBJ:-/C=US/ST=California/L=Garden Grove/O=Example Corp/OU=Example Team/CN=}"
 
+if ${extendedKeyUsage}; then
+  extendedKeyUsageConf="${extendedKeyUsageConf:-extendedKeyUsage = serverAuth,clientAuth}"
+fi
+
 SSLconf="[ req ]
 distinguished_name  = req_distinguished_name
 req_extensions = v3_req
@@ -90,6 +115,7 @@ req_extensions = v3_req
 basicConstraints = CA:FALSE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = ${SANconf#,}
+${extendedKeyUsageConf}
 
 [ req_distinguished_name ]"
 
