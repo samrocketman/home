@@ -129,3 +129,62 @@ services to restart.
 
     wasted-ram-updates.py pids
 
+----
+## Mass GPG encrypted file management
+
+These scripts assume a basic knowledge and usage of GPG.  These scripts automate
+encrypting files.
+
+I've written a set of scripts for massively managing gpg encrypted files.  In a
+nutshell, these scripts will encrypt all files in a directory using GPG.  It
+will encrypt individual files (e.g. two individual files result in two encrypted
+files).  These scripts were written as a solution to store encrypted files in
+Dropbox.
+
+_Please note that these scripts only preserve confidentiality of contents of
+files.  The file names will have a similar name as when they were unencrypted so
+that files can be easily searched using an indexer._
+
+
+##### Encryption related scripts
+
+* `gpg_encrypt_individual_files.sh` - encrypts all unencrypted files
+  individually.  Generates a `sha1sum.txt` file in each directory which is the
+  checksum of encrypted files in said directory.
+* `gpg_decrypt_individual_files.sh` - decrypts all individually encrypted files.
+* `gpg_sign_sha1sums.sh` - Digitally sign all sha1sum.txt files.  Because the
+  contents of the sha1sum.txt file is the hash of all encrypted files this
+  essentially guaruntees the signature of every file.
+
+##### Validation and verification related scripts
+
+* `gpg_validate_sha1sums.sh` - validates all `sha1sum.txt.sig` signatures.  If
+  the contents of any `sha1sum.txt` file has changed then signature validation
+  will fail.  Failure means maliciously modified or corrupted `sha1sum.txt`
+  file.
+* `gpg_verify_checksums.sh` - Runs a checksum verification of all encrypted
+  files using the `sha1sum.txt` file as a checksum reference.  If the contents
+  of any encrypted file has changed then checksum verification will fail.
+  Failure means maliciously modified or corrupted encrypted files.
+* `gpg_fix_missing_sha1sums.sh` - Removes missing files from all `sha1sum.txt`
+  files and adds missing encrypted files from `sha1sum.txt` files.  This is for
+  renaming and moving files without decrypting them.
+
+### Example usage
+
+Encrypt all files in the current directory and sign the resulting `sha1sum.txt`
+files.
+
+    gpg_encrypt_individual_files.sh ./
+    gpg_sign_sha1sums.sh ./
+
+Rename an encrypted file and update the checksums and signature of the
+`sha1sum.txt` file.
+
+    mv oldname.txt.gpg newname.txt.gpg
+    gpg_fix_missing_sha1sums.sh ./
+
+Validate and verify all encrypted files.
+
+    gpg_validate_sha1sums.sh ./
+    gpg_verify_checksums.sh ./
