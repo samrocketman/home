@@ -1,5 +1,11 @@
 # How do I use some of these scripts?
 
+Table of Contents
+
+* [man2pdf](#man2pdf)
+* [clusterssh helper scripts](#clusterssh-helper-scripts)
+* [wasted-ram-updates.py](#wasted-ram-updatespy)
+
 ----
 ## man2pdf
 
