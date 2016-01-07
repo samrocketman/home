@@ -23,6 +23,8 @@ if [ -z "$!" -a ! -d "$1" ]; then
 fi
 
 find "$1" -type f -name 'sha1sum.txt' | while read x; do
-  gpg --output "$x.sig" --detach-sign "$x"
-  echo "Signed $x" 1>&2
+  if [ ! -e "${x}.sig" ]; then
+    gpg --output "$x.sig" --detach-sign "$x"
+    echo "Signed $x" 1>&2
+  fi
 done

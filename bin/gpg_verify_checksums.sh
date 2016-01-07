@@ -29,11 +29,11 @@ find "$1" -type d | while read x; do
     exit 1
   fi
   if [ "$(find . -maxdepth 1 -type f \
-    | grep -v 'sha1sum\.txt\.sig' | wc -l)" -gt "1" ]; then
+    | grep -v -- 'sha1sum\.txt\.sig' | wc -l)" -gt "1" ]; then
     if ! sha1sum -c sha1sum.txt; then
       echo -e "\nLocation: $x" 1>&2
       echo "sha1sum failed:" 1>&2
-      sha1sum -c sha1sum.txt 2> /dev/null | grep FAILED
+      sha1sum -c sha1sum.txt 2> /dev/null | grep -- FAILED
       echo
       exit 1
     fi
