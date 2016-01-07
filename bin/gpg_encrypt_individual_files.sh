@@ -95,6 +95,11 @@ find "${folder_to_encrypt}" ${ignore_expression} -type f -print \
     #exit subshell on first error
     set -e
     cd "${dir}"
+    if [ -e 'sha1sum.txt.sig' ] && ! gpg --verify "sha1sum.txt.sig" &> /dev/null; then
+      echo "Signature validation failed: ${dir}/sha1sum.txt"
+      echo "Aborting."
+      exit 1
+    fi
     #remove encrypted file equivalent if it exists
     ! ${skip_encrypted} && [ -f "${file}.gpg" ] && rm -f -- "${file}.gpg"
     if ! ${skip_encrypted} \
@@ -126,6 +131,11 @@ ${create_checksums} && find "${folder_to_encrypt}" -type d | while read x; do
     #exit subshell on first error
     set -e
     cd "${x}"
+    if [ -e 'sha1sum.txt.sig' ] && ! gpg --verify "sha1sum.txt.sig" &> /dev/null; then
+      echo "Signature validation failed: ${x}/sha1sum.txt"
+      echo "Aborting."
+      exit 1
+    fi
     #create sha1sum.txt file if it doesn't exist
     [ ! -f "sha1sum.txt" ] && touch sha1sum.txt
     find . -maxdepth 1 -type f -name '*.gpg.checksumrequired' -printf '%f\n' \
@@ -140,6 +150,12 @@ ${create_checksums} && find "${folder_to_encrypt}" -type d | while read x; do
       sha1sum -- "${esum%\.checksumrequired}" >> sha1sum.txt
       #remove the checksumrequired file
       rm -f -- "${esum}"
+
+      #update the signature if it exists
+      if [ -e 'sha1sum.txt.sig' ]; then
+        \rm -f sha1sum.txt.sig
+        gpg --output sha1sum.txt.sig --detach-sign -- sha1sum.txt
+      fi
     done
   )
 done
