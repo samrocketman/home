@@ -20,6 +20,15 @@ remove_original="${remove_original:-true}"
 #exit on first error
 set -e
 
+#check for dependent utilities
+deps=(gpg sha1sum find rm sed)
+for x in ${deps[*]}; do
+  if ! which $x &> /dev/null; then
+    echo "Missing utility $x"
+    exit 1
+  fi
+done
+
 #this will individually decrypt all files in the folder
 #this value can be overridden by environment
 if [ -z "${folder_to_decrypt}" ]; then

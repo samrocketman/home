@@ -66,6 +66,15 @@ set -o noglob
 #exit script on first error
 set -e
 
+#check for dependent utilities
+deps=(gpg sha1sum find rm sed)
+for x in ${deps[*]}; do
+  if ! which $x &> /dev/null; then
+    echo "Missing utility $x"
+    exit 1
+  fi
+done
+
 #build a recipient list
 recipients=""
 for x in ${recipient_list};do recipients="${recipients} --recipient ${x}";done

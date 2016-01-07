@@ -22,6 +22,15 @@ if [ -z "$!" -a ! -d "$1" ]; then
   exit 1
 fi
 
+#check for dependent utilities
+deps=(gpg sha1sum find rm sed)
+for x in ${deps[*]}; do
+  if ! which $x &> /dev/null; then
+    echo "Missing utility $x"
+    exit 1
+  fi
+done
+
 find "$1" -type f -name 'sha1sum.txt' | while read x; do
   if [ ! -e "${x}.sig" ]; then
     gpg --output "$x.sig" --detach-sign "$x"
