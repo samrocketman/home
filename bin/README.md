@@ -5,6 +5,7 @@ Table of Contents
 * [man2pdf](#man2pdf)
 * [clusterssh helper scripts](#clusterssh-helper-scripts)
 * [wasted-ram-updates.py](#wasted-ram-updatespy)
+* [Mass GPG encrypted file management](#mass-gpg-encrypted-file-management)
 
 ----
 ## man2pdf
