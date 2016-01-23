@@ -10,7 +10,7 @@ if uname -rms | grep Darwin &> /dev/null;then
   alias ls='ls -G'
   alias g=/usr/local/bin/git
   alias git=/usr/local/bin/git
-  export PATH="${PATH}:/usr/local/sbin"
+  export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
 else
   #aliases that don't work on Mac
   alias l.='ls -d .* --color=auto'

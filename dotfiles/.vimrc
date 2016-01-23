@@ -73,6 +73,7 @@ let g:netrw_liststyle=3
 "indent with tabs when following FileTypes are opened
 :autocmd FileType make,gitconfig setlocal noexpandtab
 "auto newline at 80 characters as you type and auto-format formatoptions+=a or fo+=a
+"autoformatting can also be accomplished with gq see :help gq
 :autocmd FileType markdown setlocal textwidth=80
 "auto newline at 73 chars as you type. git commit messages are 73 chars wide on GitHub
 :autocmd FileType gitcommit setlocal textwidth=73
