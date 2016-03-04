@@ -107,3 +107,9 @@ only showing merge commits.
 
 This is essentially the equivalent of squashing commits from the branch where
 the changes were merged from.
+
+# Deploy GitHub Pages
+
+Using rsync to deploy github pages from a build directory.
+
+    rsync -av --exclude '.git' --delete-after ./build/doc/groovydoc/ ./
