@@ -44,4 +44,9 @@ if [ ! -e "/etc/init.d/iptables" ]; then
 fi
 #additional packages
 sudo apt-get install -y vim screen irssi
+
+#remove space hog packages
 sudo apt-get remove -y wolfram-engine minecraft-pi
+
+#set the hostname to funberry!
+"$HOME/bin/update_hostname.sh" funberry

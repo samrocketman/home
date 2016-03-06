@@ -70,6 +70,10 @@ if [ -e "${HOME}/git" ]; then
   )
 fi
 
+if [ ! -e "$HOME/bin" ]; then
+  ln -s "$HOME/git/home/bin" "$HOME/bin"
+fi
+
 #
 # RASPBERRY PI ONLY SETUP
 #
