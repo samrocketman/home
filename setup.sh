@@ -105,4 +105,6 @@ if (uname -rms | grep -v 'Darwin' &> /dev/null) && grep -q 'Raspbian' /etc/issue
     sudo ln -s /home/pi/git/home/raspi/iptables.rules /etc/
     createservice /home/pi/git/home/raspi/iptables
   fi
+  #additional packages
+  sudo apt-get install -y vim screen irssi
 fi
