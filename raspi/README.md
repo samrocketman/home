@@ -64,19 +64,18 @@ pi running Raspian.
     git clone http://git.code.sf.net/p/sc2/uqm sc2-uqm
     cd sc2-uqm/sc2/
     #install dependencies
-    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlib1g-dev libmikmod-dev mikmod lua5.2
+    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlib1g-dev libmikmod-dev mikmod
     #build and install the game
-    ./build.sh uqm install
+    LDFLAGS="-lm" ./build.sh uqm install
 
-Now enjoy the great Star Control 2 game!
-
-When building the game I chose the following options:
+Now enjoy the great Star Control 2 game!  When building the game I chose the
+following options:
 
 1. Use optimized build instead of debug build.
-2. Install toe the prefix `/home/pi/usr/games` instead of `/usr/local/games`
+2. Install to the prefix `/home/pi/usr/games` instead of `/usr/local/games`
    because I am using an alternate disk with more space mounted on `/home`.
 
-[piglowd]: https://github.com/lawrie/piglowd
-[piglow]: http://shop.pimoroni.com/products/piglow
 [piglow-tute]: http://www.raspberrypi.org/learning/piglow
+[piglow]: http://shop.pimoroni.com/products/piglow
+[piglowd]: https://github.com/lawrie/piglowd
 [raspi]: http://www.raspberrypi.org/
