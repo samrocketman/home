@@ -38,7 +38,7 @@ Generate appropriate startup and shutdown links.
 
     sudo update-rc.d piglow-daemon.py start
 
-# force-update-date.sh
+### force-update-date.sh
 
 Raspbian does a pretty poor job at time synchronization at startup.  It does the
 best it can however it leaves much to be desired.  I wrote this script to force
@@ -53,6 +53,15 @@ Add daemon to system.
 Generate appropriate startup and shutdown links.
 
     sudo update-rc.d force-update-date.sh start
+
+### Build Star Control 2
+
+    #clone
+    cd ~/git
+    git clone http://git.code.sf.net/p/sc2/uqm sc2-uqm
+    cd sc2-uqm
+    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlibc
+    ./build.sh uqm
 
 [piglowd]: https://github.com/lawrie/piglowd
 [piglow]: http://shop.pimoroni.com/products/piglow
