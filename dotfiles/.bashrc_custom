@@ -32,9 +32,13 @@ alias ..5='cd ../../../../../'
 alias socks='ssh -ND 1080'
 
 # ENVIRONMENT VARIABLES
+if echo "${PATH}" | grep -v "~/usr/bin" &> /dev/null;then
+  export PATH="~/usr/bin:${PATH}"
+fi
 if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
   export PATH="~/bin:${PATH}"
 fi
+
 # happy face if last command successful or sadface if last command failed
 export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
 export EDITOR="vim"
