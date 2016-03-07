@@ -56,12 +56,17 @@ Generate appropriate startup and shutdown links.
 
 ### Build Star Control 2
 
+These instructions outline how to build the game Star Control 2 on a raspberry
+pi running Raspian.
+
     #clone
     cd ~/git
     git clone http://git.code.sf.net/p/sc2/uqm sc2-uqm
-    cd sc2-uqm
-    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlibc libogg libvorbis
+    cd sc2-uqm/sc2/
+    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlibc libmikmod-dev libopenlayer-dev libglbsp-dev
     ./build.sh uqm
+
+Now enjoy the great Star Control 2 game!
 
 [piglowd]: https://github.com/lawrie/piglowd
 [piglow]: http://shop.pimoroni.com/products/piglow
