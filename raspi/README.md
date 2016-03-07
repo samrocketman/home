@@ -60,7 +60,7 @@ Generate appropriate startup and shutdown links.
     cd ~/git
     git clone http://git.code.sf.net/p/sc2/uqm sc2-uqm
     cd sc2-uqm
-    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlibc
+    sudo apt-get install -y gcc libsdl1.2-dev libsdl-image1.2-dev libogg-dev libvorbis-dev zlibc libogg libvorbis
     ./build.sh uqm
 
 [piglowd]: https://github.com/lawrie/piglowd
