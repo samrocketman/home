@@ -69,6 +69,8 @@ pi running Raspian.
     LDFLAGS="-lm" ./build.sh uqm config
     #build and install the game
     ./build.sh uqm install
+    #start the game
+    ./uqm
 
 Now enjoy the great Star Control 2 game!  When building the game I chose the
 following options:
@@ -76,6 +78,11 @@ following options:
 1. Use optimized build instead of debug build.
 2. Install to the prefix `/home/pi/usr` instead of `/usr/local/games`
    because I am using an alternate disk with more space mounted on `/home`.
+
+Star Control runs best with:
+
+* Raspberry Pi 2 or better.
+* 640x480 resolution using SDL framebuffer instead of OpenGL.
 
 [piglow-tute]: http://www.raspberrypi.org/learning/piglow
 [piglow]: http://shop.pimoroni.com/products/piglow
