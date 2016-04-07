@@ -1,0 +1,61 @@
+#!/bin/bash -e
+#By Sam Gleske
+#Thu Apr  7 09:20:12 PDT 2016
+#Mac OS X 10.11.3 (15D21)
+#Darwin 15.3.0 x86_64
+#GNU bash, version 4.3.11(1)-release (x86_64-apple-darwin13.2.0)
+
+#A bash script based off of a go program by Justin Campbell.
+#https://github.com/justincampbell/plop
+
+#DESCRIPTION
+#   Writes stdin to a new temporary file.
+
+function usage() {
+cat <<EOF
+plop [-d DIR] [-t FILENAME]
+
+DESCRIPTION:
+  Writes stdin to a new temporary file.
+
+OPTIONS:
+  -h,--help    Show help.
+  -d DIR       Customize the destination directory of temp file.
+  -t FILENAME  Customize the name of the temp file.
+
+EXAMPLES:
+  $ grep error /var/log/error.log | plop
+  /tmp/plop-6UCoXscu
+  $ grep error /var/log/error.log | plop -t errors
+  /tmp/errors-9WrDDfbX
+  $ grep error /var/log/error.log | plop -d /var/log/
+  /var/log/plop-UnmVhLi9
+EOF
+}
+
+tmp_dir=${plop_tmp_dir:-/tmp}
+tmp_file=${plop_tmp_file:-plop}
+
+while [ "$#" -gt '0' ]; do
+  case $1 in
+    -h|--help)
+      usage
+      exit 1
+      ;;
+    -d)
+      export tmp_dir=$2
+      shift 2
+      ;;
+    -t)
+      export tmp_file=$2
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+plop_file="$(mktemp "${tmp_dir%/}/${tmp_file#/}-XXXXXXXX")"
+cat > "${plop_file}"
+echo "${plop_file}"
