@@ -107,12 +107,13 @@ def install(Collection c, Boolean dynamicLoad, UpdateSite updateSite) {
     null
 }
 
-//download latest JSON update data
-UpdateCenter.updateDefaultSite()
-
 //upgrade plugins
 UpdateSite s = (UpdateSite) j.getUpdateCenter().getSite(UpdateCenter.ID_DEFAULT)
-install(s.getUpdates()*.getShortName(), false, s)
+
+//download latest JSON update data
+s.updateDirectlyNow(true)
+
+install(s.getUpdates()*.getInstalled()*.getShortName(), false, s)
 EOF
 }
 
@@ -195,6 +196,7 @@ function is_auth_enabled() {
       exit 1
     fi
   fi
+  return 1
 }
 
 function url_ready() {
