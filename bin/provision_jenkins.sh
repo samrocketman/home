@@ -124,6 +124,7 @@ def plugins = [
     "git",
     "github",
     "github-oauth",
+    "job-dsl",
     "matrix-auth",
     "matrix-project",
     "pipeline-stage-view",
@@ -345,7 +346,7 @@ case "$1" in
     fi
 
     echo "Jenkins is ready.  Visit ${JENKINS_WEB}/"
-    if is_auth_enabled; then
+    if is_auth_enabled &> /dev/null; then
       echo "User: admin"
       echo "Password: $(<${JENKINS_HOME}/secrets/initialAdminPassword)"
     fi
