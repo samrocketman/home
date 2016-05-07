@@ -21,7 +21,7 @@
 #  Automatically provision and start Jenkins on your laptop.
 #    mkdir ~/jenkins_testing
 #    cd ~/jenkins_testing
-#    provision_jenkins.sh
+#    provision_jenkins.sh bootstrap
 #  Kill and completely delete your provisioned Jenkins.
 #    cd ~/jenkins_testing
 #    provision_jenkins.sh purge
@@ -129,9 +129,7 @@ def plugins = [
     "matrix-project",
     "pipeline-stage-view",
     "ssh-slaves",
-    "timestamper",
-    "workflow-aggregator",
-    "ws-cleanup"
+    "workflow-aggregator"
     ]
 
 /*
@@ -153,7 +151,8 @@ def j = Jenkins.instance
 
 //upgrade plugins
 UpdateSite s = (UpdateSite) j.getUpdateCenter().getSite(UpdateCenter.ID_DEFAULT)
-install(plugins, true, s)
+//only install plugins if they're missing
+install(plugins - j.pluginManager.getPlugins()*.getShortName(), true, s)
 EOF
 }
 
