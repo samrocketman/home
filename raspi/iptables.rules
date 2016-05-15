@@ -92,7 +92,7 @@
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
 -A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
--A OUTPUT_allow -d 192.168.100.1 -j ACCEPT
+#-A OUTPUT_allow -d 192.168.100.1 -j ACCEPT
 #allow ping only to public servers
 -A OUTPUT_allow -p icmp -m state --state NEW -m icmp --icmp-type 8 -j ACCEPT
 #Google Public DNS
@@ -100,6 +100,9 @@
 -A OUTPUT_allow -p tcp -d 8.8.8.8 -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A OUTPUT_allow -p udp -d 8.8.4.4 -m state --state NEW -m udp --dport 53 -j ACCEPT
 -A OUTPUT_allow -p tcp -d 8.8.4.4 -m state --state NEW -m tcp --dport 53 -j ACCEPT
+#Allow NTP
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 123 -j ACCEPT
+-A OUTPUT_allow -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
 #smtps outbound
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
 #system updates and web traffic
