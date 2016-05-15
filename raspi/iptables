@@ -26,4 +26,5 @@ if [ "${1:-}" = "start" ];then
 elif [ "${1:-}" = "stop" ];then
   echo "Flushing iptables rules."
   iptables -F
+  iptables -t nat -F
 fi
