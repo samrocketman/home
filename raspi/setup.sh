@@ -35,6 +35,7 @@ if [ ! -e "/etc/init.d/piglow-daemon.py" ]; then
 fi
 if [ ! -e "/etc/init.d/force-update-date.sh" ]; then
   echo "Setting up forced NTP time sync on startup."
+  sudo apt-get install ntpdate
   createservice /home/pi/git/home/raspi/force-update-date.sh
 fi
 if [ ! -e "/etc/init.d/iptables" ]; then
