@@ -35,7 +35,6 @@ if [ ! -e "/etc/init.d/piglow-daemon.py" ]; then
 fi
 if [ ! -e "/etc/init.d/force-update-date.sh" ]; then
   echo "Setting up forced NTP time sync on startup."
-  sudo apt-get install ntpdate
   createservice /home/pi/git/home/raspi/force-update-date.sh
 fi
 if [ ! -e "/etc/init.d/iptables" ]; then
@@ -44,10 +43,10 @@ if [ ! -e "/etc/init.d/iptables" ]; then
   createservice /home/pi/git/home/raspi/iptables
 fi
 #additional packages
-sudo apt-get install -y vim screen irssi
+sudo apt-get install -y vim screen irssi ntpdate kodi
 
 #remove space hog packages
 sudo apt-get remove -y wolfram-engine minecraft-pi
 
 #set the hostname to funberry!
-"$HOME/bin/update_hostname.sh" funberry
+sudo "$HOME/bin/update_hostname.sh" funberry
