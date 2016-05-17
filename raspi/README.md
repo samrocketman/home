@@ -84,6 +84,34 @@ Star Control runs best with:
 * Raspberry Pi 2 or better.
 * 640x480 resolution using SDL framebuffer instead of OpenGL.
 
+### Autostart Kodi Media Center
+
+[Kodi][kodi] (formerly XBMC) is a great way to use a Raspberry Pi.  It turns
+your Pi into a complete media center PC.  I have some special enhancements made
+just for Kodi.
+
+I add [`delay-start-kodi.sh`](delay-start-kodi.sh) to `.bashrc`.  This script
+will automatically start kodi after 5 seconds.  However, in order for the script
+to work you must:
+
+* Use `raspi-config` to disable booting to GUI (I recommend autologin).
+
+This script depends on building the [`getkey` command](src/getkey.c) because
+you're able to stop kodi from starting by holding the SHIFT key.  If you're
+using [`setup.sh`](setup.sh) then it should set up your `.bashrc` as well as
+build `getkey`.
+
+Kodi is best run without the GUI so that you can dedicate maximum resources to
+Kodi and video decoding rather than taking up memory with a GUI.
+
+# My favorite Pi programs
+
+Besides my normal favorites such as `vim` I like keeping a list of very
+lightweight programs to use.
+
+* `mirage` - A simple graphics editor and viewer that is less than 100Kb.
+
+[kodi]: https://kodi.tv/
 [piglow-tute]: http://www.raspberrypi.org/learning/piglow
 [piglow]: http://shop.pimoroni.com/products/piglow
 [piglowd]: https://github.com/lawrie/piglowd
