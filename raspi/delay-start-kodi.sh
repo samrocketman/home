@@ -11,6 +11,15 @@
 
 #Depends on src/getkey.c being compiled and in the $PATH
 
+function shiftkey() (
+  #get a device
+  device="$(ls -1 /dev/input/by-id/*-kbd | head -n1)"
+  if [ ! "$#" -eq 1 ]; then
+    return 1
+  fi
+  getkey $device $1
+)
+
 function startkodi() (
   count=5
   SHIFT=0
@@ -18,7 +27,8 @@ function startkodi() (
     echo "(Press SHIFT to cancel) Starting kodi in... $count"
     ((count--))
     sleep 1
-    if ! getkey /dev/input/by-id/*-kbd lshift; then
+    #holding the right or left shift key?
+    if ! (shiftkey lshift && shiftkey rshift); then
       SHIFT=1
     fi
   done
