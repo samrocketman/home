@@ -50,3 +50,9 @@ sudo apt-get remove -y wolfram-engine minecraft-pi
 
 #set the hostname to funberry!
 sudo "$HOME/bin/update_hostname.sh" funberry
+
+#setup getkey binary
+if [ ! -f "${HOME}/usr/bin/getkey" ]; then
+  mkdir -p ~/usr/bin
+  gcc -o ~/usr/bin/getkey ~/git/home/raspi/src/getkey.c
+fi
