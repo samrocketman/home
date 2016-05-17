@@ -56,3 +56,5 @@ if [ ! -f "${HOME}/usr/bin/getkey" ]; then
   mkdir -p ~/usr/bin
   gcc -o ~/usr/bin/getkey ~/git/home/raspi/src/getkey.c
 fi
+
+grep 'delay-start-kodi\.sh' ~/.bashrc &> /dev/null || echo "${HOME}/git/home/raspi/delay-start-kodi.sh" >> ~/.bashrc
