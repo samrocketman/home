@@ -1,4 +1,15 @@
 #!/bin/bash
+#Created by Sam Gleske
+#Mon 16 May 18:54:38 PDT 2016
+#Raspbian GNU/Linux 8
+#Linux 4.4.9-v7+ armv7l
+#GNU bash, version 4.3.30(1)-release (arm-unknown-linux-gnueabihf)
+#gcc (Raspbian 4.9.2-10) 4.9.2
+
+#DESCRIPTION
+#Delay starting kodi for 5 seconds unless SHIFT is pressed.
+
+#Depends on src/getkey.c being compiled and in the $PATH
 
 function startkodi() (
   count=5
@@ -19,9 +30,12 @@ function startkodi() (
   fi
 )
 
-if ! type -pP kodi; then
-  echo "kodi not installed."
-  exit 1
-fi
+#only start kodi if GUI is not running
+if ! pgrep openbox &> /dev/null; then
+  if ! type -pP kodi; then
+    echo "kodi not installed."
+    exit 1
+  fi
 
-startkodi
+  startkodi
+fi
