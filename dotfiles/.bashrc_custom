@@ -25,6 +25,7 @@ alias x='exit'
 alias startproxy='while true;do ssh -vND 1080 home; echo "press ctrl+c again to quit.";sleep 3;done'
 #run last command as sudo
 alias please='eval "sudo $(history -p !!)"'
+alias Damnit,='sudo'
 alias ..2='cd ../../'
 alias ..3='cd ../../../'
 alias ..4='cd ../../../../'
