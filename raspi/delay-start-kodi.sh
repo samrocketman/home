@@ -34,7 +34,7 @@ function startkodi() (
   done
   if [ "$SHIFT" -eq 0 ]; then
     echo "Starting kodi..."
-    kodi
+    command kodi-standalone
   else
     echo "Canceled starting kodi."
   fi
