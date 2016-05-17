@@ -42,6 +42,7 @@ if [ ! -e "/etc/init.d/iptables" ]; then
   sudo ln -s /home/pi/git/home/raspi/iptables.rules /etc/
   createservice /home/pi/git/home/raspi/iptables
 fi
+
 #additional packages
 sudo apt-get install -y vim screen irssi ntpdate kodi
 
@@ -51,10 +52,21 @@ sudo apt-get remove -y wolfram-engine minecraft-pi
 #set the hostname to funberry!
 sudo "$HOME/bin/update_hostname.sh" funberry
 
+
+#setup kodi
 #setup getkey binary
 if [ ! -f "${HOME}/usr/bin/getkey" ]; then
   mkdir -p ~/usr/bin
   gcc -o ~/usr/bin/getkey ~/git/home/raspi/src/getkey.c
 fi
-
 grep 'delay-start-kodi\.sh' ~/.bashrc &> /dev/null || echo "${HOME}/git/home/raspi/delay-start-kodi.sh" >> ~/.bashrc
+if ! groups pi | grep tty &> /dev/null; then
+  sudo usermod -a -G tty pi
+fi
+if grep gpu_mem /boot/config.txt; then
+  echo 'gpu_mem=256' >> /boot/config.txt
+else
+  sed -i 's/^\(gpu_mem\)=[0-9]\+/\1=256' /boot/config.txt
+fi
+#if additional problems are encountered with kodi... check out:
+#https://www.raspberrypi.org/forums/viewtopic.php?t=99866
