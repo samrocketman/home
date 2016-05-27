@@ -26,6 +26,7 @@ alias startproxy='while true;do ssh -vND 1080 home; echo "press ctrl+c again to 
 #run last command as sudo
 alias please='eval "sudo $(history -p !!)"'
 alias Damnit,='sudo'
+alias ..='cd ../'
 alias ..2='cd ../../'
 alias ..3='cd ../../../'
 alias ..4='cd ../../../../'
@@ -95,3 +96,11 @@ if [ ! 'root' = "${USER}" ]; then
 fi
 
 export recipient_list=7257E65F
+
+function retrygit() (
+  if [ ! "$#" -eq '2' ]; then
+    echo 'retrygit must have two args. e.g. retrygit remote branch'
+    return 1
+  fi
+  while ! git push "$1" -u "$2";do sleep 1;done;say "Git pushed."
+)
