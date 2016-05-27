@@ -113,3 +113,13 @@ the changes were merged from.
 Using rsync to deploy github pages from a build directory.
 
     rsync -av --exclude '.git' --delete-after ./build/doc/groovydoc/ ./
+
+# Run docker images with dumb-init
+
+Docker images should have better process handling.  [Yelp
+`dumb-init`][dumb-init] is a nice basic init written in C.
+
+    docker run -d -v /path/to/dumb-init:/dumb-init:ro --entrypoint=/dumb-init <image> <command>
+
+
+[dumb-init]: https://github.com/Yelp/dumb-init/issues/74#issuecomment-217669450
