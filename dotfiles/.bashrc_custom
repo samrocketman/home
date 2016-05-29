@@ -34,11 +34,11 @@ alias ..5='cd ../../../../../'
 alias socks='ssh -ND 1080'
 
 # ENVIRONMENT VARIABLES
-if echo "${PATH}" | grep -v "~/usr/bin" &> /dev/null; then
-  export PATH="~/usr/bin:${PATH}"
+if echo "${PATH}" | grep -v "$HOME/usr/bin" &> /dev/null; then
+  export PATH="$HOME/usr/bin:${PATH}"
 fi
-if echo "${PATH}" | grep -v "~/bin" &> /dev/null; then
-  export PATH="~/bin:${PATH}"
+if echo "${PATH}" | grep -v "$HOME/bin" &> /dev/null; then
+  export PATH="$HOME/bin:${PATH}"
 fi
 if echo "${PYTHONPATH}" | grep -v "$HOME/usr/lib/python2.7/site-packages" &> /dev/null; then
   export PYTHONPATH="$HOME/usr/lib/python2.7/site-packages"
