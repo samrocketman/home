@@ -73,8 +73,14 @@ def j=Jenkins.instance
 if('getSetupWizard' in j.metaClass.methods*.name.sort().unique()) {
     def w=j.getSetupWizard()
     if(w != null) {
-        w.completeSetup(j)
-        PluginServletFilter.removeFilter(w.FORCE_SETUP_WIZARD_FILTER)
+        try {
+          //pre Jenkins 2.6
+          w.completeSetup(j)
+          PluginServletFilter.removeFilter(w.FORCE_SETUP_WIZARD_FILTER)
+        }
+        catch(Exception e) {
+          w.completeSetup()
+        }
         j.save()
         println 'Wizard skipped.'
     }
