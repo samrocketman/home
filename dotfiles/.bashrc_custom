@@ -1,9 +1,9 @@
 # SET UP SOME COMMON ALIASES
-if ! which vim &> /dev/null;then
+if ! which vim &> /dev/null; then
   alias vim="vi"
 fi
 #Mac specific aliases
-if uname -rms | grep Darwin &> /dev/null;then
+if uname -rms | grep Darwin &> /dev/null; then
   alias flushdns='dscacheutil -flushcache'
   alias l.='ls -Gd .*'
   alias ll='ls -Gl'
@@ -34,17 +34,20 @@ alias ..5='cd ../../../../../'
 alias socks='ssh -ND 1080'
 
 # ENVIRONMENT VARIABLES
-if echo "${PATH}" | grep -v "~/usr/bin" &> /dev/null;then
+if echo "${PATH}" | grep -v "~/usr/bin" &> /dev/null; then
   export PATH="~/usr/bin:${PATH}"
 fi
-if echo "${PATH}" | grep -v "~/bin" &> /dev/null;then
+if echo "${PATH}" | grep -v "~/bin" &> /dev/null; then
   export PATH="~/bin:${PATH}"
+fi
+if echo "${PYTHONPATH}" | grep -v "$HOME/usr/lib/python2.7/site-packages" &> /dev/null; then
+  export PYTHONPATH="$HOME/usr/lib/python2.7/site-packages"
 fi
 
 # happy face if last command successful or sadface if last command failed
 export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
 export EDITOR="vim"
-if [ ! -z "${SUDO_USER}" -a "$(id -u)" -eq "0" ];then
+if [ ! -z "${SUDO_USER}" -a "$(id -u)" -eq "0" ]; then
   export HOME="/root"
   export HISTFILE="$HOME/.bash_history"
   export MAIL="/var/spool/mail/root"
