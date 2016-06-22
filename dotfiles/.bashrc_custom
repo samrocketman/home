@@ -32,6 +32,10 @@ alias ..3='cd ../../../'
 alias ..4='cd ../../../../'
 alias ..5='cd ../../../../../'
 alias socks='ssh -ND 1080'
+if ! type -p pbcopy &> /dev/null; then
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
+fi
 
 # ENVIRONMENT VARIABLES
 if echo "${PATH}" | grep -v "$HOME/usr/bin" &> /dev/null; then
