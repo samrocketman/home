@@ -54,7 +54,7 @@ CURL="${CURL:-curl}"
 #Get JAVA_HOME for java 1.7 on Mac OS X
 #will only run if OS X is detected
 if uname -rms | grep Darwin &> /dev/null; then
-  JAVA_HOME="$(/usr/libexec/java_home -v 1.7)"
+  JAVA_HOME="$(/usr/libexec/java_home)"
   PATH="${JAVA_HOME}/bin:${PATH}"
   echo "JAVA_HOME=${JAVA_HOME}"
   java -version
@@ -217,8 +217,13 @@ function url_ready() {
 
 function download_file() {
   #see bash man page and search for Parameter Expansion
-  url="$1"
-  file="${1##*/}"
+  if [ "$#" = 1 ]; then
+    url="$1"
+    file="${1##*/}"
+  else
+    url="$1"
+    file="$2"
+  fi
   url_ready "${url}"
   if [ ! -e "${file}" ]; then
     curl -SLo "${file}" "${url}"
@@ -322,7 +327,7 @@ case "$1" in
 
     #provision Jenkins by default
     #download jenkins.war
-    download_file ${jenkins_url}
+    download_file ${jenkins_url} jenkins.war
 
     echo "JENKINS_HOME=${JENKINS_HOME}"
 
