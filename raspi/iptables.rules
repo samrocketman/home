@@ -17,24 +17,25 @@
 :LOGGING - [0:0]
 
 #INPUT Chain
+-A INPUT -j PUBLIC_deny
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -i lo -j ACCEPT
--A INPUT -j PUBLIC_deny
 -A INPUT -j INTERNAL
 -A INPUT -j PUBLIC_allow
 -A INPUT -j LOGGING
 -A INPUT -j REJECT --reject-with icmp-host-prohibited
 
 #OUTPUT Chain
+-A OUTPUT -j OUTPUT_deny
 -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
--A OUTPUT -j OUTPUT_deny
 -A OUTPUT -j OUTPUT_allow
 -A OUTPUT -j LOGGING
 -A OUTPUT -j REJECT --reject-with icmp-host-prohibited
 
 #FORWARD Chain
 -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -j LOGGING
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 
 #LOGGING Chain
@@ -68,6 +69,7 @@
 
 #MALWARE
 -A PUBLIC_deny -s 212.7.208.65 -j DROP
+-A PUBLIC_deny -s 192.168.10.1 -m tcp --dport 22 -j DROP
 
 #ALLOW CONNECTIONS
 
