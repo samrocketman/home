@@ -19,6 +19,14 @@ CURL="${CURL:-curl}"
 function script_enable_shutdown_mode() {
   cat <<'EOF'
 Jenkins.instance.doQuietDown(false, 0)
+null
+EOF
+}
+
+function script_disable_shutdown_mode() {
+  cat <<'EOF'
+Jenkins.instance.doCancelQuietDown()
+null
 EOF
 }
 
@@ -121,9 +129,16 @@ DESCRIPTION
 
 COMMANDS
 
-  --enable-shutdown-mode,+s
+  --enable-shutdown-mode, -s
+  --disable-shutdown-mode, +s
+  --safe-restart
 
+ENVIRONMENT
+
+  JENKINS_AUTH - user:password
+  JENKINS_WEB - http://example.com/jenkins
 EOF
+    exit 1
 esac
 
 if is_auth_enabled; then
@@ -132,8 +147,11 @@ fi
 csrf_set_curl
 
 case "$1" in
-  --enable-shutdown-mode|+s)
+  --enable-shutdown-mode|-s)
     jenkins_script_console script_enable_shutdown_mode
+    ;;
+  --disable-shutdown-mode|+s)
+    jenkins_script_console script_disable_shutdown_mode
     ;;
   --safe-restart)
     jenkins_script_console script_safe_restart
