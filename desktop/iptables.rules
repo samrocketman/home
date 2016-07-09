@@ -1,8 +1,9 @@
 #Created by Sam Gleske
-#Mon Mar 23 00:58:15 EDT 2015
-#Raspbian GNU/Linux 7
-#Linux 3.18.7-v7+ armv7l
-#iptables v1.4.14
+#Sat Jul  9 12:17:02 PDT 2016
+#My personal linux gaming desktop firewall
+#Ubuntu 16.04 LTS
+#Linux 4.4.0-28-generic x86_64
+#iptables v1.6.0
 
 *filter
 :INPUT ACCEPT [0:0]
@@ -50,7 +51,7 @@
 
 -A INTERNAL -s 192.168.10.0/24 -g INTERNAL_allow
 #VPN
--A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
+#-A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
 
 #icmp
 -A INTERNAL_allow -p icmp -j ACCEPT
@@ -98,7 +99,7 @@
 
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
--A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
+#-A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
 
 #allow battle.net networks
 -A OUTPUT_allow -d 12.129.0.0/16 -p tcp -m multiport --dports 1119,3724 -j ACCEPT
