@@ -1,0 +1,178 @@
+#Created by Sam Gleske
+#Mon Mar 23 00:58:15 EDT 2015
+#Raspbian GNU/Linux 7
+#Linux 3.18.7-v7+ armv7l
+#iptables v1.4.14
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:OUTPUT_deny - [0:0]
+:OUTPUT_allow - [0:0]
+:VALVE_NETWORKS - [0:0]
+:VALVE_NETWORKS_allow - [0:0]
+:INTERNAL - [0:0]
+:INTERNAL_allow - [0:0]
+:PUBLIC_deny - [0:0]
+:PUBLIC_allow - [0:0]
+:LOGGING - [0:0]
+
+#INPUT Chain
+-A INPUT -j PUBLIC_deny
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -j INTERNAL
+-A INPUT -j PUBLIC_allow
+-A INPUT -j LOGGING
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+
+#OUTPUT Chain
+-A OUTPUT -j OUTPUT_deny
+-A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+-A OUTPUT -j OUTPUT_allow
+-A OUTPUT -j VALVE_NETWORKS
+-A OUTPUT -j LOGGING
+-A OUTPUT -j REJECT --reject-with icmp-host-prohibited
+
+#FORWARD Chain
+-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -j LOGGING
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+
+#LOGGING Chain
+-A LOGGING -p tcp -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
+
+
+########################################################################
+# GLESKE INTERNAL NETWORKS
+
+-A INTERNAL -s 192.168.10.0/24 -g INTERNAL_allow
+#VPN
+-A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
+
+#icmp
+-A INTERNAL_allow -p icmp -j ACCEPT
+#synergy
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 24800 -j ACCEPT
+#ssh
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+#Herd deployments via bittorrent
+-A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dport 10000:11000 -j ACCEPT
+#accept traceroutes
+-A INTERNAL_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
+
+# END GLESKE INTERNAL NETWORKS
+########################################################################
+
+
+########################################################################
+# PUBLIC INTERNET RULES
+
+#DENY CONNECTIONS
+
+#MALWARE
+-A PUBLIC_deny -s 212.7.208.65 -j DROP
+-A PUBLIC_deny -s 192.168.10.1 -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
+
+#ALLOW CONNECTIONS
+
+#ssh from everyone in the world
+#-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+
+
+# END PUBLIC INTERNET RULES
+########################################################################
+
+
+########################################################################
+# OUTBOUND RULES
+
+#OUTBOUND block
+
+#MALWARE
+-A OUTPUT_deny -d 212.7.208.65 -j DROP
+
+#OUTBOUND allow
+
+#allow all internal network outbound communications
+-A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
+-A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
+
+#allow battle.net networks
+-A OUTPUT_allow -d 12.129.0.0/16 -p tcp -m multiport --dports 1119,3724 -j ACCEPT
+-A OUTPUT_allow -d 24.105.0.0/16 -p tcp -m tcp --dport 1119 -j ACCEPT
+-A OUTPUT_allow -d 69.164.0.0/16 -p tcp -m multiport --dports 1119 -j ACCEPT
+
+
+#Allow Google network for XMPP chatting
+-A OUTPUT_allow -d 173.194.0.0/16 -p tcp -m tcp --dport 5222 -j ACCEPT
+
+#-A OUTPUT_allow -d 192.168.100.1 -j ACCEPT
+#allow ping only to public servers
+-A OUTPUT_allow -p icmp -m state --state NEW -m icmp --icmp-type 8 -j ACCEPT
+#Google Public DNS
+-A OUTPUT_allow -p udp -d 8.8.8.8 -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A OUTPUT_allow -p tcp -d 8.8.8.8 -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A OUTPUT_allow -p udp -d 8.8.4.4 -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A OUTPUT_allow -p tcp -d 8.8.4.4 -m state --state NEW -m tcp --dport 53 -j ACCEPT
+#Allow NTP
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 123 -j ACCEPT
+-A OUTPUT_allow -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
+#smtps outbound
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
+#system updates and web traffic
+-A OUTPUT_allow -p tcp -m state --state NEW -m multiport --dport 21,80,443 -j ACCEPT
+#accept traceroutes
+-A OUTPUT_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
+#irc networks
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 6667 -j ACCEPT
+#allow outbound ssh
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+
+# END OUTBOUND RULES
+########################################################################
+
+########################################################################
+# VALVE NETWORKS RULES
+# For Steam PC Games
+# Allow ports to the entire company.
+
+#List of Valve networks http://ipinfo.io/AS32590
+#United States IP Blocks
+-A VALVE_NETWORKS -d 72.165.61.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 103.10.124.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 103.10.125.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.239.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.240.0/23 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.242.0/23 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.244.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.245.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.246.0/23 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.248.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.249.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.252.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 155.133.254.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.192.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.193.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.194.0/23 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.195.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.196.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.197.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.198.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 162.254.199.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 192.69.96.0/22 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 205.185.194.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 205.196.6.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 208.64.200.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 208.64.201.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 208.64.202.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 208.64.203.0/24 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 208.78.164.0/22 -g VALVE_NETWORKS_allow
+
+#Allow ports
+#port 27018 for login
+-A VALVE_NETWORKS_allow -p tcp -m tcp --dport 27018 -j ACCEPT
+
+COMMIT
