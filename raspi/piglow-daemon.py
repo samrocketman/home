@@ -223,11 +223,12 @@ class MyDaemon(Daemon):
     def run(self):
         for sig in [signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT]:
             signal.signal(sig, self.handler)
+        #wake up to a spaz of colors!
+        spaz()
         #piglow daemonized loop
         while True:
             #cycle through the colors with a slow pulse
             map(slow_pulse_piglow, [RED, ORANGE, YELLOW, GREEN, BLUE, WHITE])
-            spaz()
 
 #
 #
