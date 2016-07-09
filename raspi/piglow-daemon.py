@@ -18,12 +18,13 @@
 # Description:      Daemon to contol a Piglow board
 ### END INIT INFO
 
+from PyGlow import PyGlow, ARM_LED_LIST, BOTH
+from time import sleep
+import atexit
+import os
 import signal
 import sys
 import time
-import os
-import atexit
-from PyGlow import PyGlow, ARM_LED_LIST, BOTH
 
 #reset the colors to zero brightness
 piglow = PyGlow()
@@ -68,6 +69,14 @@ WHITE = [6, 12, 18]
 def slow_pulse_piglow(color):
     piglow = PyGlow(brightness=PULSE_BRIGHTNESS, pulse=True, speed=5000, pulse_dir=BOTH)
     piglow.set_leds(color).update_leds()
+
+def spaz():
+    piglow = PyGlow()
+    for x in range(1,19)+range(18,0,-1):
+        piglow.set_leds([x], PULSE_BRIGHTNESS).update_leds()
+        sleep(0.01)
+        piglow.set_leds([x], 0).update_leds()
+        sleep(0.05)
 
 #
 #
@@ -218,6 +227,7 @@ class MyDaemon(Daemon):
         while True:
             #cycle through the colors with a slow pulse
             map(slow_pulse_piglow, [RED, ORANGE, YELLOW, GREEN, BLUE, WHITE])
+            spaz()
 
 #
 #
