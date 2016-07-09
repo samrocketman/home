@@ -137,10 +137,17 @@
 ########################################################################
 # VALVE NETWORKS RULES
 # For Steam PC Games
-# Allow ports to the entire company.
 
-#List of Valve networks http://ipinfo.io/AS32590
-#United States IP Blocks
+# Why? Steam requires one to open a lot of outbound and inbound ports.
+# However, I only want to open those ports to trusted networks.  Namely between
+# Valve and I and my local networks.  This helps prevent any rogue networks
+# redirecting my Steam Client traffic, maliciously or otherwise.
+
+# Resources:
+#   * List of Valve Corporation networks http://ipinfo.io/AS32590
+#   * Valve client ports https://support.steampowered.com/kb_article.php?ref=8571-GLVN-8711
+
+#United States IP Blocks for Valve Corporation
 -A VALVE_NETWORKS -d 72.165.61.0/24 -g VALVE_NETWORKS_allow
 -A VALVE_NETWORKS -d 103.10.124.0/24 -g VALVE_NETWORKS_allow
 -A VALVE_NETWORKS -d 103.10.125.0/24 -g VALVE_NETWORKS_allow
@@ -170,9 +177,18 @@
 -A VALVE_NETWORKS -d 208.64.202.0/24 -g VALVE_NETWORKS_allow
 -A VALVE_NETWORKS -d 208.64.203.0/24 -g VALVE_NETWORKS_allow
 -A VALVE_NETWORKS -d 208.78.164.0/22 -g VALVE_NETWORKS_allow
+-A VALVE_NETWORKS -d 216.58.193.0/22 -g VALVE_NETWORKS_allow
 
-#Allow ports
-#port 27018 for login
--A VALVE_NETWORKS_allow -p tcp -m tcp --dport 27018 -j ACCEPT
+#ALLOW OUTBOUND PORTS ONLY FOR VALVE CORPORATION
+#Steam Client
+-A VALVE_NETWORKS_allow -p tcp -m multiport --dport 27000:27050 -j ACCEPT
+-A VALVE_NETWORKS_allow -p udp -m multiport --dport 27000:27050,4380 -j ACCEPT
+#Steamworks P2P Networking and Steam Voice Chat
+-A VALVE_NETWORKS_allow -p udp -m multiport --dport 3478,4379,4380 -j ACCEPT
+
+#ALLOW INBOUND PORTS (INTERNAL NETWORKS ONLY)
+#In-Home Streaming
+-A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dports 27036,27037 -j ACCEPT
+-A INTERNAL_allow -p udp -m state --state NEW -m multiport --dports 27031,27036 -j ACCEPT
 
 COMMIT
