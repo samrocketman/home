@@ -192,4 +192,7 @@
 -A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dports 27036,27037 -j ACCEPT
 -A INTERNAL_allow -p udp -m state --state NEW -m multiport --dports 27031,27036 -j ACCEPT
 
+# END VALVE NETWORKS RULES
+########################################################################
+
 COMMIT
