@@ -73,7 +73,7 @@ def slow_pulse_piglow(color):
 def spaz():
     piglow = PyGlow()
     for x in range(1,19)+range(18,0,-1):
-        piglow.set_leds([x], PULSE_BRIGHTNESS).update_leds()
+        piglow.set_leds([x], 255).update_leds()
         sleep(0.01)
         piglow.set_leds([x], 0).update_leds()
         sleep(0.05)
