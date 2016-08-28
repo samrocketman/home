@@ -40,9 +40,7 @@ sign_encrypted_file="${sign_encrypted_file:-false}"
 #DO NOT EDIT ANY MORE VARIABLES
 #this will individually encrypt all files in the folder
 #this value can be overridden by environment
-if [ -z "${folder_to_encrypt}" ]; then
-  folder_to_encrypt="${1}"
-fi
+folder_to_encrypt="${folder_to_encrypt:-${1%/}}"
 
 #if the end of the file or name matches an ignore_rule,
 #then it will not be encrypted; this value can be overridden by environment

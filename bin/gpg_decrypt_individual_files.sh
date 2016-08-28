@@ -23,7 +23,7 @@ set -e
 #check for dependent utilities
 deps=(gpg sha1sum find rm sed)
 for x in ${deps[*]}; do
-  if ! which $x &> /dev/null; then
+  if ! type -p $x &> /dev/null; then
     echo "Missing utility $x"
     exit 1
   fi
@@ -31,9 +31,7 @@ done
 
 #this will individually decrypt all files in the folder
 #this value can be overridden by environment
-if [ -z "${folder_to_decrypt}" ]; then
-  folder_to_decrypt="${1}"
-fi
+folder_to_encrypt="${folder_to_encrypt:-${1%/}}"
 
 if [ -z "${folder_to_decrypt}" -o ! -d "${folder_to_decrypt}" ]; then
   echo "Must provide a valid folder as an argument!"

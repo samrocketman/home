@@ -25,13 +25,13 @@ fi
 #check for dependent utilities
 deps=(gpg sha1sum find rm sed)
 for x in ${deps[*]}; do
-  if ! which $x &> /dev/null; then
+  if ! type -p $x &> /dev/null; then
     echo "Missing utility $x"
     exit 1
   fi
 done
 
-find "$1" -type d | while read x; do
+find "${1%/}" -type d | while read x; do
   set -e
   pushd "$x" &> /dev/null
   if [ ! -f sha1sum.txt.sig ]; then
