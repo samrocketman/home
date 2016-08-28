@@ -13,6 +13,8 @@
 :OUTPUT_allow - [0:0]
 :VALVE_NETWORKS - [0:0]
 :VALVE_NETWORKS_allow - [0:0]
+:BLIZZARD_NETWORKS - [0:0]
+:BLIZZARD_NETWORKS_allow - [0:0]
 :INTERNAL - [0:0]
 :INTERNAL_allow - [0:0]
 :PUBLIC_deny - [0:0]
@@ -34,6 +36,7 @@
 -A OUTPUT -o lo -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
 -A OUTPUT -j VALVE_NETWORKS
+-A OUTPUT -j BLIZZARD_NETWORKS
 -A OUTPUT -j LOGGING
 -A OUTPUT -j REJECT --reject-with icmp-host-prohibited
 
@@ -43,7 +46,8 @@
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 
 #LOGGING Chain
--A LOGGING -p tcp -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
+#-A LOGGING -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
+-A LOGGING -m limit -j LOG --log-prefix "iptables DROP: " --log-level 4
 
 
 ########################################################################
@@ -51,7 +55,7 @@
 
 -A INTERNAL -s 192.168.10.0/24 -g INTERNAL_allow
 #VPN
-#-A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
+-A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
 
 #icmp
 -A INTERNAL_allow -p icmp -j ACCEPT
@@ -63,6 +67,8 @@
 -A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dport 10000:11000 -j ACCEPT
 #accept traceroutes
 -A INTERNAL_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
+#Starbound
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
 
 # END GLESKE INTERNAL NETWORKS
 ########################################################################
@@ -82,6 +88,9 @@
 #ssh from everyone in the world
 #-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 
+#Terraria
+-A PUBLIC_allow -s 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+
 
 # END PUBLIC INTERNET RULES
 ########################################################################
@@ -99,13 +108,7 @@
 
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
-#-A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
-
-#allow battle.net networks
--A OUTPUT_allow -d 12.129.0.0/16 -p tcp -m multiport --dports 1119,3724 -j ACCEPT
--A OUTPUT_allow -d 24.105.0.0/16 -p tcp -m tcp --dport 1119 -j ACCEPT
--A OUTPUT_allow -d 69.164.0.0/16 -p tcp -m multiport --dports 1119 -j ACCEPT
-
+-A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
 
 #Allow Google network for XMPP chatting
 -A OUTPUT_allow -d 173.194.0.0/16 -p tcp -m tcp --dport 5222 -j ACCEPT
@@ -132,7 +135,67 @@
 #allow outbound ssh
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 
+#Terraria
+-A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+
+#
+-A OUTPUT_allow -d 103.246.31.101 -p tcp -m state --state NEW -m tcp --dport 133 -j ACCEPT
+
+#Rust game
+-A OUTPUT_allow -p udp --dport 28015 -j ACCEPT
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 28016 -j ACCEPT
+-A OUTPUT_allow -p udp -m multiport --dports 17500,28015,28016,28026,28215,28231,28315 -j ACCEPT
+
 # END OUTBOUND RULES
+########################################################################
+
+########################################################################
+# BLIZZARD NETWORKS RULES
+# For Battle.net games
+
+# This is to limit TCP and UDP client communications only to Blizzard
+# networks.
+
+# Resources:
+#   * List of Blizzard Entertainment, Inc. networks http://ipinfo.io/AS57976
+#   * Battle.net client ports https://us.battle.net/support/en/article/300479
+
+#Misc rules discovered via firewall monitoring
+-A OUTPUT_allow -d 12.129.0.0/16 -p tcp -m multiport --dports 1119,3724 -j ACCEPT
+#-A OUTPUT_allow -d 24.105.0.0/16 -p tcp -m tcp --dport 1119 -j ACCEPT
+-A OUTPUT_allow -d 69.164.0.0/16 -p tcp -m multiport --dports 1119 -j ACCEPT
+
+#local LAN broadcasts
+-A OUTPUT_allow -p udp -d 255.255.255.255 -m state --state NEW -m udp --dport 6120 -j ACCEPT
+
+
+#United States IP Blocks for Blizzard Entertainment, Inc.
+-A BLIZZARD_NETWORKS -d 24.105.0.0/21 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.8.0/21 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.16.0/22 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.20.0/22 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.25.0/24 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.26.0/23 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.28.0/24 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.29.0/24 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.32.0/21 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.40.0/21 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.52.0/22 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.57.0/24 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.60.0/24 -g BLIZZARD_NETWORKS_allow
+-A BLIZZARD_NETWORKS -d 24.105.61.0/24 -g BLIZZARD_NETWORKS_allow
+
+#allowed blizzard ports
+#battle.net client
+-A BLIZZARD_NETWORKS_allow -p tcp -m multiport --dport 1119,1120,3724,4000,6112,6113,6114 -j ACCEPT
+-A BLIZZARD_NETWORKS_allow -p udp -m multiport --dport 1119,1120,3724,4000,6112,6113,6114 -j ACCEPT
+#diablo 3
+-A BLIZZARD_NETWORKS_allow -p tcp -m multiport --dport 80 -j ACCEPT
+-A BLIZZARD_NETWORKS_allow -p udp -m multiport --dport 6120 -j ACCEPT
+
+
+
+# END BLIZZARD NETWORKS RULES
 ########################################################################
 
 ########################################################################
@@ -191,8 +254,5 @@
 #In-Home Streaming
 -A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dports 27036,27037 -j ACCEPT
 -A INTERNAL_allow -p udp -m state --state NEW -m multiport --dports 27031,27036 -j ACCEPT
-
-# END VALVE NETWORKS RULES
-########################################################################
 
 COMMIT
