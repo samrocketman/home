@@ -51,7 +51,7 @@ JENKINS_START="${JENKINS_START:-java -jar jenkins.war}"
 JENKINS_WEB="${JENKINS_WEB%/}"
 CURL="${CURL:-curl}"
 
-#Get JAVA_HOME for java 1.7 on Mac OS X
+#Get JAVA_HOME for java on Mac OS X
 #will only run if OS X is detected
 if uname -rms | grep Darwin &> /dev/null; then
   JAVA_HOME="$(/usr/libexec/java_home)"
@@ -298,7 +298,7 @@ function jenkins_cli() {
 
 function force-stop() {
   if [ -e 'jenkins.pid' ]; then
-    kill -9 $(cat jenkins.pid)
+    kill -9 $(cat jenkins.pid) 2> /dev/null
     rm -f jenkins.pid
   fi
 }
