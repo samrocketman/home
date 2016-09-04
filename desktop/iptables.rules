@@ -15,6 +15,8 @@
 :VALVE_NETWORKS_allow - [0:0]
 :BLIZZARD_NETWORKS - [0:0]
 :BLIZZARD_NETWORKS_allow - [0:0]
+:IRC_NETWORKS - [0:0]
+:IRC_NETWORKS_allow - [0:0]
 :INTERNAL - [0:0]
 :INTERNAL_allow - [0:0]
 :PUBLIC_deny - [0:0]
@@ -137,6 +139,7 @@
 
 #Terraria
 -A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+-A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 24 -j ACCEPT
 
 #
 -A OUTPUT_allow -d 103.246.31.101 -p tcp -m state --state NEW -m tcp --dport 133 -j ACCEPT
@@ -254,5 +257,33 @@
 #In-Home Streaming
 -A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dports 27036,27037 -j ACCEPT
 -A INTERNAL_allow -p udp -m state --state NEW -m multiport --dports 27031,27036 -j ACCEPT
+
+# END VALVE NETWORKS RULES
+########################################################################
+
+########################################################################
+# IRC NETWORKS RULES
+
+#irc.freenode.net
+-A IRC_NETWORKS -d 94.125.182.252 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 185.30.166.38 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 64.86.243.181 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 164.132.77.237 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 130.185.232.126 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 192.186.157.43 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 195.154.200.232 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 82.96.64.4 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 64.32.24.178 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 139.162.227.51 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 162.213.39.42 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 91.217.189.42 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 130.239.18.119 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 38.229.70.22 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 174.143.119.91 -g IRC_NETWORKS_allow
+
+-A IRC_NETWORKS_allow -p tcp -m tcp --dport 6667 -j ACCEPT
+
+# END IRC NETWORKS RULES
+########################################################################
 
 COMMIT
