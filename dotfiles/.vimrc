@@ -65,6 +65,7 @@ let g:netrw_liststyle=3
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle setlocal filetype=groovy
 :autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
+:autocmd BufNewFile,BufRead TODO setlocal filetype=markdown
 :autocmd BufNewFile,BufRead *.jelly setlocal filetype=xml
 "cfengine promises files
 :autocmd BufNewFile,BufRead *.cf setlocal filetype=conf
