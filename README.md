@@ -121,5 +121,22 @@ Docker images should have better process handling.  [Yelp
 
     docker run -d -v /path/to/dumb-init:/dumb-init:ro --entrypoint=/dumb-init <image> <command>
 
+# Searching git history contents
+
+Find a file in history.
+
+    git rev-list --all -- 'somefile'
+
+Search the contents of a file in the current checkout.
+
+    git grep <regexp>
+
+Search all of the history for the contents.
+
+    git rev-list --all | xargs git grep <regexp>
+
+Limit search all of the history on just a specific file.
+
+    git grep <regexp> $(git rev-list --all -- somefile)
 
 [dumb-init]: https://github.com/Yelp/dumb-init/issues/74#issuecomment-217669450
