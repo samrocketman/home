@@ -47,6 +47,18 @@ fi
 if echo "${PYTHONPATH}" | grep -v "$HOME/usr/lib/python2.7/site-packages" &> /dev/null; then
   export PYTHONPATH="$HOME/usr/lib/python2.7/site-packages"
 fi
+if echo "$PKG_CONFIG_PATH" | grep -v "$HOME/usr/lib/pkgconfig" &> /dev/null; then
+  export PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig:${PKG_CONFIG_PATH}"
+fi
+if echo "$MANPATH" | grep -v "$HOME/usr/share/man" &> /dev/null; then
+  export MANPATH="$HOME/usr/share/man:${MANPATH}"
+fi
+if echo "$CPATH" | grep -v "$HOME/usr/include" &> /dev/null; then
+  export CPATH="$HOME/usr/include:${CPATH}"
+fi
+if echo "$LD_LIBRARY_PATH" | grep -v "$HOME/usr/lib" &> /dev/null; then
+  export LD_LIBRARY_PATH="$HOME/usr/lib:${LD_LIBRARY_PATH}"
+fi
 
 # happy face if last command successful or sadface if last command failed
 export PS1="\`if [ \$? = 0 ]; then echo \[\e[33m\]^_^\[\e[0m\]; else echo \[\e[31m\]O_O\[\e[0m\]; fi\`[\u@\h:\w]\\$ "
