@@ -1,0 +1,29 @@
+#!/bin/bash
+#Sam Gleske
+#Convert an IP to binary.
+
+for ip in "$@";do
+  #not an IP address so break out
+  if ! grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}' <<< "${ip}" && ! grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' <<< "${ip}"; then
+    continue
+  fi
+  network_address=false
+  network_bits=32
+  if grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}' <<< "${ip}" > /dev/null; then
+    network_address=true
+  fi
+  if ${network_address}; then
+    network_bits=${ip##*/}
+    ip=${ip%%/*}
+  fi
+  shiftleft=3
+  for octet in ${ip//\./ };do
+    echo $((network_address-(shiftleft*8)))
+    ((shiftleft--))
+  done
+  bc <<< "obase=2;$(tr '.' ';' <<< "$ip")" | while read octet; do
+    echo "obase=2;(${network_bits}<<3)&11111111"
+    printf "%08d\n" ${octet}
+    echo '--'
+  done
+done
