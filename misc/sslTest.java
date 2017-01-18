@@ -24,28 +24,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import java.net.*;
-import java.io.*;
-import java.security.*;
-import javax.net.ssl.*;
+import com.sun.net.ssl.internal.ssl.Provider;
+import java.io.IOException;
+import java.security.Security;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 public class sslTest {
 	public static void main(String[] args) {
-		if (args.length < 2) {
+		if (args.length < 1 || args.length > 2) {
 			System.out.println("Usage: java sslTest somehost someport");
 			return;
 		}
 
-		int port = 0;
-		if(args[1] == null){
-			port = 443; // default https port
-		}else{
+		int port = 443; //default https port
+		if(args.length == 2){
 			port = Integer.parseInt(args[1]);
 		}
 		String host = args[0];
 
 		try{
-			Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+			Security.addProvider(new Provider());
 			SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
 			SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
