@@ -32,30 +32,30 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 public class sslTest {
-	public static void main(String[] args) {
-		if (args.length < 1 || args.length > 2) {
-			System.out.println("Usage: java sslTest somehost someport");
-			return;
-		}
+    public static void main(String[] args) {
+        if (args.length < 1 || args.length > 2) {
+            System.out.println("Usage: java sslTest somehost someport");
+            return;
+        }
 
-		int port = 443; //default https port
-		if(args.length == 2){
-			port = Integer.parseInt(args[1]);
-		}
-		String host = args[0];
+        int port = 443; //default https port
+        if(args.length == 2){
+            port = Integer.parseInt(args[1]);
+        }
+        String host = args[0];
 
-		try{
-			Security.addProvider(new Provider());
-			SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try{
+            Security.addProvider(new Provider());
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
-			SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
-			SSLSession session = socket.getSession();
-			System.out.println("Protocol is " + session.getProtocol());
-			// just close it
-			System.out.println("Closing connection.");
-			socket.close();
-		}catch (IOException e) {
-			System.err.println(e);
-		}
-	}
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+            SSLSession session = socket.getSession();
+            System.out.println("Protocol is " + session.getProtocol());
+            // just close it
+            System.out.println("Closing connection.");
+            socket.close();
+        }catch (IOException e) {
+            System.err.println(e);
+        }
+    }
 }
