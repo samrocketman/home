@@ -31,7 +31,7 @@ done
 
 #this will individually decrypt all files in the folder
 #this value can be overridden by environment
-folder_to_encrypt="${folder_to_encrypt:-${1%/}}"
+folder_to_decrypt="${folder_to_decrypt:-${1%/}}"
 
 if [ -z "${folder_to_decrypt}" -o ! -d "${folder_to_decrypt}" ]; then
   echo "Must provide a valid folder as an argument!"
