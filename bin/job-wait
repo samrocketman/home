@@ -46,14 +46,14 @@ def getJSONUrl(url, headers):
     return response
 
 #build credentials
-username=os.environ['JENKINS_USER']
-password=os.environ['JENKINS_PASSWORD']
+username=os.getenv('JENKINS_USER')
+password=os.getenv('JENKINS_PASSWORD')
 
 headers = {}
 if not username == None:
     print "Logging in as user %s." % username
     headers={
-        'Authorization': "Basic %s" % base64.b64encode("%s:%s" % (username, password)),
+        'Authorization': "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii'),
         'Host': 'localhost'
     }
 
@@ -65,7 +65,7 @@ if args.auto_jenkins_web:
     jenkins_web = jenkins_job
     while len(jenkins_web.split('/')) > 3:
         jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
-        if jenkins_web.split('/')[-1] == 'job':
+        if jenkins_web.split('/')[-1] in ['job', 'view']:
             continue
         if 'useCrumbs' in getJSONUrl(jenkins_web + '/api/json', headers):
             break
@@ -76,10 +76,13 @@ if not jenkins_job.startswith(jenkins_web):
     print "ERROR: JENKINS_JOB does not start with JENKINS_WEB.  See --help for -s or -a."
     sys.exit(2)
 
-print "Detect CSRF protection and get CSRF crumb."
+print "Detect CSRF protection."
 if getJSONUrl(jenkins_web, headers)['useCrumbs']:
+    print "CSRF protection enabled."
     csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
     headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
+else:
+    print "CSRF protection disabled."
 
 #wait for the job to finish
 response = {}
