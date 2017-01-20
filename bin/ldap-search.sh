@@ -1,0 +1,31 @@
+#!/bin/bash
+#Created by Sam Gleske
+#Mon Aug 10 15:33:31 EDT 2015
+#Mac OSX 10.9.5
+#Darwin 13.4.0 x86_64
+#GNU bash, version 3.2.53(1)-release (x86_64-apple-darwin13)
+#ldapsearch: @(#) $OpenLDAP: ldapsearch 2.4.28 (Mar 18 2015 17:48:51) $
+
+#DESCRIPTION
+#  Search LDAP for a username using ldapsearch.
+
+#hardcore safe scripting
+set -euf -o pipefail
+
+#override the following environment variables in your ~/.bash_profile
+export ldap_server="${ldap_server:-ldaps://ldap.example.com:636}"
+export binddn="${binddn:-uid=someuser,ou=people,dc=example,dc=com}"
+export ldap_passwd="${ldap_passwd:-CHANGEME}"
+
+if [ "$#" -eq "3" ]; then
+  firstname="$1"
+  lastname="$2"
+  uid="$3"
+  filter="(&(cn=*${firstname}*) (sn=*${lastname}*) (uid=*${uid}*))"
+  ldapsearch -xw "${ldap_passwd}" -H "${ldap_server}" -D "${binddn}" "${filter}"
+else
+  while read -p "Please type space delimited first name, last name, and uid to search: " firstname lastname uid; do
+    filter="(&(cn=*${firstname}*) (sn=*${lastname}*) (uid=*${uid}*))"
+    ldapsearch -xw "${ldap_passwd}" -H "${ldap_server}" -D "${binddn}" "${filter}"
+  done
+fi
