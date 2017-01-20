@@ -60,6 +60,7 @@ if not username == None:
 #complete arguments for use
 jenkins_job = trim_url_slash(args.JENKINS_JOB)
 jenkins_web = ''
+jenkins_root_api_response = {}
 if args.auto_jenkins_web:
     print "Automatically resolving JENKINS_WEB."
     jenkins_web = jenkins_job
@@ -67,17 +68,19 @@ if args.auto_jenkins_web:
         jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
         if jenkins_web.split('/')[-1] in ['job', 'view']:
             continue
-        if 'useCrumbs' in getJSONUrl(jenkins_web + '/api/json', headers):
+        jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
+        if 'useCrumbs' in jenkins_root_api_response:
             break
 else:
     jenkins_web = trim_url_slash(args.jenkins_web)
+    jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
 
 if not jenkins_job.startswith(jenkins_web):
     print "ERROR: JENKINS_JOB does not start with JENKINS_WEB.  See --help for -s or -a."
     sys.exit(2)
 
 print "Detect CSRF protection."
-if getJSONUrl(jenkins_web, headers)['useCrumbs']:
+if jenkins_root_api_response['useCrumbs']:
     print "CSRF protection enabled."
     csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
     headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
