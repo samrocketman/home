@@ -29,9 +29,11 @@ def trim_url_slash(url):
 def getUrl(url, headers):
     #python sucks at HTTPS connections
     if url[0:5] == 'https':
-        gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        #https://docs.python.org/3/library/ssl.html
+        #PROTOCOL_SSLv23 is compatible with TLSv1, TLSv1.1, and TLSv1.2
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
         req = urllib2.Request(url, headers=headers)
-        urlconn = urllib2.urlopen(req, context=gcontext)
+        urlconn = urllib2.urlopen(req, context=context)
     else:
         req = urllib2.Request(url=url, headers=headers)
         urlconn = urllib2.urlopen(req)
