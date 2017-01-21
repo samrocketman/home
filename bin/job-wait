@@ -18,7 +18,7 @@ from httplib import HTTPSConnection
 parser = argparse.ArgumentParser(description='Reads Jenkins job API and will wait until a job is finished.  If the job ends in any status other than SUCCESS then the exit code is 1.')
 parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080/'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
 parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_JOB url.  This option ignores -s.')
-parser.add_argument('-p, --print-console-output', action='store_true', dest='print_console_output', help='When the job is finished print the console output.')
+parser.add_argument('-p, --print-console-output', action='store_true', dest='print_console_output', help='When the job is finished print the duration.')
 parser.add_argument('-d, --print-duration', action='store_true', dest='print_duration', help='When the job is finished print the console output.')
 parser.add_argument('JENKINS_JOB', help='The URL to the job for querying the API about its status.')
 args = parser.parse_args()
@@ -91,7 +91,6 @@ else:
 
 #wait for the job to finish
 response = {}
-STATUS = 0
 print "Checking build %s" % jenkins_job
 while True:
     response = getJSONUrl(jenkins_job, headers)
@@ -113,10 +112,13 @@ if args.print_duration:
     seconds = duration % 60
     if hours > 0:
         print "Duration: {} hours {} minutes {} seconds".format(hours, minutes, seconds)
-    else:
+    elif minutes > 0:
         print "Duration: {} minutes {} seconds".format(minutes, seconds)
+    else:
+        print "Duration: {} seconds".format(seconds)
 
 s = 'SUCCESS'
+STATUS = 0
 if s != response['result']:
     print "Non-success status detected: %s" % response['result']
     STATUS = 1
