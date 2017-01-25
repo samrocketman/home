@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #Created by Sam Gleske
 #Wed Jan 18 23:10:33 PST 2017
+#Ubuntu 16.04.1 LTS
+#Linux 4.4.0-59-generic x86_64
+#Python 2.7.12
 #Reads Jenkins job API and will wait until a job is finished.
 #Optionally prints out console log when build is finished.
 #Exits non-zero if failed build or zero if success.
@@ -27,11 +30,9 @@ def trim_url_slash(url):
     return url[:-1] if url[-1:] == '/' else url
 
 def getUrl(url, headers):
-    #python sucks at HTTPS connections
-    if url[0:5] == 'https':
-        #https://docs.python.org/3/library/ssl.html
-        #PROTOCOL_SSLv23 is compatible with TLSv1, TLSv1.1, and TLSv1.2
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    if url.startswith('https'):
+        #https://docs.python.org/3/library/ssl.html#ssl-security
+        context = ssl.create_default_context()
         req = urllib2.Request(url, headers=headers)
         urlconn = urllib2.urlopen(req, context=context)
     else:
