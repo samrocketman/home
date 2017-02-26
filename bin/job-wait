@@ -76,11 +76,10 @@ if args.auto_jenkins_web:
             break
 else:
     jenkins_web = trim_url_slash(args.jenkins_web)
+    if not jenkins_job.startswith(jenkins_web):
+        print "ERROR: JENKINS_JOB does not start with JENKINS_WEB.  See --help for -s or -a."
+        sys.exit(2)
     jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
-
-if not jenkins_job.startswith(jenkins_web):
-    print "ERROR: JENKINS_JOB does not start with JENKINS_WEB.  See --help for -s or -a."
-    sys.exit(2)
 
 print "Detect CSRF protection."
 if jenkins_root_api_response['useCrumbs']:
