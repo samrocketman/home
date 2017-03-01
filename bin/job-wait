@@ -34,7 +34,7 @@ parser.add_argument('-c, --ca-file', default=None, metavar='CERT_PEM', dest='pin
 parser.add_argument('-d, --print-duration', action='store_true', dest='print_duration', help='When the job is finished print the duration.')
 parser.add_argument('-f, --print-failed-console', action='store_true', dest='print_failed_console', help='When the job is finished print the console output only if the job failed.')
 parser.add_argument('-p, --print-console-output', action='store_true', dest='print_console_output', help='When the job is finished print the console output.')
-parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080/'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
+parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
 parser.add_argument('JENKINS_JOB', help='The URL to an in-progress (or completed) job build number for querying the API about its status.')
 args = parser.parse_args()
 
@@ -72,7 +72,8 @@ headers = {
     'Accept': 'application/json',
     'Accept-Encoding': '',
     'Connection': 'close',
-    'Host': args.jenkins_web.split('/')[2].split(':')[0]
+    'Host': args.jenkins_web.split('/')[2].split(':')[0],
+    'User-Agent': ''
 }
 if not username == None:
     print "Logging in as user %s." % username
