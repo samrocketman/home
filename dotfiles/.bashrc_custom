@@ -38,11 +38,12 @@ if ! type -p pbcopy &> /dev/null; then
 fi
 
 # ENVIRONMENT VARIABLES
-if echo "${PATH}" | grep -v "$HOME/usr/bin" &> /dev/null; then
-  export PATH="$HOME/usr/bin:${PATH}"
-fi
 if echo "${PATH}" | grep -v "$HOME/bin" &> /dev/null; then
   export PATH="$HOME/bin:${PATH}"
+fi
+if echo "${PATH}" | grep -v "$HOME/usr/bin" &> /dev/null; then
+  #~/usr/bin is before ~/bin
+  export PATH="$HOME/usr/bin:${PATH}"
 fi
 if echo "${PYTHONPATH}" | grep -v "$HOME/usr/lib/python2.7/site-packages" &> /dev/null; then
   export PYTHONPATH="$HOME/usr/lib/python2.7/site-packages"
@@ -123,3 +124,7 @@ function retrygit() (
   fi
   while ! git push "$1" -u "$2";do sleep 1;done;say "Git pushed."
 )
+
+function LogJenkinsIsUp() {
+  pytailuntil.py "$1" 'Jenkins is fully up and running'
+}
