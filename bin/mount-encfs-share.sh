@@ -109,7 +109,7 @@ done
 mount_point="$(canonical_path "${1%/}")"
 
 #check if already mounted
-if mount | grep "${mount_point}" &> /dev/null; then
+if mount | grep -F -- "${mount_point}" &> /dev/null; then
   echo "${mount_point} appears to be mounted."
   exit 1
 fi
