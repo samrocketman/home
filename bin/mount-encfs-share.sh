@@ -11,7 +11,7 @@
 
 PROGNAME="${0##*/}"
 PROGVERSION="0.2"
-DEFAULT_ENCFS_OPTS="--public"
+DEFAULT_ENCFS_OPTS="${DEFAULT_ENCFS_OPTS:---public}"
 
 function usage() {
 cat <<EOF
