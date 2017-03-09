@@ -110,7 +110,7 @@ if [ ! -d "${mount_point}" ]; then
   mkdir -p "${mount_point}"
   #make ownership of the sudoing user
   if [ ! -z "${SUDO_USER}" ]; then
-    chown ${SUDO_USER}\: "${mount_point}"
+    chown "${SUDO_USER}"\: "${mount_point}"
   fi
   #useful if dir is unmounted
   if [ "${USER}" = "root" ]; then
@@ -128,7 +128,7 @@ if [ ! -d "${encrypted_vault}" ]; then
   mkdir -p "${encrypted_vault}"
   #make ownership of the sudoing user
   if [ ! -z "${SUDO_USER}" ]; then
-    chown ${SUDO_USER}\: "${encrypted_vault}"
+    chown "${SUDO_USER}"\: "${encrypted_vault}"
   fi
 fi
 
