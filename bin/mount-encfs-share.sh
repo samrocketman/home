@@ -55,6 +55,24 @@ EXAMPLES
 EOF
 }
 
+function canonical_path() {
+  #return canonical path for simple cases
+  if [ -z "$1" ]; then
+    echo "${PWD}"
+    return
+  elif grep -vF -- '/' <<< "$1" > /dev/null; then
+    echo "${PWD}/$1"
+    return
+  fi
+  #more complicated cases
+  path_part="${1%/*}"
+  end_path="${1##*/}"
+  (
+    cd "${path_part}"
+    echo "${PWD}/${end_path}"
+  )
+}
+
 #since we automatically switch to root try to figure out if the help doc is
 #being invoked.  If so might as well display help instead of trying to be root.
 if echo "$@" | grep -- '-h$\|--help$' &> /dev/null; then
@@ -87,22 +105,13 @@ while true; do
   shift
 done
 
-#remove trailing slash if in path
-mount_point="${1%/}"
+#remove trailing slash if in path and determine canonical path
+mount_point="$(canonical_path "${1%/}")"
 
 #check if already mounted
 if mount | grep "${mount_point}" &> /dev/null; then
   echo "${mount_point} appears to be mounted."
   exit 1
-fi
-
-#fix relative path if not relative nor absolute path given
-if ! echo "${mount_point}" | grep '^.\{0,2\}/' &> /dev/null; then
-  #force absolute in that case for parameter expansion to work
-  mount_point="${PWD}/${mount_point}"
-#if relative path then force absolute
-elif echo "${mount_point}" | grep '^.\{1,2\}/' &> /dev/null; then
-  mount_point="${PWD}/${mount_point}"
 fi
 
 #check if mount point exists else create it
