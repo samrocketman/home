@@ -5,12 +5,28 @@
 #Linux 4.4.0-28-generic x86_64
 #iptables v1.6.0
 
+*nat
+:PREROUTING ACCEPT [3:296]
+:INPUT ACCEPT [2:227]
+:OUTPUT ACCEPT [44:3277]
+:POSTROUTING ACCEPT [44:3277]
+:DOCKER - [0:0]
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+-A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 22 -j MASQUERADE
+-A DOCKER -i docker0 -j RETURN
+-A DOCKER ! -i docker0 -p tcp -m tcp --dport 32768 -j DNAT --to-destination 172.17.0.2:22
+COMMIT
+
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :OUTPUT_deny - [0:0]
 :OUTPUT_allow - [0:0]
+:DOCKER - [0:0]
+:DOCKER-ISOLATION - [0:0]
 :VALVE_NETWORKS - [0:0]
 :VALVE_NETWORKS_allow - [0:0]
 :BLIZZARD_NETWORKS - [0:0]
@@ -27,6 +43,8 @@
 -A INPUT -j PUBLIC_deny
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -i lo -j ACCEPT
+#docker
+-A INPUT -s 172.17.0.0/16 -j ACCEPT
 -A INPUT -j INTERNAL
 -A INPUT -j PUBLIC_allow
 -A INPUT -j LOGGING
@@ -36,6 +54,8 @@
 -A OUTPUT -j OUTPUT_deny
 -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
+#docker
+-A OUTPUT -d 172.17.0.0/16 -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
 -A OUTPUT -j VALVE_NETWORKS
 -A OUTPUT -j BLIZZARD_NETWORKS
@@ -44,6 +64,13 @@
 
 #FORWARD Chain
 -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+#docker
+-A FORWARD -j DOCKER-ISOLATION
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+#end docker
 -A FORWARD -j LOGGING
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 
@@ -51,6 +78,9 @@
 #-A LOGGING -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
 -A LOGGING -m limit -j LOG --log-prefix "iptables DROP: " --log-level 4
 
+#docker related chains
+-A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 22 -j ACCEPT
+-A DOCKER-ISOLATION -j RETURN
 
 ########################################################################
 # GLESKE INTERNAL NETWORKS
