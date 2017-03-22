@@ -29,12 +29,13 @@ exit status:
 """, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--curl', action='store_true', dest='print_curl', help='Print a fully formatted curl command which includes all options for debugging and exit.')
 parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
+parser.add_argument('--data-string', action="append", default=[], metavar='arg', dest='http_data_strings', help='Data to pass via message body of an HTTP request and prepends -d.  Can specify one or more -d data-file.')
 parser.add_argument('--force-crumb', action='store_true', dest='force_crumb', help='Force resolving the CSRF crumb even if --load-headers option is used.')
 parser.add_argument('--load-headers', default='', metavar='json-file', dest='load_headers_file', help='Loads HTTP headers from a JSON file to use.')
 parser.add_argument('--save-headers', default='', metavar='json-file', dest='save_headers_file', help='Saves HTTP headers to a JSON file for reuse later.')
 parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_URL url.  This option ignores -s.')
 parser.add_argument('-c, --ca-file', default=None, metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.')
-parser.add_argument('-d, --http-data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
+parser.add_argument('-d, --data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
 parser.add_argument('-m, --http-method', default='GET', metavar='method', dest='http_method', help='HTTP method to use when calling Jenkins.  Valid values are GET or POST.')
 parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
 parser.add_argument('-v, --verbosity', action="count", dest='verbosity', help="Increase output verbosity.")
@@ -74,12 +75,15 @@ def getJSONUrl(url, headers):
 def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
     curl='curl'
     if args.http_method != 'GET' and url != trim_url_slash(args.jenkins_web):
-      curl += " -X%s" % args.http_method
+        curl += " -X%s" % args.http_method
     if len(args.http_data_files) > 0 and url != trim_url_slash(args.jenkins_web):
-      curl += ' --data-urlencode "'
-      for f in args.http_data_files:
-          curl += '$(<%s)' % f
-      curl += '"'
+        curl += ' --data-urlencode "'
+        if len(args.http_data_strings) > 0:
+            for s in args.http_data_strings:
+                curl += '%s' % s
+        for f in args.http_data_files:
+            curl += '$(<%s)' % f
+        curl += '"'
     if args.pinned_cert:
         curl += ' --cacert %s' % args.pinned_cert
     for k,v in headers.items():
@@ -176,6 +180,8 @@ if args.verbosity >= 1:
 data=None
 if len(args.http_data_files) > 0:
     data = ""
+    for string in args.http_data_strings:
+        data += string
     for path in args.http_data_files:
         with open(path) as f:
             data += f.read()
