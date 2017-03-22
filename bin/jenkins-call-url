@@ -17,15 +17,15 @@ import urllib
 import urllib2
 from httplib import HTTPSConnection
 
-parser = argparse.ArgumentParser(description="Reads Jenkins job API and will wait until a job is finished.  Useful for notifying when a job is finished (e.g. a speaking command like say or espeak).", epilog="""
+parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
   JENKINS_WEB           Root URL to a Jenkins server.  See also -s.
   JENKINS_USER          Username to authenticate with Jenkins.
   JENKINS_PASSWORD      Password to authenticate with Jenkins.
 
 exit status:
-  0                     SUCCESS job run.
-  1                     Any job run status other than SUCCESS.
+  0                     SUCCESS script run.
+  1                     Any script run status other than SUCCESS.
 """, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
 parser.add_argument('--curl', action='store_true', dest='print_curl', help='Print a fully formatted curl command which includes all options for debugging and exit.')
