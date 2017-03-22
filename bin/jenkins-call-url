@@ -41,11 +41,6 @@ parser.add_argument('-v, --verbosity', action="count", dest='verbosity', help="I
 parser.add_argument('JENKINS_URL', help='The URL to a Jenkins endpoint to call.')
 args = parser.parse_args()
 
-if not args.http_method in ['GET', 'POST']:
-    print "Invalid --http-method specified: %s" % args.http_method
-    parser.print_help()
-    exit(1)
-
 def trim_url_slash(url):
     return url[:-1] if url[-1:] == '/' else url
 
@@ -92,13 +87,24 @@ def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
     print curl, url
     exit(1)
 
+#print to stderr
+def printErr(message=''):
+    sys.stderr.write(message + '\n')
+    sys.stderr.flush()
+
+if not args.http_method in ['GET', 'POST']:
+    printErr("Invalid --http-method specified: %s" % args.http_method)
+    parser.print_help()
+    exit(1)
+
+
 #build credentials
 username=os.getenv('JENKINS_USER')
 password=os.getenv('JENKINS_PASSWORD')
 
 if len(args.load_headers_file) > 0:
     if args.verbosity >= 1:
-        print "Loading HTTP headers from JSON file."
+        printErr("Loading HTTP headers from JSON file.")
     with open(args.load_headers_file) as f:
         headers = json.load(f)
 else:
@@ -111,11 +117,11 @@ else:
 
 if 'Authorization' in headers:
     if args.verbosity >= 1:
-        print "Reusing Authorization from HTTP headers file."
+        printErr("Reusing Authorization from HTTP headers file.")
 else:
     if not username == None:
         if args.verbosity >= 1:
-            print "Logging in as user %s." % username
+            printErr("Logging in as user %s." % username)
         headers['Authorization'] = "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii')
 
 if args.print_curl_init:
@@ -129,7 +135,7 @@ jenkins_root_api_response = {}
 if len(args.load_headers_file) == 0 or args.force_crumb:
     if args.auto_jenkins_web:
         if args.verbosity >= 1:
-            print "Automatically resolving JENKINS_WEB."
+            printErr("Automatically resolving JENKINS_WEB.")
         jenkins_web = jenkins_url
         while len(jenkins_web.split('/')) > 3:
             jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
@@ -141,22 +147,22 @@ if len(args.load_headers_file) == 0 or args.force_crumb:
     else:
         jenkins_web = trim_url_slash(args.jenkins_web)
         if not jenkins_url.startswith(jenkins_web):
-            print "ERROR: JENKINS_URL does not start with JENKINS_WEB.  See --help for -s or -a."
+            printErr("ERROR: JENKINS_URL does not start with JENKINS_WEB.  See --help for -s or -a.")
             sys.exit(2)
         jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
 
     #detect CSRF protection
     if jenkins_root_api_response['useCrumbs']:
         if args.verbosity >= 1:
-            print "CSRF protection enabled."
+            printErr("CSRF protection enabled.")
         csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
         headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
     else:
         if args.verbosity >= 1:
-            print "CSRF protection disabled."
+            printErr("CSRF protection disabled.")
 else:
     if args.verbosity >= 1:
-        print "Reusing CSRF crumb from HTTP headers file."
+        printErr("Reusing CSRF crumb from HTTP headers file.")
 
 #include the full operation
 if args.print_curl:
@@ -165,7 +171,7 @@ if args.print_curl:
 #Call the URL
 response = {}
 if args.verbosity >= 1:
-    print "%s %s" % (args.http_method, jenkins_url)
+    printErr("%s %s" % (args.http_method, jenkins_url))
 
 data=None
 if len(args.http_data_files) > 0:
@@ -176,12 +182,14 @@ if len(args.http_data_files) > 0:
 
 response = getUrl(jenkins_url, headers, method=args.http_method, data=data)
 if args.verbosity >= 1:
-    print "Response:"
+    printErr("Response:")
 #print without newline at end
 sys.stdout.write(response)
 sys.stdout.flush()
 
 if len(args.save_headers_file) > 0:
+    if args.verbosity >= 1:
+        printErr("Saving HTTP headers to file.")
     with open(args.save_headers_file, 'w') as f:
         json.dump(headers,f)
 
