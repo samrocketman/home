@@ -2,4 +2,4 @@
 
 while read x; do
   echo "$x"
-done | grep -v grep | awk '{print $2}' | xargs kill
+done | grep -v grep | awk '{print $2}' | xargs kill "$@"
