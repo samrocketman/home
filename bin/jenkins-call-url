@@ -1,0 +1,168 @@
+#!/usr/bin/env python
+#Created by Sam Gleske
+#Tue Mar 21 17:24:36 PDT 2017
+#Ubuntu 16.04.1 LTS
+#Linux 4.4.0-59-generic x86_64
+#Python 2.7.12
+#Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.
+
+import argparse
+import base64
+import json
+import os
+import ssl
+import sys
+import time
+import urllib
+import urllib2
+from httplib import HTTPSConnection
+
+parser = argparse.ArgumentParser(description="Reads Jenkins job API and will wait until a job is finished.  Useful for notifying when a job is finished (e.g. a speaking command like say or espeak).", epilog="""
+environment variables:
+  JENKINS_WEB           Root URL to a Jenkins server.  See also -s.
+  JENKINS_USER          Username to authenticate with Jenkins.
+  JENKINS_PASSWORD      Password to authenticate with Jenkins.
+
+exit status:
+  0                     SUCCESS job run.
+  1                     Any job run status other than SUCCESS.
+""", formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
+parser.add_argument('--curl', action='store_true', dest='print_curl', help='Print a fully formatted curl command which includes all options for debugging and exit.')
+parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_URL url.  This option ignores -s.')
+parser.add_argument('-c, --ca-file', default=None, metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.')
+parser.add_argument('-d, --http-data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
+parser.add_argument('-m, --http-method', default='GET', metavar='method', dest='http_method', help='HTTP method to use when calling Jenkins.  Valid values are GET or POST.')
+parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
+parser.add_argument('-v, --verbosity', action="count", dest='verbosity', help="Increase output verbosity.")
+parser.add_argument('JENKINS_URL', help='The URL to a Jenkins endpoint to call.')
+args = parser.parse_args()
+
+if not args.http_method in ['GET', 'POST']:
+    print "Invalid --http-method specified: %s" % args.http_method
+    parser.print_help()
+    exit(1)
+
+def trim_url_slash(url):
+    return url[:-1] if url[-1:] == '/' else url
+
+def getUrl(url, headers, data=None, method='GET'):
+    if url.startswith('https'):
+        #https://docs.python.org/3/library/ssl.html#ssl-security
+        context = ssl.create_default_context()
+        if args.pinned_cert:
+            context.load_verify_locations(cafile=args.pinned_cert)
+        else:
+            context.load_default_certs()
+        req = urllib2.Request(url, data=data, headers=headers)
+        if method != 'GET':
+            req.get_method = lambda: method
+        urlconn = urllib2.urlopen(req, context=context)
+    else:
+        req = urllib2.Request(url=url, data=data, headers=headers)
+        if method != 'GET':
+            req.get_method = lambda: method
+        urlconn = urllib2.urlopen(req)
+    responseString = urlconn.read()
+    urlconn.close()
+    return responseString
+
+def getJSONUrl(url, headers):
+    if not url.endswith('/api/json'):
+        url = url + '/api/json'
+    response = json.loads(getUrl(url, headers))
+    return response
+
+def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
+    curl='curl'
+    if args.http_method != 'GET' and url != trim_url_slash(args.jenkins_web):
+      curl += " -X%s" % args.http_method
+    if len(args.http_data_files) > 0 and url != trim_url_slash(args.jenkins_web):
+      curl += ' --data-urlencode "'
+      for f in args.http_data_files:
+          curl += '$(<%s)' % f
+      curl += '"'
+    if args.pinned_cert:
+        curl += ' --cacert %s' % args.pinned_cert
+    for k,v in headers.items():
+        curl += " -H '%s:%s'" % (k, v)
+    print curl, url
+    exit(1)
+
+#build credentials
+username=os.getenv('JENKINS_USER')
+password=os.getenv('JENKINS_PASSWORD')
+
+headers = {
+#    'Accept': 'application/json',
+    'Accept-Encoding': '',
+    'Connection': 'close',
+    'Host': args.jenkins_web.split('/')[2].split(':')[0],
+    'User-Agent': ''
+}
+if not username == None:
+    if args.verbosity >= 1:
+        print "Logging in as user %s." % username
+    headers['Authorization'] = "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii')
+
+if args.print_curl_init:
+    printCurl(headers)
+
+#complete arguments for use
+jenkins_url = trim_url_slash(args.JENKINS_URL)
+jenkins_web = ''
+jenkins_root_api_response = {}
+if args.auto_jenkins_web:
+    if args.verbosity >= 1:
+        print "Automatically resolving JENKINS_WEB."
+    jenkins_web = jenkins_url
+    while len(jenkins_web.split('/')) > 3:
+        jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
+        if jenkins_web.split('/')[-1] in ['job', 'view']:
+            continue
+        jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
+        if 'useCrumbs' in jenkins_root_api_response:
+            break
+else:
+    jenkins_web = trim_url_slash(args.jenkins_web)
+    if not jenkins_url.startswith(jenkins_web):
+        print "ERROR: JENKINS_URL does not start with JENKINS_WEB.  See --help for -s or -a."
+        sys.exit(2)
+    jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
+
+#detect CSRF protection
+if args.verbosity >= 1:
+    print "Detect CSRF protection."
+if jenkins_root_api_response['useCrumbs']:
+    if args.verbosity >= 1:
+        print "CSRF protection enabled."
+    csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
+    headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
+else:
+    if args.verbosity >= 1:
+        print "CSRF protection disabled."
+
+#include the full operation
+if args.print_curl:
+    printCurl(headers, url=jenkins_url)
+
+#Call the URL
+response = {}
+if args.verbosity >= 1:
+    print "%s %s" % (args.http_method, jenkins_url)
+
+data=None
+if len(args.http_data_files) > 0:
+    data = ""
+    for path in args.http_data_files:
+        with open(path) as f:
+            data += f.read()
+
+response = getUrl(jenkins_url, headers, method=args.http_method, data=data)
+#print without newline at end
+sys.stdout.write(response)
+sys.stdout.flush()
+
+STATUS = 0
+#eventually define more sane status results
+sys.exit(STATUS)
