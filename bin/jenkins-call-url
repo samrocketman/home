@@ -172,11 +172,10 @@ else:
 if args.print_curl:
     printCurl(headers, url=jenkins_url)
 
-#Call the URL
-response = {}
 if args.verbosity >= 1:
     printErr("%s %s" % (args.http_method, jenkins_url))
 
+#prepare the HTTP message body payload
 data=None
 if len(args.http_data_files) > 0:
     data = ""
@@ -186,6 +185,7 @@ if len(args.http_data_files) > 0:
         with open(path) as f:
             data += f.read()
 
+#Call the URL
 response = getUrl(jenkins_url, headers, method=args.http_method, data=data)
 if args.verbosity >= 1:
     printErr("Response:")
