@@ -27,8 +27,11 @@ exit status:
   0                     SUCCESS script run.
   1                     Any script run status other than SUCCESS.
 """, formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
 parser.add_argument('--curl', action='store_true', dest='print_curl', help='Print a fully formatted curl command which includes all options for debugging and exit.')
+parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
+parser.add_argument('--force-crumb', action='store_true', dest='force_crumb', help='Force resolving the CSRF crumb even if --load-headers option is used.')
+parser.add_argument('--load-headers', default='', metavar='json-file', dest='load_headers_file', help='Loads HTTP headers from a JSON file to use.')
+parser.add_argument('--save-headers', default='', metavar='json-file', dest='save_headers_file', help='Saves HTTP headers to a JSON file for reuse later.')
 parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_URL url.  This option ignores -s.')
 parser.add_argument('-c, --ca-file', default=None, metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.')
 parser.add_argument('-d, --http-data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
@@ -93,17 +96,27 @@ def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
 username=os.getenv('JENKINS_USER')
 password=os.getenv('JENKINS_PASSWORD')
 
-headers = {
-#    'Accept': 'application/json',
-    'Accept-Encoding': '',
-    'Connection': 'close',
-    'Host': args.jenkins_web.split('/')[2].split(':')[0],
-    'User-Agent': ''
-}
-if not username == None:
+if len(args.load_headers_file) > 0:
     if args.verbosity >= 1:
-        print "Logging in as user %s." % username
-    headers['Authorization'] = "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii')
+        print "Loading HTTP headers from JSON file."
+    with open(args.load_headers_file) as f:
+        headers = json.load(f)
+else:
+    headers = {
+        'Accept-Encoding': '',
+        'Connection': 'close',
+        'Host': args.jenkins_web.split('/')[2].split(':')[0],
+        'User-Agent': ''
+    }
+
+if 'Authorization' in headers:
+    if args.verbosity >= 1:
+        print "Reusing Authorization from HTTP headers file."
+else:
+    if not username == None:
+        if args.verbosity >= 1:
+            print "Logging in as user %s." % username
+        headers['Authorization'] = "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii')
 
 if args.print_curl_init:
     printCurl(headers)
@@ -112,35 +125,38 @@ if args.print_curl_init:
 jenkins_url = trim_url_slash(args.JENKINS_URL)
 jenkins_web = ''
 jenkins_root_api_response = {}
-if args.auto_jenkins_web:
-    if args.verbosity >= 1:
-        print "Automatically resolving JENKINS_WEB."
-    jenkins_web = jenkins_url
-    while len(jenkins_web.split('/')) > 3:
-        jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
-        if jenkins_web.split('/')[-1] in ['job', 'view']:
-            continue
-        jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
-        if 'useCrumbs' in jenkins_root_api_response:
-            break
-else:
-    jenkins_web = trim_url_slash(args.jenkins_web)
-    if not jenkins_url.startswith(jenkins_web):
-        print "ERROR: JENKINS_URL does not start with JENKINS_WEB.  See --help for -s or -a."
-        sys.exit(2)
-    jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
 
-#detect CSRF protection
-if args.verbosity >= 1:
-    print "Detect CSRF protection."
-if jenkins_root_api_response['useCrumbs']:
-    if args.verbosity >= 1:
-        print "CSRF protection enabled."
-    csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
-    headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
+if len(args.load_headers_file) == 0 or args.force_crumb:
+    if args.auto_jenkins_web:
+        if args.verbosity >= 1:
+            print "Automatically resolving JENKINS_WEB."
+        jenkins_web = jenkins_url
+        while len(jenkins_web.split('/')) > 3:
+            jenkins_web = '/'.join(jenkins_web.split('/')[:-1])
+            if jenkins_web.split('/')[-1] in ['job', 'view']:
+                continue
+            jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
+            if 'useCrumbs' in jenkins_root_api_response:
+                break
+    else:
+        jenkins_web = trim_url_slash(args.jenkins_web)
+        if not jenkins_url.startswith(jenkins_web):
+            print "ERROR: JENKINS_URL does not start with JENKINS_WEB.  See --help for -s or -a."
+            sys.exit(2)
+        jenkins_root_api_response = getJSONUrl(jenkins_web + '/api/json', headers)
+
+    #detect CSRF protection
+    if jenkins_root_api_response['useCrumbs']:
+        if args.verbosity >= 1:
+            print "CSRF protection enabled."
+        csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
+        headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
+    else:
+        if args.verbosity >= 1:
+            print "CSRF protection disabled."
 else:
     if args.verbosity >= 1:
-        print "CSRF protection disabled."
+        print "Reusing CSRF crumb from HTTP headers file."
 
 #include the full operation
 if args.print_curl:
@@ -159,9 +175,15 @@ if len(args.http_data_files) > 0:
             data += f.read()
 
 response = getUrl(jenkins_url, headers, method=args.http_method, data=data)
+if args.verbosity >= 1:
+    print "Response:"
 #print without newline at end
 sys.stdout.write(response)
 sys.stdout.flush()
+
+if len(args.save_headers_file) > 0:
+    with open(args.save_headers_file, 'w') as f:
+        json.dump(headers,f)
 
 STATUS = 0
 #eventually define more sane status results
