@@ -22,6 +22,7 @@ environment variables:
   JENKINS_WEB           Root URL to a Jenkins server.  See also -s.
   JENKINS_USER          Username to authenticate with Jenkins.
   JENKINS_PASSWORD      Password to authenticate with Jenkins.
+  JENKINS_CA_FILE       Path to CA chain file to validate TLS connections.  See also -c.
 
 exit status:
   0                     SUCCESS script run.
@@ -34,7 +35,7 @@ parser.add_argument('--force-crumb', action='store_true', dest='force_crumb', he
 parser.add_argument('--load-headers', default='', metavar='json-file', dest='load_headers_file', help='Loads HTTP headers from a JSON file to use.')
 parser.add_argument('--save-headers', default='', metavar='json-file', dest='save_headers_file', help='Saves HTTP headers to a JSON file for reuse later.')
 parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_URL url.  This option ignores -s.')
-parser.add_argument('-c, --ca-file', default=None, metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.')
+parser.add_argument('-c, --ca-file', default=os.getenv('JENKINS_CA_FILE'), metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.  It can also be set via JENKINS_CA_FILE environment variable.')
 parser.add_argument('-d, --data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
 parser.add_argument('-m, --http-method', default='GET', metavar='method', dest='http_method', help='HTTP method to use when calling Jenkins.  Valid values are GET or POST.')
 parser.add_argument('-s, --jenkins-server', default=os.getenv('JENKINS_WEB', 'http://localhost:8080'), metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.  It can also be set via JENKINS_WEB environment variable.')
