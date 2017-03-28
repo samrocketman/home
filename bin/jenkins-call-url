@@ -151,6 +151,8 @@ jenkins_web = ''
 jenkins_root_api_response = {}
 
 if args.auto_jenkins_web:
+    #force a crumb reload since we're resolving JENKINS_WEB
+    args.force_crumb = True
     if args.verbosity >= 2:
         printErr("Automatically resolving JENKINS_WEB.")
     jenkins_web = jenkins_url
