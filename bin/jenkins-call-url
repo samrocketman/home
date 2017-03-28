@@ -6,6 +6,7 @@
 #Python 2.7.12
 #Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.
 
+from httplib import HTTPSConnection
 import argparse
 import base64
 import json
@@ -15,7 +16,6 @@ import sys
 import time
 import urllib
 import urllib2
-from httplib import HTTPSConnection
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -46,31 +46,43 @@ def trim_url_slash(url):
     return url[:-1] if url[-1:] == '/' else url
 
 def getUrl(url, headers, data=None, method='GET'):
-    if url.startswith('https'):
-        #https://docs.python.org/3/library/ssl.html#ssl-security
-        context = ssl.create_default_context()
-        if args.pinned_cert:
-            context.load_verify_locations(cafile=args.pinned_cert)
+    responseCode = -1
+    responseString = ""
+    responseErrorReason = None
+    try:
+        if url.startswith('https'):
+            #https://docs.python.org/3/library/ssl.html#ssl-security
+            context = ssl.create_default_context()
+            if args.pinned_cert:
+                context.load_verify_locations(cafile=args.pinned_cert)
+            else:
+                context.load_default_certs()
+            req = urllib2.Request(url, data=data, headers=headers)
+            if method != 'GET':
+                req.get_method = lambda: method
+            urlconn = urllib2.urlopen(req, context=context)
         else:
-            context.load_default_certs()
-        req = urllib2.Request(url, data=data, headers=headers)
-        if method != 'GET':
-            req.get_method = lambda: method
-        urlconn = urllib2.urlopen(req, context=context)
-    else:
-        req = urllib2.Request(url=url, data=data, headers=headers)
-        if method != 'GET':
-            req.get_method = lambda: method
-        urlconn = urllib2.urlopen(req)
-    responseString = urlconn.read()
-    urlconn.close()
-    return responseString
+            req = urllib2.Request(url=url, data=data, headers=headers)
+            if method != 'GET':
+                req.get_method = lambda: method
+            urlconn = urllib2.urlopen(req)
+        responseString = urlconn.read()
+        responseCode = urlconn.getcode()
+        urlconn.close()
+    except urllib2.HTTPError as e:
+        responseCode = e.code
+        responseErrorReason = e.reason
+    return (responseCode, responseString, responseErrorReason)
 
 def getJSONUrl(url, headers):
     if not url.endswith('/api/json'):
         url = url + '/api/json'
-    response = json.loads(getUrl(url, headers))
-    return response
+    code, response, reason = getUrl(url, headers)
+    if reason:
+        printErr("HTTP ERROR %s: %s\n%s" % (str(code), reason, url))
+        sys.exit(1)
+    parsed = json.loads(response)
+    return parsed
 
 def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
     curl='curl'
@@ -89,7 +101,7 @@ def printCurl(headers, url=trim_url_slash(args.jenkins_web)):
     for k,v in headers.items():
         curl += " -H '%s:%s'" % (k, v)
     print curl, url
-    exit(1)
+    sys.exit(1)
 
 #print to stderr
 def printErr(message=''):
@@ -99,7 +111,7 @@ def printErr(message=''):
 if not args.http_method in ['GET', 'POST']:
     printErr("Invalid --http-method specified: %s" % args.http_method)
     parser.print_help()
-    exit(1)
+    sys.exit(1)
 
 
 #build credentials
@@ -107,7 +119,7 @@ username=os.getenv('JENKINS_USER')
 password=os.getenv('JENKINS_PASSWORD')
 
 if len(args.load_headers_file) > 0:
-    if args.verbosity >= 1:
+    if args.verbosity >= 2:
         printErr("Loading HTTP headers from JSON file.")
     with open(args.load_headers_file) as f:
         headers = json.load(f)
@@ -120,11 +132,11 @@ else:
     }
 
 if 'Authorization' in headers:
-    if args.verbosity >= 1:
+    if args.verbosity >= 2:
         printErr("Reusing Authorization from HTTP headers file.")
 else:
     if not username == None:
-        if args.verbosity >= 1:
+        if args.verbosity >= 2:
             printErr("Logging in as user %s." % username)
         headers['Authorization'] = "Basic %s" % base64.b64encode("%s:%s" % (username, password)).decode('ascii')
 
@@ -138,7 +150,7 @@ jenkins_root_api_response = {}
 
 if len(args.load_headers_file) == 0 or args.force_crumb:
     if args.auto_jenkins_web:
-        if args.verbosity >= 1:
+        if args.verbosity >= 2:
             printErr("Automatically resolving JENKINS_WEB.")
         jenkins_web = jenkins_url
         while len(jenkins_web.split('/')) > 3:
@@ -157,15 +169,15 @@ if len(args.load_headers_file) == 0 or args.force_crumb:
 
     #detect CSRF protection
     if jenkins_root_api_response['useCrumbs']:
-        if args.verbosity >= 1:
+        if args.verbosity >= 2:
             printErr("CSRF protection enabled.")
         csrf_crumb = getJSONUrl(jenkins_web + '/crumbIssuer', headers)
         headers[csrf_crumb["crumbRequestField"]] = csrf_crumb["crumb"]
     else:
-        if args.verbosity >= 1:
+        if args.verbosity >= 2:
             printErr("CSRF protection disabled.")
 else:
-    if args.verbosity >= 1:
+    if args.verbosity >= 2:
         printErr("Reusing CSRF crumb from HTTP headers file.")
 
 #include the full operation
@@ -186,19 +198,23 @@ if len(args.http_data_files) > 0:
             data += f.read()
 
 #Call the URL
-response = getUrl(jenkins_url, headers, method=args.http_method, data=data)
+code, response, reason = getUrl(jenkins_url, headers, method=args.http_method, data=data)
 if args.verbosity >= 1:
-    printErr("Response:")
+    printErr("Response (HTTP %s):" % str(code))
 #print without newline at end
-sys.stdout.write(response)
-sys.stdout.flush()
+if len(response) > 0:
+    sys.stdout.write(response)
+    sys.stdout.flush()
 
 if len(args.save_headers_file) > 0:
-    if args.verbosity >= 1:
+    if args.verbosity >= 2:
         printErr("Saving HTTP headers to file.")
     with open(args.save_headers_file, 'w') as f:
         json.dump(headers,f)
 
 STATUS = 0
-#eventually define more sane status results
+if reason:
+    STATUS=1
+    if args.verbosity >= 1:
+        printErr(reason)
 sys.exit(STATUS)
