@@ -11,6 +11,14 @@
 
 #DESCRIPTION:
 #  Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.
+#EXAMPLES:
+#  Execute script console script.
+#      jenkins-call-url -m POST --data-string "script=println 'hello world'" http://localhost:8080/scriptText
+#  Execute a whole Groovy script on script console.
+#      jenkins-call-url -m POST --data-string "script=" --data-file ./script.groovy http://localhost:8080/scriptText
+#  Set default arguments for always calling groovy scripts to script console.
+#      export JENKINS_CALL_ARGS="-m POST -v --data-string script= http://localhost:8080/scriptText --data-file"
+#      jenkins-call-url ./script.groovy
 
 from httplib import HTTPSConnection
 import argparse
@@ -43,7 +51,7 @@ parser.add_argument('--load-headers', default=os.getenv('JENKINS_HEADERS_FILE', 
 parser.add_argument('--save-headers', default=os.getenv('JENKINS_HEADERS_FILE', ''), metavar='json-file', dest='save_headers_file', help='Saves HTTP headers to a JSON file for reuse later.  It can also be set via JENKINS_HEADERS_FILE environment variable.')
 parser.add_argument('-a, --automatic-jenkins-server', action='store_true', dest='auto_jenkins_web', help='Automatically determine the Jenkins root based off of JENKINS_URL url.  This option ignores -s and --load-headers.')
 parser.add_argument('-c, --ca-file', default=os.getenv('JENKINS_CA_FILE'), metavar='CERT_PEM', dest='pinned_cert', help='Path to pinned CA chain in PEM format.  Can be self signed to guarantee secure connection.  It can also be set via JENKINS_CA_FILE environment variable.')
-parser.add_argument('-d, --data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request.  Can specify one or more -d data-file.')
+parser.add_argument('-d, --data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request URL encoded.  Can specify one or more -d data-file.')
 parser.add_argument('-m, --http-method', default='GET', metavar='method', dest='http_method', help='HTTP method to use when calling Jenkins.  Valid values are GET or POST.')
 parser.add_argument('-s, --jenkins-server', default='http://localhost:8080', metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.')
 parser.add_argument('-v, --verbosity', action="count", dest='verbosity', help="Increase output verbosity.")
@@ -221,7 +229,7 @@ if len(args.http_data_files) > 0:
         data += string
     for path in args.http_data_files:
         with open(path) as f:
-            data += f.read()
+            data += urllib.quote(f.read())
 
 #Call the URL
 code, response, reason = getUrl(jenkins_url, headers, method=args.http_method, data=data)
