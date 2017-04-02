@@ -42,6 +42,17 @@ environment variables:
 exit status:
   0                     SUCCESS script run.
   1                     Any script run status other than SUCCESS.
+
+examples:
+  Execute script console script.
+      jenkins-call-url -m POST --data-string "script=println 'hello world'" http://localhost:8080/scriptText
+
+  Execute a whole Groovy script on script console.
+      jenkins-call-url -m POST --data-string "script=" --data-file ./script.groovy http://localhost:8080/scriptText
+
+  Set default arguments for always calling groovy scripts to script console.
+      export JENKINS_CALL_ARGS="-m POST -v --data-string script= http://localhost:8080/scriptText --data-file"
+      jenkins-call-url ./script.groovy
 """, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--curl', action='store_true', dest='print_curl', help='Print a fully formatted curl command which includes all options for debugging and exit.')
 parser.add_argument('--curl-init', action='store_true', dest='print_curl_init', help='Print a formatted initial curl command for debugging and exit.')
