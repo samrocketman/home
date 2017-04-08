@@ -65,6 +65,7 @@ parser.add_argument('-c, --ca-file', default=os.getenv('JENKINS_CA_FILE'), metav
 parser.add_argument('-d, --data-file', action="append", default=[], metavar='data-file', dest='http_data_files', help='Data to pass via message body of an HTTP request URL encoded.  Can specify one or more -d data-file.')
 parser.add_argument('-m, --http-method', default='GET', metavar='method', dest='http_method', help='HTTP method to use when calling Jenkins.  Valid values are GET or POST.')
 parser.add_argument('-s, --jenkins-server', default='http://localhost:8080', metavar='JENKINS_WEB', dest='jenkins_web', help='Root web URL for the Jenkins server.')
+parser.add_argument('-o, --output', default='-', metavar='OUTPUT_FILE', dest='output', help='Write output to file instead of stdout.  Default: - for stdout.')
 parser.add_argument('-v, --verbosity', action="count", dest='verbosity', help="Increase output verbosity.")
 parser.add_argument('JENKINS_URL', help='The URL to a Jenkins endpoint to call.')
 
@@ -82,6 +83,8 @@ def trim_url_slash(url):
     return url[:-1] if url[-1:] == '/' else url
 
 def getUrl(url, headers, data=None, method='GET'):
+    if args.verbosity >= 3:
+        printErr('%s %s' % (method, url))
     responseCode = -1
     responseString = ""
     responseErrorReason = None
@@ -248,8 +251,13 @@ if args.verbosity >= 1:
     printErr("Response (HTTP %s):" % str(code))
 #print without newline at end
 if len(response) > 0:
-    sys.stdout.write(response)
-    sys.stdout.flush()
+    if args.output == '-':
+        sys.stdout.write(response)
+        sys.stdout.flush()
+    else:
+        with open(args.output, 'w') as f:
+            f.write(response)
+            f.flush()
 
 if len(args.save_headers_file) > 0:
     if args.verbosity >= 2:
