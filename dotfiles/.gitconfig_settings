@@ -6,6 +6,7 @@
 	co = checkout
 	d = diff
 	f = fetch
+	p = push
 	#shorthand for git gerrit <branch>; defaults to pushing to current branch
 	g = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 	l = log
