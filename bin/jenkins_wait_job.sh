@@ -4,13 +4,35 @@
 #Linux 4.4.0-72-generic x86_64
 #Python 2.7.12
 
+function json() {
+  python -c "import sys,json;print str(json.load(sys.stdin)[\"${1}\"]).lower()"
+}
 
-while $(jenkins-call-url ${1%/}/api/json | python -c 'import sys,json;print str(json.load(sys.stdin)["building"]).lower()'); do
+MESSAGE='Jobb success.'
+PIPELINE_INPUT=false
+count=0
+while true; do
+  [ "$(jenkins-call-url ${1%/}/api/json | json building)" = 'false' ] && break
+  if [ "$count" -eq "0" ]; then
+    if ( jenkins-call-url ${1%/}/consoleText | tail | grep 'Input requested' ); then
+      PIPELINE_INPUT=true
+      break
+    fi
+  fi
+  #every 15 seconds check consoleText
+  ((count++, count = count%3)) || true
   sleep 5
 done
 
-RESULT=$(jenkins-call-url ${1%/}/api/json | python -c 'import sys,json;print json.load(sys.stdin)["result"]')
+if ${PIPELINE_INPUT}; then
+  RESULT=SUCCESS
+  MESSAGE='Pipeline input requested.'
+else
+  RESULT=$(jenkins-call-url ${1%/}/api/json | json result)
+fi
 
 [ "${RESULT}" = 'SUCCESS' ] && \
-  say_job_done.sh 'Jobb success.' || \
-  say_job_done.sh 'Jobb failed.'
+  say_job_done.sh "${MESSAGE}" || (
+    say_job_done.sh 'Jobb failed.'
+    jenkins-call-url ${1%/}/consoleText
+  )
