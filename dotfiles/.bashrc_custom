@@ -128,3 +128,5 @@ function retrygit() (
 function LogJenkinsIsUp() {
   pytailuntil.py "$1" 'Jenkins is fully up and running'
 }
+
+export JENKINS_HEADERS_FILE=~/.jenkins-headers.json
