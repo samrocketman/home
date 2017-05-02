@@ -28,7 +28,7 @@ if ${PIPELINE_INPUT}; then
   RESULT=SUCCESS
   MESSAGE='Pipeline input requested.'
 else
-  RESULT=$(jenkins-call-url ${1%/}/api/json | json result)
+  RESULT=$(jenkins-call-url ${1%/}/api/json | json result | tr 'a-z' 'A-Z')
 fi
 
 [ "${RESULT}" = 'SUCCESS' ] && \
