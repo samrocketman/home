@@ -158,6 +158,8 @@ COMMANDS
   --debug                      More verbose output.
   --disable-shutdown-mode, +s  Disable shutdown mode.
   --enable-shutdown-mode, -s   Enable shutdown mode.
+  --kill-day-old-jobs, -k      Kill any active jobs which have been running
+                               longer than 24 hours.
   --safe-restart               Restart if Jenkins is in shutdown mode and
                                there's no in-progress executors.
 
