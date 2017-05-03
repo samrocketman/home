@@ -6,6 +6,7 @@
 #GNU bash, version 4.3.11(1)-release (x86_64-apple-darwin13.2.0)
 #curl 7.43.0 (x86_64-apple-darwin15.0) libcurl/7.43.0 SecureTransport zlib/1.2.5
 
+[ -e "${HOME}/.jenkins-bashrc" ] && source "${HOME}/.jenkins-bashrc"
 JENKINS_WEB="${JENKINS_WEB:-http://localhost:8080/}"
 
 #remove trailing slash

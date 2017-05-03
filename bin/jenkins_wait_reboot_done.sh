@@ -1,4 +1,5 @@
 #!/bin/bash
+[ -e "${HOME}/.jenkins-bashrc" ] && source "${HOME}/.jenkins-bashrc"
 url="${1:-${JENKINS_WAIT_REBOOT_DEFAULT}}"
 endpoint=${url#*//}
 endpoint=${endpoint%%.*}
