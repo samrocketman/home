@@ -9,8 +9,9 @@
 #
 PROJECT_HOME="${PROJECT_HOME:-${HOME}/git/home}"
 
-if [ -d "${HOME}/git/github/home" -a ! -d "${PROJECT_HOME}" ]; then
-  ln -s ~/git/github/home ${PROJECT_HOME}
+if [ -d "${PROJECT_HOME}" -a ! -d "${HOME}/git/github/home" ]; then
+  mkdir -p "${HOME}/git/github"
+  ln -s ${PROJECT_HOME} ~/git/github/
 fi
 
 if [ ! -d "${PROJECT_HOME}" ];then
