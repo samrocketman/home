@@ -37,5 +37,5 @@
 [core]
 	editor = vim
 	excludesfile = ~/.gitignore_global
-[init]
-	templatedir = ~/.git_template
+#[init]
+#	templatedir = ~/.git_template

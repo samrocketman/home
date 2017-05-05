@@ -60,7 +60,8 @@ if ! git config --global --bool authordomains.enabled &> /dev/null; then
   done
 fi
 #copy pre-commit hook into existing git repositories.
-if [ -e "${HOME}/git" ]; then
+#but only if templates are in use
+if [ -e "${HOME}/git" -a -n "$(git config --get init.templatedir)" ]; then
   (
     cd "${HOME}/git"
     find . -type d -name '.git' | while read x;do
