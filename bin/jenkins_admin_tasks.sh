@@ -170,6 +170,8 @@ EOF
   exit 1
 fi
 
+echo "Using host ${JENKINS_WEB}"
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --disable-shutdown-mode|+s)
