@@ -12,28 +12,36 @@
 #Modified from pytailer.
 #  https://github.com/six8/pytailer/blob/master/src/tailer/__init__.py
 
+import os
+import sys
 import time
+
 
 class Tailer(object):
     line_terminators = ('\r\n', '\n', '\r')
-    def __init__(self, file, read_size=1024, end=False):
+    stdin = False
+    def __init__(self, file, read_size=1024, end=False, stdin=False):
         self.read_size = read_size
         self.file = file
-        self.start_pos = self.file.tell()
+        self.stdin = stdin
+        if not stdin:
+            self.start_pos = self.file.tell()
         if end:
             self.seek_end()
     def seek_end(self):
         self.seek(0, 2)
     def seek(self, pos, whence=0):
-        self.file.seek(pos, whence)
+        if not self.stdin:
+            self.file.seek(pos, whence)
     def follow(self, delay=1.0):
         """\
         Iterator generator that returns lines as data is added to the file.
         Based on: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
         """
         trailing = True
-        while 1:
-            where = self.file.tell()
+        while True:
+            if not self.stdin:
+                where = self.file.tell()
             line = self.file.readline()
             if line:
                 if trailing and line in self.line_terminators:
@@ -55,7 +63,8 @@ class Tailer(object):
     def __iter__(self):
         return self.follow()
     def close(self):
-        self.file.close()
+        if not self.stdin:
+            self.file.close()
 
 def help():
     print """Name:
@@ -70,9 +79,13 @@ Description:
 Modified from pytailer.
   http://code.google.com/p/pytailer/source/browse/src/tailer/__init__.py"""
 
-def _main(filepath,phrase):
+def _main(filepath, phrase):
     import re
-    tailer = Tailer(open(filepath,'rb'))
+    if filepath == "-":
+        tailer = Tailer(sys.stdin, stdin=True)
+        #tailer = Tailer(os.fdopen(sys.stdin.fileno(), 'rb'), stdin=True)
+    else:
+        tailer = Tailer(open(filepath,'rb'))
     phrase_regex = re.compile(phrase)
     try:
         try:
@@ -82,18 +95,17 @@ def _main(filepath,phrase):
                 if not re.search(phrase_regex,line) == None:
                     break
         except KeyboardInterrupt:
-            pass
+            sys.exit(130)
     finally:
         tailer.close()
 
 def main():
-    import sys
     from os.path import isfile
     if len(sys.argv) < 3 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
         help()
         sys.exit()
-    if isfile(sys.argv[1]):
-        _main(sys.argv[1],sys.argv[2])
+    if isfile(sys.argv[1]) or sys.argv[1] == "-":
+        _main(sys.argv[1], sys.argv[2])
     else:
         print >>sys.stderr, 'File does not exist, try --help'
         sys.exit(1)
