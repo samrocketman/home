@@ -345,7 +345,7 @@ case "$1" in
     jenkins_script_console script_skip_wizard
     jenkins_script_console script_disable_usage_stats
     jenkins_script_console script_upgrade_plugins
-    jenkins_script_console script_install_plugins "credentials-binding,git,github,github-oauth,job-dsl,matrix-auth,matrix-project,pipeline-stage-view,ssh-slaves,workflow-aggregator"
+    jenkins_script_console script_install_plugins "credentials-binding,git,github,github-oauth,job-dsl,matrix-auth,matrix-project,ssh-slaves,workflow-aggregator"
 
     if ! ${skip_restart}; then
       start_or_restart_jenkins
