@@ -63,14 +63,16 @@ fi
 #but only if templates are in use
 if [ -e "${HOME}/git" -a -n "$(git config --get init.templatedir)" ]; then
   (
+    TEMPLATEDIR="$(eval "echo $(git config --get init.templatedir)")"
     cd "${HOME}/git"
     find . -type d -name '.git' | while read x;do
       if [ ! -e "${x}/hooks/pre-commit" ]; then
-        cp "${HOME}/.git_template/hooks/pre-commit" "${x}/hooks/"
+        cp "${TEMPLATEDIR}/hooks/pre-commit" "${x}/hooks/"
       fi
     done
   )
 fi
+git config --global authordomains.enabled false
 
 if [ ! -e "$HOME/bin" ]; then
   ln -s "$HOME/git/home/bin" "$HOME/bin"
