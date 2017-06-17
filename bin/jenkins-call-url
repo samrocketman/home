@@ -267,6 +267,8 @@ if len(args.save_headers_file) > 0:
         printErr("Saving HTTP headers to file.")
     with open(args.save_headers_file, 'w') as f:
         json.dump(headers,f)
+    #credentials are stored in the headers file so don't want just anybody to read it
+    os.chmod(args.save_headers_file, 0o600)
 
 STATUS = 0
 if reason:
