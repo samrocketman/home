@@ -2,13 +2,14 @@
 
 Table of Contents
 
-* [man2pdf](#man2pdf)
-* [clusterssh helper scripts](#clusterssh-helper-scripts)
-* [wasted-ram-updates.py](#wasted-ram-updatespy)
-* [Mass GPG encrypted file management](#mass-gpg-encrypted-file-management)
+- [man2pdf](#man2pdf)
+- [clusterssh helper scripts](#clusterssh-helper-scripts)
+- [wasted-ram-updates.py](#wasted-ram-updatespy)
+- [Mass GPG encrypted file management](#mass-gpg-encrypted-file-management)
+- [Jenkins Productivity Scripts](#jenkins-productivity-scripts)
 
 ----
-## man2pdf
+# man2pdf
 
 [man2pdf](man2pdf) is a simple script which converts man pages to PDF format.
 This is useful for reading man pages on the go in an e-book reader.  The
@@ -20,14 +21,14 @@ Example, converting the bash man page into PDF.
     ./man2pdf bash
 
 ----
-## clusterssh helper scripts
+# clusterssh helper scripts
 
 I use the following helper scripts to maintain the `/etc/clusters` file:
 
-* `knownhosts.sh`
-* `missing_from_all_clusters.sh`
-* `servercount`
-* `sort_clusters`
+- `knownhosts.sh`
+- `missing_from_all_clusters.sh`
+- `servercount`
+- `sort_clusters`
 
 I maintain my `/etc/clusters` file with a standardized naming convention.  The
 first line has an `All_clusters` alias.  Its only purpose is to be an alias for
@@ -83,7 +84,7 @@ Generage a list of ip addresses associated with all of the hosts.
 The remaining scripts are fairly standalone.
 
 ----
-## wasted-ram-updates.py
+# wasted-ram-updates.py
 
 Ever hear about Linux being able to update without ever needing to be restarted
 (with exception for a few critical packages)?  Ever wonder how to figure out
@@ -103,9 +104,9 @@ restart of the Linux OS.  Here's a non-comprehensive list of which I'm aware.
 Feel free to open an [issue](https://github.com/sag47/drexel-university/issues)
 letting me know of another package which requires a system reboot.
 
-* dbus (used by `/sbin/init` which is pid 1)
-* glibc
-* kernel
+- dbus (used by `/sbin/init` which is pid 1)
+- glibc
+- kernel
 
 Other than that you should be able to simply restart the associated service.
 
@@ -131,7 +132,7 @@ services to restart.
     wasted-ram-updates.py pids
 
 ----
-## Mass GPG encrypted file management
+# Mass GPG encrypted file management
 
 These scripts assume a basic knowledge and usage of GPG.  These scripts automate
 encrypting files.
@@ -147,27 +148,27 @@ files.  The file names will have a similar name as when they were unencrypted so
 that files can be easily searched using an indexer._
 
 
-##### Encryption related scripts
+### Encryption related scripts
 
-* `gpg_encrypt_individual_files.sh` - encrypts all unencrypted files
+- `gpg_encrypt_individual_files.sh` - encrypts all unencrypted files
   individually.  Generates a `sha1sum.txt` file in each directory which is the
   checksum of encrypted files in said directory.
-* `gpg_decrypt_individual_files.sh` - decrypts all individually encrypted files.
-* `gpg_sign_sha1sums.sh` - Digitally sign all sha1sum.txt files.  Because the
+- `gpg_decrypt_individual_files.sh` - decrypts all individually encrypted files.
+- `gpg_sign_sha1sums.sh` - Digitally sign all sha1sum.txt files.  Because the
   contents of the sha1sum.txt file is the hash of all encrypted files this
   essentially guaruntees the signature of every file.
 
-##### Validation and verification related scripts
+### Validation and verification related scripts
 
-* `gpg_validate_sha1sums.sh` - validates all `sha1sum.txt.sig` signatures.  If
+- `gpg_validate_sha1sums.sh` - validates all `sha1sum.txt.sig` signatures.  If
   the contents of any `sha1sum.txt` file has changed then signature validation
   will fail.  Failure means maliciously modified or corrupted `sha1sum.txt`
   file.
-* `gpg_verify_checksums.sh` - Runs a checksum verification of all encrypted
+- `gpg_verify_checksums.sh` - Runs a checksum verification of all encrypted
   files using the `sha1sum.txt` file as a checksum reference.  If the contents
   of any encrypted file has changed then checksum verification will fail.
   Failure means maliciously modified or corrupted encrypted files.
-* `gpg_fix_missing_sha1sums.sh` - Removes missing files from all `sha1sum.txt`
+- `gpg_fix_missing_sha1sums.sh` - Removes missing files from all `sha1sum.txt`
   files and adds missing encrypted files from `sha1sum.txt` files.  This is for
   renaming and moving files without decrypting them.
 
@@ -191,9 +192,9 @@ Validate and verify all encrypted files.
     gpg_verify_checksums.sh ./
 
 ----
-## Jenkins Productivity Scripts
+# Jenkins Productivity Scripts
 
-#### Introduction
+### Introduction
 
 I have a set of Jenkins productivity scripts which allow me to keep a productive
 workflow.  An interesting way I use my scripts is to use my speakers to output
@@ -230,7 +231,7 @@ Here's a list of some scripts and what they do:
   `say_job_done.sh`.  This script will wait for a Jenkins reboot to finish and
   alert when it is available and ready to use.
 
-##### Setting up
+### Setting up
 
 If you're on Mac then `say` command is already available for audio output.  On
 Linux, I use the `espeak` command, instead.  You may need to install the espeak
@@ -265,7 +266,7 @@ If your Jenkins server requires authentication then you can set the
 `JENKINS_HEADERS_FILE` then you only need to do this once because credentials
 will persist to the headers file as an HTTP authorization basic header.
 
-##### Using Authentication
+### Using Authentication
 
 Assuming you set `JENKINS_WEB`, `JENKINS_HEADERS_FILE`, and maybe even
 `JENKINS_CA_FILE` from setup section.  The first thing you should do is create a
@@ -281,7 +282,7 @@ If you ever restart Jenkins you'll need to resolve the CSRF crumb again.
     jenkins-call-url -a -m HEAD -vv https://jenkins.example.com/
 
 
-##### Usage
+### Usage
 
 From here on out, I'm going to assume you either didn't use
 `JENKINS_USER`/`JENKINS_PASSWORD` or that your Jenkins server doesn't require
@@ -298,7 +299,7 @@ Announce when a Jenkins reboot is done via audio to speakers.
 
     jenkins_wait_reboot_done.sh https://build.gimp.org/
 
-##### Advanced usage
+### Advanced usage
 
 Now let's use a hypothetical Jenkins server which requires authentication and
 you're an admin.
