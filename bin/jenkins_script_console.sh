@@ -7,4 +7,4 @@ if [ ! -e "$1" ]; then
   echo "Script console script $1 does not exist." 1>&2
   exit 1
 fi
-jenkins-call-url "$1"
+jenkins-call-url "$@"
