@@ -129,4 +129,28 @@ function LogJenkinsIsUp() {
   pytailuntil.py "$1" 'Jenkins is fully up and running'
 }
 
+#modified from https://wiki.archlinux.org/index.php/Streaming_using_twitch.tv
+function twitch() {
+  if ! type -p ffmpeg &> /dev/null; then
+    echo "Missing ffmpeg package." 1>&2
+    return 1
+  fi
+  TWITCH_INRES="${TWITCH_INRES:-1920x1080}" # input resolution
+  TWITCH_OUTRES="${TWITCH_OUTRES:-1920x1080}" # output resolution
+  TWITCH_FPS="${TWITCH_FPS:-15}" # target FPS
+  TWITCH_GOP="${TWITCH_GOP:-30}" # i-frame interval, should be double of FPS,
+  TWITCH_GOPMIN="${TWITCH_GOPMIN:-15}" # min i-frame interval, should be equal to fps,
+  TWITCH_THREADS="${TWITCH_THREADS:-2}" # max 6
+  TWITCH_CBR="${TWITCH_CBR:-1000k}" # constant bitrate (should be between 1000k - 3000k)
+  TWITCH_QUALITY="${TWITCH_QUALITY:-ultrafast}"  # one of the many FFMPEG preset
+  TWITCH_AUDIO_RATE="${TWITCH_AUDIO_RATE:-44100}"
+  TWITCH_STREAM_KEY="${1:-${TWITCH_STREAM_KEY}}" # use the terminal command Streaming streamkeyhere to stream your video to twitch or justin
+  TWITCH_SERVER="${TWITCH_SERVER:-live-lax}" # twitch server in Los Angeles
+
+  ffmpeg -f x11grab -s "${TWITCH_INRES}" -r "${TWITCH_FPS}" -i :0.0 -f alsa -i pulse -f flv -ac 2 -ar ${TWITCH_AUDIO_RATE} \
+    -vcodec libx264 -g ${TWITCH_GOP} -keyint_min ${TWITCH_GOPMIN} -b:v ${TWITCH_CBR} -minrate ${TWITCH_CBR} -maxrate ${TWITCH_CBR} -pix_fmt yuv420p\
+    -s ${TWITCH_OUTRES} -preset ${TWITCH_QUALITY} -tune film -acodec libmp3lame -threads ${TWITCH_THREADS} -strict normal \
+    -bufsize ${TWITCH_CBR} "rtmp://${TWITCH_SERVER}.twitch.tv/app/${TWITCH_STREAM_KEY}"
+}
+
 export JENKINS_HEADERS_FILE=~/.jenkins-headers.json
