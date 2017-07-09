@@ -146,8 +146,11 @@ function twitch() {
   TWITCH_AUDIO_RATE="${TWITCH_AUDIO_RATE:-44100}"
   TWITCH_STREAM_KEY="${1:-${TWITCH_STREAM_KEY}}" # use the terminal command Streaming streamkeyhere to stream your video to twitch or justin
   TWITCH_SERVER="${TWITCH_SERVER:-live-lax}" # twitch server in Los Angeles
+  TWITCH_AUDIO_DRIVER="${TWITCH_AUDIO_DRIVER:-pulse}"
+  #find devices using ffmpeg -sources ${TWITCH_AUDIO_DRIVER}
+  TWITCH_AUDIO_DEVICE="${TWITCH_AUDIO_DEVICE:-alsa_output.usb-Audioengine_Audioengine_2_-00.analog-stereo.monitor}"
 
-  ffmpeg -f x11grab -s "${TWITCH_INRES}" -r "${TWITCH_FPS}" -i :0.0 -f alsa -i pulse -f flv -ac 2 -ar ${TWITCH_AUDIO_RATE} \
+  ffmpeg -f x11grab -s "${TWITCH_INRES}" -r "${TWITCH_FPS}" -i :0.0 -f "${TWITCH_AUDIO_DRIVER}" -i "${TWITCH_AUDIO_DEVICE}" -f flv -ac 2 -ar ${TWITCH_AUDIO_RATE} \
     -vcodec libx264 -g ${TWITCH_GOP} -keyint_min ${TWITCH_GOPMIN} -b:v ${TWITCH_CBR} -minrate ${TWITCH_CBR} -maxrate ${TWITCH_CBR} -pix_fmt yuv420p\
     -s ${TWITCH_OUTRES} -preset ${TWITCH_QUALITY} -tune film -acodec libmp3lame -threads ${TWITCH_THREADS} -strict normal \
     -bufsize ${TWITCH_CBR} "rtmp://${TWITCH_SERVER}.twitch.tv/app/${TWITCH_STREAM_KEY}"
