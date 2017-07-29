@@ -37,7 +37,7 @@ try:
 except ImportError:
     socks_supported = False
 
-version = "0.2"
+version = "0.3"
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -129,7 +129,7 @@ if not args.http_method in ['GET', 'HEAD', 'POST']:
 username = os.getenv('JENKINS_USER')
 password = os.getenv('JENKINS_PASSWORD')
 
-if len(args.load_headers_file) > 0 and os.path.exists(args.load_headers_file):
+if len(args.load_headers_file) > 0 and os.path.exists(args.load_headers_file) and os.path.getsize(args.load_headers_file) > 0:
     if args.verbosity >= 2:
         printErr("Loading HTTP headers from JSON file.")
     with open(args.load_headers_file) as f:
@@ -340,6 +340,8 @@ if reason:
 sys.exit(STATUS)
 
 # CHANGELOG
+# 0.3
+#   - Bugfix empty JSON file decoding with an error.
 # 0.2
 #   - SECURITY: fix insecure permissions for headers file.
 #   - SOCKS5 proxy support.
