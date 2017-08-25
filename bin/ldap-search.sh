@@ -13,19 +13,27 @@
 set -euf -o pipefail
 
 #override the following environment variables in your ~/.bash_profile
-export ldap_server="${ldap_server:-ldaps://ldap.example.com:636}"
-export binddn="${binddn:-uid=someuser,ou=people,dc=example,dc=com}"
-export ldap_passwd="${ldap_passwd:-CHANGEME}"
+args=()
+ldap_server="${ldap_server:-ldaps://ldap.example.com:636}"
+binddn="${binddn:-uid=someuser,ou=people,dc=example,dc=com}"
+basedn="${basedn:-}"
+ldap_passwd="${ldap_passwd:-CHANGEME}"
+ldap_scope="${ldap_scope:-}"
 
-if [ "$#" -eq "3" ]; then
-  firstname="$1"
-  lastname="$2"
-  uid="$3"
-  filter="(&(cn=*${firstname}*) (sn=*${lastname}*) (uid=*${uid}*))"
-  ldapsearch -xw "${ldap_passwd}" -H "${ldap_server}" -D "${binddn}" "${filter}"
-else
-  while read -p "Please type space delimited first name, last name, and uid to search: " firstname lastname uid; do
-    filter="(&(cn=*${firstname}*) (sn=*${lastname}*) (uid=*${uid}*))"
-    ldapsearch -xw "${ldap_passwd}" -H "${ldap_server}" -D "${binddn}" "${filter}"
-  done
+#process args
+[ -z "${basedn}" ] || args+=(-b "${basedn}")
+[ -z "${ldap_scope}" ] || args+=(-s "${ldap_scope}")
+
+if [ "${ldap_passwd}" = "CHANGEME" ]; then
+  read -s -p "LDAP Password:" ldap_passwd
 fi
+
+[ -z "${ldap_passwd}" ] || args+=(-w "${ldap_passwd}")
+
+#firstname="$1"
+#lastname="$2"
+#uid="$3"
+set +u
+eval "filter=\"${ldap_filter:-'(&(cn=*${1}*) (sn=*${2}*) (uid=*${3}*))'}\""
+set -u
+ldapsearch -x -H "${ldap_server}" -D "${binddn}" "${args[@]:-}" "${filter}"
