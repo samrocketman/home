@@ -82,4 +82,44 @@ while loop.
 Ideas for this code was partially taken from [Elegant Locking of BASH
 Program][locking].
 
+### File locking background learning
+
+To fully understand how the file locking script works it is best to study up on
+the following topics.
+
+- [Bash Parameter Expansion][bash-pe] - to learn about positional arguments `$1`
+  and `$2` represented as `${1:-200}` and `${2:-/tmp/script.lock}`.  That format
+  is documented as `${parameter:-word}`.  Which essentially sets a default value
+  if an argument is not defined.
+- [Bash Redirections][bash-r] - to learn about how `200>` documented as `n>` is
+  used as a file descriptor to open a file for writing.  In this case, `200` is
+  called a file descriptor.  `flock -n 200` creates a lock on the file which was
+  opened for writing on file descriptor `200`.  The number `200` for the file
+  descriptor was arbitrarily chosen and has no meaning.  The number could have
+  been anything.  Keep in mind the following file descriptors are reserved
+  unless otherwise redirected:
+  - `0` is the file descriptor for stdin.
+  - `1` is the file descriptor for stdout.
+  - `2` is the file descriptor for stderr.
+- [`eval` shell builtin][bash-eval] - which evaluates the string and executes it
+  as if the user typed it.
+- [`exec` shell builtin][bash-exec] - Without a command, bash opens and closes
+  files for reading and writing based on the currently running shell in the
+  script.  Example, `exec 200> /tmp/file` opens the file `/tmp/file` open for
+  writing.  You can write to `/tmp/file` with `echo hello >&200` because you're
+  redirecting file descript `1` (stdout) to write to file descriptor `200`.
+- [`man 2 flock`][flock] - The `flock()` system call built into the Linux Kernel
+  (used by the `flock` command).
+- [`man flock`][flock] - the flock command.
+- [`trap` shell builtin][bash-trap] - `trap` functions executed when events
+  (a.k.a. signals) occur in the shell.  For example, if the script exits then it
+  is an event.  If a command fails, then it is an event.  `trap` allows commands
+  or functions to be executed when an event happens.  In this case, trap is used
+  to automatically clean up file locks.
+
+[bash-eval]: https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-eval
+[bash-exec]: https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-exec
+[bash-pe]: https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+[bash-r]: https://www.gnu.org/software/bash/manual/html_node/Redirections.html
+[flock]: http://manpages.ubuntu.com/cgi-bin/search.py?q=flock
 [locking]: http://www.kfirlavi.com/blog/2012/11/06/elegant-locking-of-bash-program/
