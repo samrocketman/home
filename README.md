@@ -8,9 +8,9 @@ use to track all of the files I use in day to day work and personal development.
 Here is a summary of README files in this repository where you can learn more
 about that area.
 
-* [bin/README.md](bin/README.md)
-* [dotfiles/.git_template/README.md](dotfiles/.git_template/README.md)
-* [raspi/README.md](raspi/README.md)
+- [bin/README.md](bin/README.md)
+- [dotfiles/.git_template/README.md](dotfiles/.git_template/README.md)
+- [raspi/README.md](raspi/README.md)
 
 # Program usage tips
 
@@ -34,7 +34,7 @@ cheatsheets).
 Generate bullet list of readme files:
 
     find . -type f -iname 'readme*' | while read x; do
-      echo "* [${x#./}](${x#./})"
+      echo "- [${x#./}](${x#./})"
     done
 
 Generate bullet list of cheatsheets:
