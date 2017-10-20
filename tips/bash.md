@@ -18,9 +18,13 @@ See an [example of a script using this](../bin/jenkins_wait_reboot_done.sh).
 
 # Locking scripts forcing serialization
 
-Sometimes, allowing only a single instance of a script to run is desired.
-The `flock` command makes use of the `floc()` Linux Kernel API to open and
-maintain an exclusive lock on a file.
+Ideas for this code was partially taken from [Elegant Locking of BASH
+Program][locking].
+
+Sometimes, allowing only a single instance of a script to run system-wide is
+desired.  The `flock` command makes use of the `flock()` system call to open and
+maintain an exclusive lock on a file.  This is the safest method in bash to
+force unrelated programs to execute serially.
 
 ```bash
 #!/bin/bash
@@ -78,9 +82,6 @@ while loop.
       sleep 1
     done
     main
-
-Ideas for this code was partially taken from [Elegant Locking of BASH
-Program][locking].
 
 ### File locking background learning
 
