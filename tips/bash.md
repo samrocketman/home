@@ -50,8 +50,10 @@ function lock() {
 function unlock() {
   local fd="${1:-200}"
   local lock_file="${2:-/tmp/script.lock}"
-  #remove the file so it is non-blocking on other scripts
-  rm -f "${lock_file}"
+  #remove the lock file only if it is locked by this program
+  if eval "{ >&${fd} ; }" &> /dev/null; then
+    rm -f "${lock_file}"
+  fi
   #release the exclusive lock
   eval "exec ${fd}>&-"
 }
