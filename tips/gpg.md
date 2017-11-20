@@ -5,8 +5,6 @@
 For Linux GPG, is typically pre-installed.  For Mac, install [GPG
 Suite][mac-gpg].
 
-[mac-gpg]: https://gpgtools.org/
-
 ### Importing my GPG key
 
 Before you can securely send me files and messages, you must first import my GPG
@@ -44,3 +42,23 @@ To upload and extract the contents from local to a remote server the following
 command can be run.
 
     gpg -d < file.tgz.gpg | ssh HOSTNAME 'tar -xz'
+
+# Set up gpg-agent
+
+Add the following lines to `~/.gnupg/gpg.conf`.
+
+```conf
+use-agent
+```
+
+Add the following lines to `~/.gnupg/gpg-agent.conf`.
+
+```conf
+pinentry-program /usr/bin/pinentry-curses
+default-cache-ttl 86400
+max-cache-ttl 86400
+```
+
+Ensure the `pinentry-curses` package is installed.
+
+[mac-gpg]: https://gpgtools.org/
