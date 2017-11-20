@@ -23,6 +23,7 @@
 	t = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
 
 	#longer custom commands
+	ammend = commit --amend -C HEAD
 	files = "!f() { if [ \"$#\" -eq 2 ]; then git diff --name-status $(git merge-base $1 $2) $2;elif [ \"$#\" -eq 1 ]; then git diff --name-status $(git merge-base $1 HEAD) HEAD;else echo 'Call with one or two args';fi }; f"
 	gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 	pop = "stash pop"
