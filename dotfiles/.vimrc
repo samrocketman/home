@@ -22,6 +22,8 @@ set showmode
 set showmatch
 "shortcut for toggling paste while in insert mode, press F2 key
 set pastetoggle=<f2>
+"shortcut for toggling scrollbinding
+nnoremap <F3> :set scb! scb?<CR>
 "when backspacing will backspace over eol, autoindent, and start
 set backspace=2
 "hlsearch for when there is a previous search pattern, highlight all its matches.
