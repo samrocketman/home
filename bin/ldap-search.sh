@@ -24,11 +24,7 @@ ldap_scope="${ldap_scope:-}"
 [ -z "${basedn}" ] || args+=(-b "${basedn}")
 [ -z "${ldap_scope}" ] || args+=(-s "${ldap_scope}")
 
-if [ "${ldap_passwd}" = "CHANGEME" ]; then
-  read -s -p "LDAP Password:" ldap_passwd
-fi
-
-[ -z "${ldap_passwd}" ] || args+=(-w "${ldap_passwd}")
+[ "${ldap_passwd}" = CHANGEME ] || args+=(-W)
 
 #firstname="$1"
 #lastname="$2"
