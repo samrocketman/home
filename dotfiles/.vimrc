@@ -32,6 +32,8 @@ set hlsearch
 set ruler
 "each line has line number prepended
 set number
+"scrolloff which keeps screen lines above and below the cursor when scrolling
+set so=7
 "expandtab means tabs create spaces in insert mode, softtabstop is the number of spaces created
 "tabstop affects visual representation of tabs only
 set tabstop=8
@@ -99,7 +101,11 @@ let g:netrw_liststyle=3
 cmap w!! %!sudo tee > /dev/null %
 
 " load pathogen only if it exists
+" Sometimes I use pathogen... sometimes I don't.
 " https://github.com/tpope/vim-pathogen
+" https://github.com/rodjek/vim-puppet
+" https://github.com/pearofducks/ansible-vim
+" https://github.com/Xuyuanp/nerdtree-git-plugin
 if filereadable(expand("~/.vim/autoload/pathogen.vim"))
     execute pathogen#infect()
     filetype plugin indent on
