@@ -24,6 +24,7 @@ fi
 #
 #link all dotfiles to $HOME directory
 ln -s "${PROJECT_HOME}"/dotfiles/.[a-z]* ~
+mkdir -p ~/.vim/autoload ~/.vim/bundle
 #if login shell then use .bash_profile
 if shopt -q login_shell;then
   #yes it is a login shell
