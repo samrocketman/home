@@ -114,8 +114,7 @@ if [ ! -d "${HOME}/.bash_history_dir" ]; then
 fi
 export HISTFILE="${HOME}/.bash_history_dir/bash_history_$(date +%Y-%m-%d-%s)"
 function history2() {
-  ls -1tr ~/.bash_history_dir/ | xargs -I '{}' cat "${HOME}/.bash_history_dir/{}"
-  #grep -r '.*' ~/.bash_cmd_history/ | python -c 'import sys;map(lambda x: sys.stdout.write(x.split(":",1)[1]),sys.stdin.readlines())'
+  find ~/.bash_history_dir -maxdepth 1 -type f -exec cat {} +
 }
 
 # SHELL OPTIONS
@@ -139,11 +138,11 @@ if [ ! 'root' = "${USER}" -a ! -e '/vagrant' ]; then
     if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
         #first time failed so try again.
         SSH_AUTH_SOCK="$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep "${USER}" | awk '{print $9}' | tail -n1)"
-        SSH_AGENT_PID="$(echo ${SSH_AUTH_SOCK} | cut -d. -f2)"
+        SSH_AGENT_PID="$(echo "${SSH_AUTH_SOCK}" | cut -d. -f2)"
     fi
     if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
       SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "ssh-[^/]*/agent\.[0-9]\+$" | tr ' ' '\n' | tail -n1)"
-      SSH_AGENT_PID="$(echo ${SSH_AUTH_SOCK} | cut -d. -f2)"
+      SSH_AGENT_PID="$(echo "${SSH_AUTH_SOCK}" | cut -d. -f2)"
     fi
   fi
   [ -n "${SSH_AUTH_SOCK}" ] && export SSH_AUTH_SOCK
@@ -185,10 +184,10 @@ function twitch() {
   #find devices using ffmpeg -sources ${TWITCH_AUDIO_DRIVER}
   TWITCH_AUDIO_DEVICE="${TWITCH_AUDIO_DEVICE:-alsa_output.usb-Audioengine_Audioengine_2_-00.analog-stereo.monitor}"
 
-  ffmpeg -f x11grab -s "${TWITCH_INRES}" -r "${TWITCH_FPS}" -i :0.0 -f "${TWITCH_AUDIO_DRIVER}" -i "${TWITCH_AUDIO_DEVICE}" -f flv -ac 2 -ar ${TWITCH_AUDIO_RATE} \
-    -vcodec libx264 -g ${TWITCH_GOP} -keyint_min ${TWITCH_GOPMIN} -b:v ${TWITCH_CBR} -minrate ${TWITCH_CBR} -maxrate ${TWITCH_CBR} -pix_fmt yuv420p\
-    -s ${TWITCH_OUTRES} -preset ${TWITCH_QUALITY} -tune film -acodec libmp3lame -threads ${TWITCH_THREADS} -strict normal \
-    -bufsize ${TWITCH_CBR} "rtmp://${TWITCH_SERVER}.twitch.tv/app/${TWITCH_STREAM_KEY}"
+  ffmpeg -f x11grab -s "${TWITCH_INRES}" -r "${TWITCH_FPS}" -i :0.0 -f "${TWITCH_AUDIO_DRIVER}" -i "${TWITCH_AUDIO_DEVICE}" -f flv -ac 2 -ar "${TWITCH_AUDIO_RATE}" \
+    -vcodec libx264 -g "${TWITCH_GOP}" -keyint_min "${TWITCH_GOPMIN}" -b:v "${TWITCH_CBR}" -minrate "${TWITCH_CBR}" -maxrate "${TWITCH_CBR}" -pix_fmt yuv420p \
+    -s "${TWITCH_OUTRES}" -preset "${TWITCH_QUALITY}" -tune film -acodec libmp3lame -threads "${TWITCH_THREADS}" -strict normal \
+    -bufsize "${TWITCH_CBR}" "rtmp://${TWITCH_SERVER}.twitch.tv/app/${TWITCH_STREAM_KEY}"
 }
 
 export JENKINS_HEADERS_FILE=~/.jenkins-headers.json
