@@ -134,3 +134,10 @@ endfunction
 
 command! -complete=shellcmd -nargs=* -bang Scratchpad call s:ExecuteInShell(<q-args>, '<bang>')
 command! -complete=shellcmd -nargs=* -bang Scp call s:ExecuteInShell(<q-args>, '<bang>')
+
+" load pathogen only if it exists
+" https://github.com/tpope/vim-pathogen
+if filereadable($HOME + "/.vim/autoload/pathogen.vim")
+    execute pathogen#infect()
+    filetype plugin indent on
+endif
