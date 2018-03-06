@@ -100,7 +100,7 @@ cmap w!! %!sudo tee > /dev/null %
 
 " load pathogen only if it exists
 " https://github.com/tpope/vim-pathogen
-if filereadable($HOME + "/.vim/autoload/pathogen.vim")
+if filereadable(expand("~/.vim/autoload/pathogen.vim"))
     execute pathogen#infect()
     filetype plugin indent on
 endif
