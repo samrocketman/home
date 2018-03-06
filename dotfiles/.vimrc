@@ -57,12 +57,14 @@ let g:netrw_liststyle=3
 " AUTOCMD FILE LOGIC BEHAVIOR
 """""""""""""""""""""""""""""
 
-"These are custom settings depending on which filetype is opened.  For
-"instance, vim can behave diferently when it has a Java file open vs a shell
-"script.
-"To detect the filetype of your currenlty opened file then type the following:
+" These are custom settings depending on which filetype is opened.  For
+" instance, vim can behave diferently when it has a Java file open vs a shell
+" script.
+"
+" To detect the filetype of your currenlty opened file then type the following:
 "    :set filetype?
-"Then create a setting which applies only to that filetype.
+"
+" Then create a setting which applies only to that filetype.
 
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle setlocal filetype=groovy
@@ -95,45 +97,6 @@ let g:netrw_liststyle=3
 ":w!! will ask for password when trying to write to system files
 "useful if you open a file as a user but need sudo to write to it as root
 cmap w!! %!sudo tee > /dev/null %
-
-"""""""""""
-" FUNCTIONS
-"""""""""""
-
-"This executes a command and puts output into a throw away scratch pad
-"source: http://vim.wikia.com/wiki/Display_output_of_shell_commands_in_new_window
-function! s:ExecuteInShell(command, bang)
-  let _ = a:bang != '' ? s:_ : a:command == '' ? '' : join(map(split(a:command), 'expand(v:val)'))
-  if (_ != '')
-    let s:_ = _
-    let bufnr = bufnr('%')
-    let winnr = bufwinnr('^' . _ . '$')
-    silent! execute  winnr < 0 ? 'belowright new ' . fnameescape(_) : winnr . 'wincmd w'
-    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile wrap number
-    silent! :%d
-    let message = 'Execute ' . _ . '...'
-    call append(0, message)
-    echo message
-    silent! 2d | resize 1 | redraw
-    silent! execute 'silent! %!'. _
-    silent! execute 'resize ' . line('$')
-    silent! execute 'syntax on'
-    silent! execute 'autocmd BufUnload <buffer> execute bufwinnr(' . bufnr . ') . ''wincmd w'''
-    silent! execute 'autocmd BufEnter <buffer> execute ''resize '' .  line(''$'')'
-    silent! execute 'nnoremap <silent> <buffer> <CR> :call <SID>ExecuteInShell(''' . _ . ''', '''')<CR>'
-    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . _ . ''', '''')<CR>'
-    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>g :execute bufwinnr(' . bufnr . ') . ''wincmd w''<CR>'
-    nnoremap <silent> <buffer> <C-W>_ :execute 'resize ' . line('$')<CR>
-    silent! syntax on
-  endif
-endfunction
-
-""""""""""
-" COMMANDS
-""""""""""
-
-command! -complete=shellcmd -nargs=* -bang Scratchpad call s:ExecuteInShell(<q-args>, '<bang>')
-command! -complete=shellcmd -nargs=* -bang Scp call s:ExecuteInShell(<q-args>, '<bang>')
 
 " load pathogen only if it exists
 " https://github.com/tpope/vim-pathogen
