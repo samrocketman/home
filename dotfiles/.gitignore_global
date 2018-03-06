@@ -33,3 +33,6 @@ Temporary Items
 
 #jd-gui
 jd-gui.cfg
+
+# Virtualenv python
+/.venv
