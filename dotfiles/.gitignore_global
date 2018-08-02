@@ -36,3 +36,9 @@ jd-gui.cfg
 
 # Virtualenv python
 /.venv
+
+# Vagrant
+/.vagrant
+/ssh_config
+
+*.pyc
