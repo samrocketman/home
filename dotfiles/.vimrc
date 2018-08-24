@@ -77,6 +77,7 @@ let g:netrw_liststyle=3
 :autocmd BufNewFile,BufRead *.cf setlocal filetype=conf
 "Set options in a specific way based on what type of file is opened
 :autocmd FileType java,xml,python,markdown,make,gitconfig,groovy,cpp,go setlocal shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType groovy setlocal expandtab
 :autocmd FileType c,cpp,java,groovy setlocal cindent
 "indent with tabs when following FileTypes are opened
 :autocmd FileType make,gitconfig setlocal noexpandtab
