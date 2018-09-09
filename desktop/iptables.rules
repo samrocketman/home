@@ -101,6 +101,8 @@ COMMIT
 -A INTERNAL_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
 #Starbound
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
+#Windward game
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 5127 -j ACCEPT
 
 # END GLESKE INTERNAL NETWORKS
 ########################################################################
