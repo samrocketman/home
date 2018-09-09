@@ -1,4 +1,9 @@
 # SET UP SOME COMMON ALIASES
+function prepend_path() {
+  if ! grep "^${1}:\\|:${1}:" <<< "${PATH}" > /dev/null; then
+    PATH="${1}:${PATH}"
+  fi
+}
 if ! which vim &> /dev/null; then
   alias vim="vi"
 fi
@@ -10,7 +15,8 @@ if uname -rms | grep Darwin &> /dev/null; then
   alias ls='ls -G'
   alias g=/usr/local/bin/git
   alias git=/usr/local/bin/git
-  export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
+  prepend_path /usr/local/sbin
+  prepend_path /usr/local/bin
 else
   #aliases that don't work on Mac
   alias l.='ls -d .* --color=auto'
@@ -38,13 +44,8 @@ if ! type -p pbcopy &> /dev/null; then
 fi
 
 # ENVIRONMENT VARIABLES
-if echo "${PATH}" | grep -v "$HOME/bin" &> /dev/null; then
-  export PATH="$HOME/bin:${PATH}"
-fi
-if echo "${PATH}" | grep -v "$HOME/usr/bin" &> /dev/null; then
-  #~/usr/bin is before ~/bin
-  export PATH="$HOME/usr/bin:${PATH}"
-fi
+prepend_path "$HOME/bin"
+prepend_path "$HOME/usr/bin"
 if echo "${PYTHONPATH}" | grep -v "$HOME/usr/lib/python2.7/site-packages" &> /dev/null; then
   export PYTHONPATH="$HOME/usr/lib/python2.7/site-packages"
 fi
