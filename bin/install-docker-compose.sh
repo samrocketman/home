@@ -22,7 +22,7 @@ function sha256sum() (
   elif type -P shasum > /dev/null; then
     command shasum -a 256 "${@}"
   else
-    echo "ERROR: could not find a sha256sum program."
+    echo 'ERROR: could not find a sha256sum program.' >&2
     exit 1
   fi
 ); declare -rf sha256sum
