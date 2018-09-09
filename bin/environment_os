@@ -1,0 +1,33 @@
+#!/bin/bash
+# Created by Sam Gleske
+# Fri Aug 24 12:21:16 PDT 2018
+
+if [ "$(uname)" = "Darwin" ]; then
+  if type -P sw_vers > /dev/null; then
+    sw_vers 2>&1 | sed 's/^[^:]*: *//' | xargs echo
+  fi
+else
+  for x in /etc/redhat-release /etc/centos-release /etc/lsb-release; do
+    if [ -r "$x" ]; then
+      head -n1 "$x"
+      break
+    fi
+  done
+fi
+uname -rms
+bash --version | head -n1
+if [ -r pom.xml ]; then
+  if [ -x mvnw ]; then
+    ./mvnw -version
+  else
+    mvn -version
+  fi
+fi
+
+if [ -r build.gradle ]; then
+  if [ -x gradlew ]; then
+    ./gradlew -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /'
+  elif type -P gradle &> /dev/null; then
+    gradle -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /'
+  fi
+fi
