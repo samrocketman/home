@@ -4,30 +4,34 @@
 
 if [ "$(uname)" = "Darwin" ]; then
   if type -P sw_vers > /dev/null; then
+    echo -n '# '
     sw_vers 2>&1 | sed 's/^[^:]*: *//' | xargs echo
   fi
 else
   for x in /etc/redhat-release /etc/centos-release /etc/lsb-release; do
     if [ -r "$x" ]; then
+      echo -n '# '
       head -n1 "$x"
       break
     fi
   done
 fi
+echo -n '# '
 uname -rms
+echo -n '# '
 bash --version | head -n1
 if [ -r pom.xml ]; then
   if [ -x mvnw ]; then
-    ./mvnw -version
+    ./mvnw -version 2>&1 | sed 's/^/# /'
   else
-    mvn -version
+    mvn -version 2>&1 | sed 's/^/# /'
   fi
 fi
 
 if [ -r build.gradle ]; then
   if [ -x gradlew ]; then
-    ./gradlew -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /'
+    ./gradlew -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /' | sed 's/^/# /'
   elif type -P gradle &> /dev/null; then
-    gradle -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /'
+    gradle -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /' | sed 's/^/# /'
   fi
 fi
