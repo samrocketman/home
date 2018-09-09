@@ -15,12 +15,12 @@
 #  programs exit without needing to regularly check the terminal window.  It
 #  will say when the job is done.
 
-PHRASE="${1:-Jobb done.}"
+PHRASE="${1:-Job done.}"
 
-if type -p espeak &> /dev/null;then
-  espeak <<< "${PHRASE}"
-elif type -p say &> /dev/null;then
-  say "${PHRASE}"
+if type -P espeak &> /dev/null;then
+  espeak -v en-german <<< "${PHRASE}"
+elif type -P say &> /dev/null;then
+  say -v Daniel "${PHRASE}"
 else
   echo "No speaking command available." 1>&2
   exit 1
