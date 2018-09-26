@@ -4,6 +4,24 @@ See the exit status of each command in a one liner pipeline.
 
     echo ${PIPESTATUS[@]}
 
+# PDF file conversion
+
+Use GhostScript to combine multiple PDFs into one.  The PDFs are combined in
+order so shell globbing will list them alphabeticially.  To specify the order in
+which the PDFs are combined, name them alphabetically.  Example: `page-1.pdf`,
+`page-2.pdf`, `page-3.pdf`.
+
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=/tmp/total.pdf *.pdf
+
+Convert a set of images into a PDF book using ImageMagick.
+
+    magick convert *.png images.pdf
+
+ImageMagick installed by homebrew for Mac requires that `policy.xml` be modified
+in order to allow converting to PDF.  On Mac, `policy.xml` can be found with:
+
+    find /usr/local -maxdepth 7 -type f -name policy.xml
+
 # Get HTTP status from URL using HEAD method
 
 This can be used in bash scripts or other type of status scripts to get the raw
