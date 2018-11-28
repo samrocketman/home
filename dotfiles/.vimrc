@@ -68,7 +68,7 @@ let g:netrw_liststyle=3
 "
 " Then create a setting which applies only to that filetype.
 
-"jenkins plugins are just zip files
+"jenkins plugins are just zip files; see also :help zip
 :autocmd BufReadCmd *.jpi,*.hpi call zip#Browse(expand("<amatch>"))
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle setlocal filetype=groovy
