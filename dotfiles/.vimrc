@@ -71,7 +71,7 @@ let g:netrw_liststyle=3
 "jenkins plugins are just zip files; see also :help zip
 :autocmd BufReadCmd *.jpi,*.hpi call zip#Browse(expand("<amatch>"))
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
-:autocmd BufNewFile,BufRead *.gradle setlocal filetype=groovy
+:autocmd BufNewFile,BufRead *.gradle,Jenkinsfile setlocal filetype=groovy expandtab
 :autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
 :autocmd BufNewFile,BufRead TODO setlocal filetype=markdown
 :autocmd BufNewFile,BufRead *.jelly setlocal filetype=xml

@@ -42,3 +42,12 @@ jd-gui.cfg
 /ssh_config
 
 *.pyc
+
+# eclipse
+/.project
+/.classpath
+/.settings
+*.bak
+
+*.log
+*.tgz
