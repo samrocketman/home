@@ -1,5 +1,6 @@
 #!/bin/bash
 [ -e "${HOME}/.jenkins-bashrc" ] && source "${HOME}/.jenkins-bashrc"
+JENKINS_WAIT_REBOOT_DEFAULT="${JENKINS_WAIT_REBOOT_DEFAULT:-http://localhost:8080}"
 url="${1:-${JENKINS_WAIT_REBOOT_DEFAULT}}"
 url="${url%/}"
 if [ "${url##*/}" != login ]; then
