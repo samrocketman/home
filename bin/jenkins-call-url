@@ -368,7 +368,9 @@ sys.exit(STATUS)
 #   - Feature, support reading Jenkins scripts from stdin when -d file path is
 #     a single hyphen (-).  e.g. "-d -"
 #   - Bugfix Jenkins scriptText endpoint returning many spaces.  It now strips
-#     leading and trailing spaces from the Jenkins response by default.
+#     leading and trailing spaces from the Jenkins response by default.  This
+#     hack is a workaround for the following issue.
+#     https://issues.jenkins-ci.org/browse/JENKINS-58548
 # 0.5
 #   - Bugfix --automatic-jenkins-server not working when Jenkins is under a URL
 #     path.  e.g. https://example.com/jenkins/
