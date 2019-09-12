@@ -18,7 +18,7 @@
 PHRASE="${1:-Job done.}"
 
 if type -P espeak &> /dev/null;then
-  espeak -v en-german <<< "${PHRASE}"
+  espeak -v en-german 2> /dev/null <<< "${PHRASE}"
 elif type -P say &> /dev/null;then
   say -v Daniel "${PHRASE}"
 else
