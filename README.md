@@ -21,6 +21,7 @@ cheatsheets).
 - [tips/docker.md](tips/docker.md)
 - [tips/git.md](tips/git.md)
 - [tips/gpg.md](tips/gpg.md)
+- [tips/irssi.md](tips/irssi.md)
 - [tips/ssh.md](tips/ssh.md)
 - [tips/vim.md](tips/vim.md)
 
