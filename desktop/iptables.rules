@@ -58,6 +58,7 @@ COMMIT
 -A OUTPUT -d 172.17.0.0/16 -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
 -A OUTPUT -j VALVE_NETWORKS
+-A OUTPUT -j IRC_NETWORKS
 -A OUTPUT -j BLIZZARD_NETWORKS
 -A OUTPUT -j LOGGING
 -A OUTPUT -j REJECT --reject-with icmp-host-prohibited
@@ -164,8 +165,8 @@ COMMIT
 -A OUTPUT_allow -p tcp -m state --state NEW -m multiport --dport 21,80,443 -j ACCEPT
 #accept traceroutes
 -A OUTPUT_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
-#irc networks
--A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 6667 -j ACCEPT
+#irc networks (TLS only)
+#-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 6697 -j ACCEPT
 #allow outbound ssh
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 
@@ -297,23 +298,19 @@ COMMIT
 # IRC NETWORKS RULES
 
 #irc.freenode.net
--A IRC_NETWORKS -d 94.125.182.252 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 185.30.166.38 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 64.86.243.181 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 164.132.77.237 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 130.185.232.126 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 192.186.157.43 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 195.154.200.232 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 82.96.64.4 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 64.32.24.178 -g IRC_NETWORKS_allow
 -A IRC_NETWORKS -d 139.162.227.51 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 162.213.39.42 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 91.217.189.42 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 130.239.18.119 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 38.229.70.22 -g IRC_NETWORKS_allow
--A IRC_NETWORKS -d 174.143.119.91 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 149.56.134.238 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 185.30.166.37 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 64.86.243.181 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 94.125.182.252 -g IRC_NETWORKS_allow
 
--A IRC_NETWORKS_allow -p tcp -m tcp --dport 6667 -j ACCEPT
+#irc.gimp.org
+-A IRC_NETWORKS -d 130.239.18.215 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 158.69.32.35 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 51.15.53.172 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 83.98.201.47 -g IRC_NETWORKS_allow
+
+-A IRC_NETWORKS_allow -p tcp -m tcp --dport 6697 -j ACCEPT
 
 # END IRC NETWORKS RULES
 ########################################################################
