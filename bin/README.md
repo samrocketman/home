@@ -7,6 +7,7 @@ Table of Contents
 - [wasted-ram-updates.py](#wasted-ram-updatespy)
 - [Mass GPG encrypted file management](#mass-gpg-encrypted-file-management)
 - [Jenkins Productivity Scripts](#jenkins-productivity-scripts)
+- [GitHub Productivity Scripts](#github-productivity-scripts)
 
 ----
 # man2pdf
@@ -330,6 +331,38 @@ a view and then use them to delete all jobs in that view.
 
 There's many ways these scripts can be used to interact with the Jenkins API for
 automation.  These are just a few examples.
+
+# GitHub Productivity Scripts
+
+### Introduction
+
+These scripts are meant to be run from my laptop and do interesting things like
+yell at me through my laptop speakers that something is available or changed on
+GitHub in which I'm interested.
+
+### Setting up
+
+Set a GitHub personal access token with repo scope in the following environment
+variable.
+
+    export GITHUB_TOKEN="<your token>"
+
+Make sure this `bin/` directory is a part of your `$PATH`.
+
+### Usage
+
+- [`say_job_done.sh`](say_job_done.sh) - not really a GitHub specific script.
+  It will output "Job Done" to my speakers.  If you pass it an argument then it
+  will say what you pass as an argument.  Other productivity scripts depend on
+  this one.
+- [`github_wait_mergeable.sh`](github_wait_mergeable.sh) - Will monitor a pull
+  request and yell at you through your laptop speakers when it is ready to
+  merge.  The script will hang in the foreground and exit when a pull request is
+  ready to merge.
+
+Using `github_wait_mergeable.sh`.
+
+    github_wait_mergeable.sh https://github.com/yourorg/yourproject/pull/123
 
 [gimp]: https://www.gimp.org/
 [jenkins-script-console-scripts]: https://github.com/samrocketman/jenkins-script-console-scripts
