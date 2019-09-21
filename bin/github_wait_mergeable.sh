@@ -42,7 +42,7 @@ waited=false
 
 until [ "$(getMergeableState)" = clean -o "$(getMergeableState)" = unknown ]; do
   echo -n '.'
-  sleep 3
+  sleep 5
   waited=true
 done
 [ "${waited}" = false ] || echo
