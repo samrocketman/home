@@ -12,7 +12,7 @@ import re
 ip_to_binary = lambda ip: "".join(["{0:08b}".format(int(octet)) for octet in ip.split('.')])
 display_ip = lambda binary: '.'.join([binary[i:i+8] for i in range(0, len(binary), 8)])
 apply_netmask = lambda binary, mask: binary[0:int(mask)] + '0' * (32 - int(mask))
-is_ip = lambda ip: bool(re.match('^([0-9]+\.){3}[0-9]+(/[0-9]+)?$', ip))
+is_ip = lambda ip: bool(re.match('^([0-9]+\.){3}[0-9]+(/[0-9]{1,2})?$', ip))
 ip_with_netmask = lambda ip, mask: apply_netmask(ip_to_binary(ip), mask)
 
 def printhelp():
