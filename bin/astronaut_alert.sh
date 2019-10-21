@@ -30,7 +30,11 @@ if ! curl -c "$cookies_file" \
   | gunzip \
   | grep -i 'no jobs' &> /dev/null; then
 
-  echo -e "See Astronaut jobs - \
-    https://www.usajobs.gov/Search?Keyword=${keyword}" \
-    | mail -s "Astronaut Jobs available!" sam.mxracer@gmail.com
+  if type -P mail; then
+    echo -e "See Astronaut jobs - \
+      https://www.usajobs.gov/Search?Keyword=${keyword}" \
+      | mail -s "Astronaut Jobs available!" sam.mxracer@gmail.com
+  else
+    echo "See Astronaut jobs - https://www.usajobs.gov/Search?Keyword=${keyword}"
+  fi
 fi
