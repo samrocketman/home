@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 #Sam Gleske
 #Ubuntu 16.04.1 LTS
 #Linux 4.4.0-47-generic x86_64
@@ -6,60 +6,31 @@
 #GNU bash, version 4.3.46(1)-release (x86_64-pc-linux-gnu)
 #Convert an IP to binary.
 
-function ipnetmask() {
-#arg $1 should be a fully expanded string of a binary ip address
-#e.g. 11000000.10101000.00001010.00000001
-#arg $2 should be a fully expanded string of a binary netmask
-#e.g. 11111111.11111111.11111110.00000000 (/23 netmask)
-python -c '
 from sys import argv
-from sys import stdout
-output = ""
-for (x, y) in zip(argv[1], argv[2]):
-    if y in ("1", "."):
-        output += x
-    else:
-        output += y
-stdout.write(output)
-stdout.flush()
-' $@
-}
+import re
 
-for ip in "$@";do
-  #not an IP address so break out
-  if ! grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}' <<< "${ip}" > /dev/null && ! grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' <<< "${ip}" > /dev/null; then
-    continue
-  fi
-  network_address=false
-  network_bits=32
-  original="${ip}"
-  if grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}' <<< "${ip}" > /dev/null; then
-    network_address=true
-  fi
-  if ${network_address}; then
-    network_bits=${ip##*/}
-    ip=${ip%%/*}
-  fi
-  ip_address=$(
-    bc <<< "obase=2;$(tr '.' ';' <<< "$ip")" | while read octet; do
-      printf "%08d." ${octet}
-    done
-  )
-  netmask=$(
-    count=1
-    for x in $(eval "echo {1..${network_bits}}");do
-      echo -n 1
-      [ "$((count % 8))" -eq 0 ] && echo -n '.'
-      (( count++ ))
-    done
-    while [ ${count} -lt 33 ]; do
-      echo -n 0
-      [ "$((count % 8))" -eq 0 ] && echo -n '.'
-      (( count++ ))
-    done
-  )
-  ip_address=${ip_address%.}
-  netmask=${netmask%.}
-  ipnetmask $ip_address $netmask
-  echo " (${original})"
-done
+ip_to_binary = lambda ip: "".join(["{0:08b}".format(int(octet)) for octet in ip.split('.')])
+display_ip = lambda binary: '.'.join([binary[i:i+8] for i in range(0, len(binary), 8)])
+apply_netmask = lambda binary, mask: binary[0:int(mask)] + '0' * (32 - int(mask))
+is_ip = lambda ip: bool(re.match('^([0-9]+\.){3}[0-9]+(/[0-9]+)?$', ip))
+ip_with_netmask = lambda ip, mask: apply_netmask(ip_to_binary(ip), mask)
+
+def printhelp():
+    helptext = '\n'.join([
+        "Pass IP addresses or IPs with network masks in CIDR format as arguments.",
+        "Examples:",
+        "    192.168.10.1",
+        "    10.32.11.5/16"])
+    print(helptext)
+
+if len(argv) < 2:
+    printhelp()
+
+for ip in argv[1:]:
+    if not is_ip(ip):
+        continue
+    if '/' in ip:
+        result = ip_with_netmask(*ip.split('/'))
+    else:
+        result = ip_to_binary(ip)
+    print("%s (%s)" % (display_ip(result), ip))
