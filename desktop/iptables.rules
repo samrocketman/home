@@ -31,6 +31,8 @@ COMMIT
 :VALVE_NETWORKS_allow - [0:0]
 :BLIZZARD_NETWORKS - [0:0]
 :BLIZZARD_NETWORKS_allow - [0:0]
+:TWITCH_NETWORKS - [0:0]
+:TWITCH_NETWORKS_allow - [0:0]
 :IRC_NETWORKS - [0:0]
 :IRC_NETWORKS_allow - [0:0]
 :INTERNAL - [0:0]
@@ -182,7 +184,33 @@ COMMIT
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 28016 -j ACCEPT
 -A OUTPUT_allow -p udp -m multiport --dports 17500,28015,28016,28026,28215,28231,28315 -j ACCEPT
 
+#twitch streaming
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 1935 -j ACCEPT
+
 # END OUTBOUND RULES
+########################################################################
+#
+########################################################################
+# TWITCH NETWORKS RULES
+# For streaming games
+
+# networks
+# https://search.arin.net/rdap/?query=JUSTI-19&searchFilter=entity
+-A TWITCH_NETWORKS -d 192.108.239.0/24 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 192.16.64.0/21 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 199.9.248.0/21 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 23.160.0.0/24 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 52.223.216.0/21 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 52.223.224.0/20 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 52.223.240.0/20 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 99.181.64.0/18 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 99.181.88.0/21 -g TWITCH_NETWORKS_allow
+-A TWITCH_NETWORKS -d 99.181.96.0/19 -g TWITCH_NETWORKS_allow
+
+# allowed ports
+-A TWITCH_NETWORKS_allow -p tcp -m multiport --dport 1935 -j ACCEPT
+
+# END TWITCH NETWORKS RULES
 ########################################################################
 
 ########################################################################
