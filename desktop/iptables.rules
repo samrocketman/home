@@ -56,8 +56,6 @@ COMMIT
 -A OUTPUT -j OUTPUT_deny
 -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
-#docker
--A OUTPUT -d 172.17.0.0/16 -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
 -A OUTPUT -j VALVE_NETWORKS
 -A OUTPUT -j IRC_NETWORKS
@@ -146,6 +144,8 @@ COMMIT
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
 -A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
+# docker using RFC1918 space
+-A OUTPUT_allow -d 172.16.0.0/12 -j ACCEPT
 
 #Allow Google network for XMPP chatting
 -A OUTPUT_allow -d 173.194.0.0/16 -p tcp -m tcp --dport 5222 -j ACCEPT
