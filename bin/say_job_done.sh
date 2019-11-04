@@ -15,7 +15,7 @@
 #  programs exit without needing to regularly check the terminal window.  It
 #  will say when the job is done.
 
-PHRASE="${1:-Job done.}"
+PHRASE="${*:-Job done.}"
 
 if type -P espeak &> /dev/null;then
   espeak -v en-german 2> /dev/null <<< "${PHRASE}"
