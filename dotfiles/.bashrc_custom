@@ -42,6 +42,7 @@ if ! type -p pbcopy &> /dev/null; then
   alias pbcopy='xsel --clipboard --input'
   alias pbpaste='xsel --clipboard --output'
 fi
+alias root='cd $(git root)'
 
 # ENVIRONMENT VARIABLES
 prepend_path "$HOME/bin"
@@ -146,6 +147,16 @@ function retrygit() (
     return 1
   fi
   while ! git push "$1" -u "$2";do sleep 1;done;say "Git pushed."
+)
+
+function open() (
+  if [ "$(uname)" = Darwin ]; then
+    command open "$@"
+  elif type -P xdg-open &> /dev/null; then
+    xdg-open "$@"
+  else
+    echo "No open or xdg-open command.  Can't complete your request." >&2
+  fi
 )
 
 function LogJenkinsIsUp() {
