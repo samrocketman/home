@@ -17,11 +17,17 @@
 
 PHRASE="${*:-Job done.}"
 
-if type -P espeak &> /dev/null;then
-  espeak -v en-german 2> /dev/null <<< "${PHRASE}"
-elif type -P say &> /dev/null;then
-  say -v Daniel "${PHRASE}"
-else
-  echo "No speaking command available." 1>&2
-  exit 1
+if [ "$(uname)" = Linux ] && type -P notify-send > /dev/null; then
+  notify-send "${NOTIFY_TITLE:-}" "${PHRASE}"
+fi
+
+if [ -z "${SILENT:-}" ]; then
+  if type -P espeak &> /dev/null;then
+    espeak -v en-german 2> /dev/null <<< "${PHRASE}"
+  elif type -P say &> /dev/null;then
+    say -v Daniel "${PHRASE}"
+  else
+    echo "No speaking command available." 1>&2
+    exit 1
+  fi
 fi

@@ -31,6 +31,8 @@ else
   RESULT=$(jenkins-call-url ${1%/}/api/json | json result | tr 'a-z' 'A-Z')
 fi
 
+export NOTIFY_TITLE="jenkins wait job"
+
 [ "${RESULT}" = 'SUCCESS' ] && \
   say_job_done.sh "${MESSAGE}" || (
     say_job_done.sh 'Jobb failed.'

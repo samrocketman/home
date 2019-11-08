@@ -10,4 +10,5 @@ endpoint=${url#*//}
 endpoint=${endpoint%%.*}
 endpoint=${endpoint%%:*}
 while [ ! 200 = "$(curl ${CURL_OPTS} -siI -w "%{http_code}\\n" -o /dev/null ${url})" ];do echo -n '.';sleep 1;done
+export NOTIFY_TITLE="jenkins wait reboot"
 say_job_done.sh "${endpoint} ready."
