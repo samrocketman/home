@@ -54,8 +54,10 @@ CURL="${CURL:-curl}"
 #Get JAVA_HOME for java on Mac OS X
 #will only run if OS X is detected
 if uname -rms | grep Darwin &> /dev/null; then
-  JAVA_HOME="$(/usr/libexec/java_home)"
-  PATH="${JAVA_HOME}/bin:${PATH}"
+  if [ -z "${JAVA_HOME:-}" ]; then
+    JAVA_HOME="$(/usr/libexec/java_home)"
+    PATH="${JAVA_HOME}/bin:${PATH}"
+  fi
   echo "JAVA_HOME=${JAVA_HOME}"
   java -version
 fi
