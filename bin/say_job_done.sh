@@ -18,7 +18,7 @@
 PHRASE="${*:-Job done.}"
 
 if [ "$(uname)" = Linux ] && type -P notify-send > /dev/null; then
-  notify-send "${NOTIFY_TITLE:-}" "${PHRASE}"
+  notify-send "${NOTIFY_TITLE:-say_job_done}" "${PHRASE}"
 fi
 
 if [ -z "${SILENT:-}" ]; then
