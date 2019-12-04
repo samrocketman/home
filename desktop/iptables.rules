@@ -80,7 +80,8 @@ COMMIT
 
 #LOGGING Chain
 #-A LOGGING -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
--A LOGGING -m limit -j LOG --log-prefix "iptables DROP: " --log-level 4
+#-A LOGGING -j LOG --log-prefix "iptables DROP: " --log-level 4
+-A LOGGING -m limit --limit 1/second -j LOG --log-prefix "iptables DROP: " --log-level 4
 
 #docker related chains
 -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 22 -j ACCEPT
@@ -91,7 +92,7 @@ COMMIT
 
 -A INTERNAL -s 192.168.10.0/24 -g INTERNAL_allow
 #VPN
--A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
+#-A INTERNAL -s 10.9.8.0/24 -g INTERNAL_allow
 
 #icmp
 -A INTERNAL_allow -p icmp -j ACCEPT
