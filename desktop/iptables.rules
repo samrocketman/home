@@ -35,6 +35,8 @@ COMMIT
 :TWITCH_NETWORKS_allow - [0:0]
 :IRC_NETWORKS - [0:0]
 :IRC_NETWORKS_allow - [0:0]
+:US_NETWORKS - [0:0]
+:US_NETWORKS_allow - [0:0]
 :INTERNAL - [0:0]
 :INTERNAL_allow - [0:0]
 :PUBLIC_deny - [0:0]
@@ -48,6 +50,7 @@ COMMIT
 #docker
 -A INPUT -s 172.17.0.0/16 -j ACCEPT
 -A INPUT -j INTERNAL
+-A INPUT -j US_NETWORKS
 -A INPUT -j PUBLIC_allow
 -A INPUT -j LOGGING
 -A INPUT -j REJECT --reject-with icmp-host-prohibited
@@ -115,7 +118,6 @@ COMMIT
 #DENY CONNECTIONS
 
 #MALWARE
--A PUBLIC_deny -s 212.7.208.65 -j DROP
 -A PUBLIC_deny -s 192.168.10.1 -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 
 #ALLOW CONNECTIONS
@@ -171,6 +173,9 @@ COMMIT
 #-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 6697 -j ACCEPT
 #allow outbound ssh
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+#allow outbound DNS
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A OUTPUT_allow -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 
 #Terraria
 -A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
@@ -186,6 +191,8 @@ COMMIT
 
 #twitch streaming
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 1935 -j ACCEPT
+# allow la quinta capture portal
+-A OUTPUT_allow -d 173.196.49.115 -p tcp -m state --state NEW -m tcp --dport 1111 -j ACCEPT
 
 # END OUTBOUND RULES
 ########################################################################
@@ -329,7 +336,11 @@ COMMIT
 -A IRC_NETWORKS -d 139.162.227.51 -g IRC_NETWORKS_allow
 -A IRC_NETWORKS -d 149.56.134.238 -g IRC_NETWORKS_allow
 -A IRC_NETWORKS -d 185.30.166.37 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 193.10.255.100 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 204.225.96.251 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 38.229.70.22 -g IRC_NETWORKS_allow
 -A IRC_NETWORKS -d 64.86.243.181 -g IRC_NETWORKS_allow
+-A IRC_NETWORKS -d 91.217.189.42 -g IRC_NETWORKS_allow
 -A IRC_NETWORKS -d 94.125.182.252 -g IRC_NETWORKS_allow
 
 #irc.gimp.org
@@ -341,6 +352,110 @@ COMMIT
 -A IRC_NETWORKS_allow -p tcp -m tcp --dport 6697 -j ACCEPT
 
 # END IRC NETWORKS RULES
+########################################################################
+
+########################################################################
+# US REGION NETWORKS (ARIN)
+# https://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks
+
+-A US_NETWORKS -s 3.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 8.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 9.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 13.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 15.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 16.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 18.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 20.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 23.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 24.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 32.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 34.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 35.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 40.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 45.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 47.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 50.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 52.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 54.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 63.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 64.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 65.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 66.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 67.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 68.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 69.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 70.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 71.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 72.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 73.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 74.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 75.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 76.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 96.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 97.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 98.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 99.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 100.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 104.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 107.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 108.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 128.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 129.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 130.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 131.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 132.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 134.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 135.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 136.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 137.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 138.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 139.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 140.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 142.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 143.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 144.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 146.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 147.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 148.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 149.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 152.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 155.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 156.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 157.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 158.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 159.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 160.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 161.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 162.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 164.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 165.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 166.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 167.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 168.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 169.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 170.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 172.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 173.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 174.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 184.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 192.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 198.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 199.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 204.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 205.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 206.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 207.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 208.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 209.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -s 216.0.0.0/8 -g US_NETWORKS_allow
+-A US_NETWORKS -j REJECT
+
+# Whitelist all US networks.  This doesn't mean the firewall will ultimately
+# allow it.  It just means that address will not be automatically blocked as a
+# matter of regional policy.
+-A US_NETWORKS_allow -j RETURN
+
+# END US REGION NETWORKS
 ########################################################################
 
 COMMIT
