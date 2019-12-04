@@ -191,8 +191,6 @@ COMMIT
 
 #twitch streaming
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 1935 -j ACCEPT
-# allow la quinta capture portal
--A OUTPUT_allow -d 173.196.49.115 -p tcp -m state --state NEW -m tcp --dport 1111 -j ACCEPT
 
 # END OUTBOUND RULES
 ########################################################################
