@@ -27,6 +27,8 @@ COMMIT
 :OUTPUT_allow - [0:0]
 :DOCKER - [0:0]
 :DOCKER-ISOLATION - [0:0]
+:GOOGLE_NETWORKS - [0:0]
+:GOOGLE_NETWORKS_allow - [0:0]
 :VALVE_NETWORKS - [0:0]
 :VALVE_NETWORKS_allow - [0:0]
 :BLIZZARD_NETWORKS - [0:0]
@@ -60,6 +62,7 @@ COMMIT
 -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
+-A OUTPUT -j GOOGLE_NETWORKS
 -A OUTPUT -j VALVE_NETWORKS
 -A OUTPUT -j IRC_NETWORKS
 -A OUTPUT -j BLIZZARD_NETWORKS
@@ -351,6 +354,21 @@ COMMIT
 -A IRC_NETWORKS_allow -p tcp -m tcp --dport 6697 -j ACCEPT
 
 # END IRC NETWORKS RULES
+########################################################################
+
+########################################################################
+# GOOGLE NETWORKS RULES
+# Google Media IP Address Ranges
+# https://support.google.com/a/answer/1279090
+
+# Google hangouts network
+-A GOOGLE_NETWORKS -d 74.125.250.0/24 -g GOOGLE_NETWORKS_allow
+
+# Google hangouts outbound ports
+-A GOOGLE_NETWORKS_allow -p tcp -m tcp --dport 443 -j ACCEPT
+-A GOOGLE_NETWORKS_allow -p udp -m multiport --dport 19302:19309,443 -j ACCEPT
+
+# END GOOGLE NETWORKS RULES
 ########################################################################
 
 ########################################################################
