@@ -104,7 +104,7 @@ COMMIT
 #ssh
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 #Herd deployments via bittorrent
--A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dport 10000:11000 -j ACCEPT
+#-A INTERNAL_allow -p tcp -m state --state NEW -m multiport --dport 10000:11000 -j ACCEPT
 #accept traceroutes
 -A INTERNAL_allow -p udp -m state --state NEW -m udp --dport 33434:33523 -j ACCEPT
 #Starbound
@@ -149,6 +149,8 @@ COMMIT
 
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
+#linksys
+-A OUTPUT_allow -d 192.168.1.1 -j ACCEPT
 -A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
 # docker using RFC1918 space
 -A OUTPUT_allow -d 172.16.0.0/12 -j ACCEPT
@@ -195,6 +197,9 @@ COMMIT
 
 #twitch streaming
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 1935 -j ACCEPT
+
+# GPG hkp keyserver protocol
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 11371 -j ACCEPT
 
 # END OUTBOUND RULES
 ########################################################################
