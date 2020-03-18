@@ -5,6 +5,11 @@
 #Linux 4.4.0-28-generic x86_64
 #iptables v1.6.0
 
+#Latest environment
+#Ubuntu 18.04.3 LTS
+#Linux 5.3.0-23-generic x86_64
+#iptables v1.6.1
+
 *nat
 :PREROUTING ACCEPT [3:296]
 :INPUT ACCEPT [2:227]
@@ -470,7 +475,8 @@ COMMIT
 -A US_NETWORKS -s 208.0.0.0/8 -g US_NETWORKS_allow
 -A US_NETWORKS -s 209.0.0.0/8 -g US_NETWORKS_allow
 -A US_NETWORKS -s 216.0.0.0/8 -g US_NETWORKS_allow
--A US_NETWORKS -j REJECT
+# reject all traffic not originating from US regional networks.
+-A US_NETWORKS -j DROP
 
 # Whitelist all US networks.  This doesn't mean the firewall will ultimately
 # allow it.  It just means that address will not be automatically blocked as a
