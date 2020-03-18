@@ -35,6 +35,7 @@
 	tree = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
 	tree2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset) %C(bold white). %an%C(reset)%n''          %C(white)%s%C(reset)' --abbrev-commit
 	tree3 = log --oneline --decorate --graph
+	init-commit = "!f() { [ -d .git ] || git init; git log > /dev/null || (touch README.md; git add README.md; git commit -m 'initial commit' ); }; f"
 [push]
 	default = simple
 [core]
