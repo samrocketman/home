@@ -51,3 +51,7 @@ jd-gui.cfg
 
 *.log
 *.tgz
+.venv
+
+#aws stuff
+*.snap
