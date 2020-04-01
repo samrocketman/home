@@ -34,13 +34,12 @@ cheatsheets).
 
 Generate bullet list of readme files:
 
-    find . -type f -iname 'readme*' | while read x; do
-      echo "- [${x#./}](${x#./})"
-    done
+```bash
+find * -mindepth 1 -type f -iname 'readme*' -exec echo "- [{}]({})" \; | sort
+```
 
 Generate bullet list of cheatsheets:
 
-    find ./cheatsheets -type f -iname "*.md" | while read x; do
-      echo "- [${x#./}](${x#./})"
-    done
-
+```bash
+find tips -type f -iname "*.md" -exec echo "- [{}]({})" \; | sort
+```
