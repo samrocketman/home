@@ -35,11 +35,11 @@ cheatsheets).
 Generate bullet list of readme files:
 
 ```bash
-find * -mindepth 1 -type f -iname 'readme*' -exec echo "- [{}]({})" \; | sort
+find -s * -mindepth 1 -type f -iname 'readme*' -exec echo "- [{}]({})" \;
 ```
 
 Generate bullet list of cheatsheets:
 
 ```bash
-find tips -type f -iname "*.md" -exec echo "- [{}]({})" \; | sort
+find -s tips -type f -iname "*.md" -exec echo "- [{}]({})" \;
 ```
