@@ -13,9 +13,9 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
   exit 1
 fi
 
-if ! grep '^https://github.com/[^/]\+/[^/]\+/pull/[0-9]\+$' <<< "$1" &> /dev/null; then
+if ! grep '^https://github.com/[^/]\+/[^/]\+/pull/[0-9]\+$' <<< "${1:-}" &> /dev/null; then
   echo 'ERROR: Received invalid pull request URL.' >&2
-  echo "$1" >&2
+  echo "${1:-}" >&2
   say_job_done.sh 'Error, bad pool request U-R-L.'
   exit 1
 fi
