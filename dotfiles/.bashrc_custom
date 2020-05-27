@@ -198,3 +198,6 @@ function twitch() {
 }
 
 export JENKINS_HEADERS_FILE=~/.jenkins-headers.json
+
+# joke aliases
+alias feed=git
