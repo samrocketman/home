@@ -1,11 +1,17 @@
 "this is a comment
 "type :help command to see the vim help docs for that command
+" navigating folds
+"  zM - shortcut to close all folds from normal mode
+"  zR - shortcut to open all folds from normal mode
+"  zc - Close the current fold while cursor is inside of fold from normal mode
+"  l - Open a fold which is under the cursor.
+"  h - Open a fold which is under the cursor.
 
 "this should be first always according to help docs if going to set it
 set nocompatible
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-" OPTIONS FOR ALL FILES UNLESS OVERRIDDEN BY FILETYPE
+" OPTIONS FOR ALL FILES UNLESS OVERRIDDEN BY FILETYPE {{{1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
 "if the number of colors supported by terminal is > 1 enable syntax highlighting
@@ -20,10 +26,6 @@ set shiftwidth=2
 set showmode
 "showmatch briefly jumps to the line as you search
 set showmatch
-"shortcut for toggling paste while in insert mode, press F2 key
-set pastetoggle=<f2>
-"shortcut for toggling scrollbinding
-nnoremap <F3> :set scb! scb?<CR>
 "when backspacing will backspace over eol, autoindent, and start
 set backspace=2
 "hlsearch for when there is a previous search pattern, highlight all its matches.
@@ -56,7 +58,37 @@ set autoindent
 let g:netrw_liststyle=3
 
 """""""""""""""""""""""""""""
-" AUTOCMD FILE LOGIC BEHAVIOR
+" FUNCTION KEY SHORTCUTS {{{1
+"""""""""""""""""""""""""""""
+
+" F2 key - Toggle paste or nopaste
+" F3 key - Toggle scrollbinding to scroll multiple windows in tandem
+" F4 key - Toggle highlighting lines longer than 80 chars
+
+"shortcut for toggling paste while in insert mode, press F2 key
+set pastetoggle=<f2>
+"shortcut for toggling scrollbinding; press F3 key
+nnoremap <F3> :set scb! scb?<CR>
+"toggle highlight lines longer than 80 chars in red; press F4 key
+nnoremap <F4> :call ToggleErrorWidth()<CR>
+
+"""""""""""""""""""""""""""""
+" FUNCTIONS {{{1
+"""""""""""""""""""""""""""""
+
+func ToggleErrorWidth()
+  :hi ColorColumn ctermbg=black guibg=black
+  :set colorcolumn=81
+  if exists('w:errorwidth')
+    call matchdelete(w:errorwidth)
+    unlet w:errorwidth
+  else
+    let w:errorwidth=matchadd('ErrorMsg', '\%>80v.\+', -1)
+  endif
+endfunc
+
+"""""""""""""""""""""""""""""
+" AUTOCMD FILE LOGIC BEHAVIOR {{{1
 """""""""""""""""""""""""""""
 
 " These are custom settings depending on which filetype is opened.  For
@@ -68,6 +100,8 @@ let g:netrw_liststyle=3
 "
 " Then create a setting which applies only to that filetype.
 
+" automatically fold comments in .vimrc file
+:autocmd BufNewFile,BufRead .vimrc setlocal foldmethod=marker foldexpr=0
 "jenkins plugins are just zip files; see also :help zip
 :autocmd BufReadCmd *.jpi,*.hpi call zip#Browse(expand("<amatch>"))
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
@@ -92,26 +126,11 @@ let g:netrw_liststyle=3
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd BufWinEnter * let w:extrawhite=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
-
-func ToggleErrorWidth()
-  :hi ColorColumn ctermbg=black guibg=black
-  set colorcolumn=81
-  if exists('w:errorwidth')
-    call matchdelete(w:errorwidth)
-    unlet w:errorwidth
-  else
-    let w:errorwidth=matchadd('ErrorMsg', '\%>80v.\+', -1)
-  endif
-endfunc
-
 "highlight lines longer than 80 chars in red
 :autocmd BufWinEnter *.md,*.sh call ToggleErrorWidth()
 
-"toggle highlight lines longer than 80 chars in red (the previous autocmd
-nnoremap <F4> :call ToggleErrorWidth()<CR>
-
 """"""""""""""""
-" CHARACTER MAPS
+" CHARACTER MAPS {{{1
 """"""""""""""""
 
 ":w!! will ask for password when trying to write to system files
