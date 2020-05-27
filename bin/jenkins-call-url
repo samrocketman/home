@@ -20,7 +20,10 @@
 #      export JENKINS_CALL_ARGS="-m POST -v --data-string script= http://localhost:8080/scriptText --data-file"
 #      jenkins-call-url ./script.groovy
 
-from httplib import HTTPSConnection
+try:
+    from httplib import HTTPSConnection
+except ModuleNotFoundError:
+    from http.client import HTTPSConnection
 import argparse
 import base64
 import json
@@ -91,6 +94,8 @@ if len(additional_args) > 0:
   else:
       sys.argv = [sys.argv[0]] + additional_args.strip().split() + sys.argv[1:]
 args = parser.parse_args()
+if args.verbosity == None:
+    args.verbosity = 0
 
 def trim_url_slash(url):
     return url[:-1] if url[-1:] == '/' else url
@@ -120,7 +125,7 @@ def printCurl(settings, url=trim_url_slash(args.jenkins_web)):
         curl += ' --cacert %s' % args.pinned_cert
     for k,v in headers.items():
         curl += " -H '%s:%s'" % (k, v)
-    print curl, url
+    print(curl, url)
     sys.exit(1)
 
 def getHost(url):
@@ -224,7 +229,10 @@ if args.print_curl_init:
 # Note: SOCKS proxy must always be configured before importing urllib and urllib2
 
 import urllib
-import urllib2
+try:
+    import urllib2
+except:
+    from urllib import request as urllib2
 
 def getUrl(url, headers, data=None, method='GET'):
     if args.verbosity >= 3:
@@ -251,9 +259,9 @@ def getUrl(url, headers, data=None, method='GET'):
             urlconn = urllib2.urlopen(req)
         responseString = urlconn.read()
         if url.endswith('crumbIssuer/api/json'):
-            if headers.has_key('Cookie'):
+            if 'Cookie' in headers:
                 headers.pop('Cookie')
-            if urlconn.info().has_key('Set-Cookie'):
+            if 'Set-Cookie' in urlconn.info():
                 headers['Cookie'] = urlconn.info()['Set-Cookie']
                 if args.verbosity >= 2:
                     printErr('Set a new session cookie ' + headers['Cookie'])
@@ -351,10 +359,9 @@ if args.verbosity >= 1:
 if len(response) > 0:
     if args.output == '-':
         if args.raw_response:
-            sys.stdout.write(response)
+            print(response)
         else:
-            sys.stdout.write(response.strip() + '\n')
-        sys.stdout.flush()
+            print(str(response).strip() + '\n')
     else:
         with open(args.output, 'w') as f:
             f.write(response)
