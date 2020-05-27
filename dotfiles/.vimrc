@@ -1,15 +1,17 @@
 "this is a comment
 "type :help command to see the vim help docs for that command
-" navigating folds
-"  zM - shortcut to close all folds from normal mode
-"  zR - shortcut to open all folds from normal mode
-"  zc - Close the current fold while cursor is inside of fold from normal mode
-"  l - Open a fold which is under the cursor.
-"  h - Open a fold which is under the cursor.
 
 "this should be first always according to help docs if going to set it
 set nocompatible
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" navigating folds (collapsed code sections)
+"  zM - shortcut to close all folds from normal mode
+"  zR - shortcut to open all folds from normal mode
+"  zc - Close the current fold while cursor is inside of fold from normal mode
+"  zo - Open a fold which is under the cursor.
+"  l  - Open a fold which is under the cursor.
+"  h  - Open a fold which is under the cursor.
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " OPTIONS FOR ALL FILES UNLESS OVERRIDDEN BY FILETYPE {{{1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -61,6 +63,7 @@ let g:netrw_liststyle=3
 " FUNCTION KEY SHORTCUTS {{{1
 """""""""""""""""""""""""""""
 
+" F1 key - show vim help; same as :help
 " F2 key - Toggle paste or nopaste
 " F3 key - Toggle scrollbinding to scroll multiple windows in tandem
 " F4 key - Toggle highlighting lines longer than 80 chars
