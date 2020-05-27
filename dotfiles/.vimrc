@@ -91,9 +91,22 @@ let g:netrw_liststyle=3
 "will highlight trailing white space with grey
 :highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
 :autocmd ColorScheme * highlight ExtraWhitespace ctermfg=Grey ctermbg=LightGrey
-:autocmd BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
+:autocmd BufWinEnter * let w:extrawhite=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
+
+func ToggleErrorWidth()
+  if exists('w:errorwidth')
+    call matchdelete(w:errorwidth)
+    unlet w:errorwidth
+  else
+    let w:errorwidth=matchadd('ErrorMsg', '\%>80v.\+', -1)
+  endif
+endfunc
+
 "highlight lines longer than 80 chars in red
-:autocmd BufWinEnter *.md,*.sh let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+:autocmd BufWinEnter *.md,*.sh call ToggleErrorWidth()
+
+"toggle highlight lines longer than 80 chars in red (the previous autocmd
+nnoremap <F4> :call ToggleErrorWidth()<CR>
 
 """"""""""""""""
 " CHARACTER MAPS
