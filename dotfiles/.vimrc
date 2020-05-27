@@ -5,13 +5,14 @@
 set nocompatible
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-" navigating folds (collapsed code sections)
-"  zM - shortcut to close all folds from normal mode
-"  zR - shortcut to open all folds from normal mode
-"  zc - Close the current fold while cursor is inside of fold from normal mode
-"  zo - Open a fold which is under the cursor.
-"  l  - Open a fold which is under the cursor.
-"  h  - Open a fold which is under the cursor.
+" Navigating folds (collapsed code sections).  Run from normal mode.
+"   zM - Shortcut to close all folds.
+"   zR - Shortcut to open all folds.
+"   zc - Close the current fold while cursor is inside of fold.
+"   zo - Open a fold which is under the cursor.
+"   l  - Open a fold which is under the cursor.
+"   h  - Open a fold which is under the cursor.
+"   gg - Shortcut to jump up to this menu.
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " OPTIONS FOR ALL FILES UNLESS OVERRIDDEN BY FILETYPE {{{1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
