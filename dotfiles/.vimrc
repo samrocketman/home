@@ -94,6 +94,8 @@ let g:netrw_liststyle=3
 :autocmd BufWinEnter * let w:extrawhite=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
 
 func ToggleErrorWidth()
+  :hi ColorColumn ctermbg=black guibg=black
+  set colorcolumn=81
   if exists('w:errorwidth')
     call matchdelete(w:errorwidth)
     unlet w:errorwidth
