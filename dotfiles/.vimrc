@@ -91,7 +91,7 @@ func ToggleErrorWidth()
 endfunc
 
 """""""""""""""""""""""""""""
-" AUTOCMD FILE LOGIC BEHAVIOR {{{1
+" VIM SETTINGS SPECIFIC TO DIFFERENT FILE TYPES {{{1
 """""""""""""""""""""""""""""
 
 " These are custom settings depending on which filetype is opened.  For
