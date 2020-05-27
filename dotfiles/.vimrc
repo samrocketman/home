@@ -81,13 +81,14 @@ nnoremap <F4> :call ToggleErrorWidth()<CR>
 """""""""""""""""""""""""""""
 
 func ToggleErrorWidth()
-  :hi ColorColumn ctermbg=black guibg=black
-  :set colorcolumn=81
+  :hi ColorColumn ctermbg=8 guibg=DarkGrey
   if exists('w:errorwidth')
     call matchdelete(w:errorwidth)
     unlet w:errorwidth
+    :setlocal colorcolumn=
   else
     let w:errorwidth=matchadd('ErrorMsg', '\%>80v.\+', -1)
+    :setlocal colorcolumn=81
   endif
 endfunc
 
