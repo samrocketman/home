@@ -77,11 +77,21 @@ nnoremap <F3> :set scb! scb?<CR>
 nnoremap <F4> :call ToggleErrorWidth()<CR>
 
 """""""""""""""""""""""""""""
+" COLOR SETTINGS {{{1
+"""""""""""""""""""""""""""""
+
+
+:hi ColorColumn ctermbg=8 guibg=DarkGrey
+:hi Folded ctermbg=5 ctermfg=7 guibg=DarkMagenta guifg=LightGrey
+
+"""""""""""""""""""""""""""""
 " FUNCTIONS {{{1
 """""""""""""""""""""""""""""
 
+" Toggles highlighting characters which go over 80 character width limit and
+" adds a bar as a column to visibly display the limit.  This function will
+" toggle it on and off.
 func ToggleErrorWidth()
-  :hi ColorColumn ctermbg=8 guibg=DarkGrey
   if exists('w:errorwidth')
     call matchdelete(w:errorwidth)
     unlet w:errorwidth
@@ -90,6 +100,62 @@ func ToggleErrorWidth()
     let w:errorwidth=matchadd('ErrorMsg', '\%>80v.\+', -1)
     :setlocal colorcolumn=81
   endif
+endfunc
+
+" On markdown files, header sections and code blocks are collapsed by this
+" fold-expr function.  See also :help fold-expr
+" Special behavior includes:
+"   - The fist section heading is not folded because this is typically an
+"     introduction.
+"   - Section headings get folded
+"   - Code blocks get folded nested under section headings.
+"   - Reference-style markdown links are excluded from folding.  I typically
+"     put reference-style links at the end of a markdown file.
+func FoldMarkdownHeadersAndCode()
+  " initialize buffer variables (global to the document)
+  if !exists('b:markdown_code')
+    let b:markdown_code = v:false
+  endif
+  if !exists('b:collapse_markdown_header')
+    let b:collapse_markdown_header = false
+  endif
+  " local function variables
+  let l:thisline = getline(v:lnum)
+  let l:depth = len(matchstr(thisline, '^#\+'))
+  " this logic will return a fold-expr based on conditions
+  if l:thisline =~ '^```.*$' " open or closing a code block
+    if b:markdown_code
+      let b:markdown_code = v:false
+      return "s1"
+    else
+      let b:markdown_code = v:true
+      return "a1"
+    endif
+  endif
+  if l:depth > 0
+    if !b:markdown_code && b:collapse_markdown_header
+      return ">1"
+    endif
+    let b:collapse_markdown_header = v:true
+  endif
+  let l:reference_link_expr = '^\[[^\]]\+\]: \+[^ ]\+$' " matches text like '[foo]: https://link/to/foo'
+  if l:thisline =~ l:reference_link_expr " regex match to display reference links
+      return "<1"
+  endif
+  return "="
+endfunc
+
+" Custom titles for folded markdown code blocks
+func FoldTextMarkdown()
+  let l:title = getline(v:foldstart)
+  if l:title !~ '^```.*$' " not a code block so return default
+    return foldtext()
+  endif
+  let l:replace_expr = 'CODE BLOCK: \2 (\1)'
+  if l:title == '```'
+    let l:replace_expr = 'CODE BLOCK (\1)'
+  endif
+  return substitute(foldtext(), '^[^0-9]\+\([^:]\+\): ```\(.*\)$', l:replace_expr, '')
 endfunc
 
 """""""""""""""""""""""""""""
@@ -111,7 +177,7 @@ endfunc
 :autocmd BufReadCmd *.jpi,*.hpi call zip#Browse(expand("<amatch>"))
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle,Jenkinsfile setlocal filetype=groovy expandtab
-:autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
+:autocmd BufNewFile,BufRead *.md setlocal filetype=markdown foldmethod=expr foldexpr=FoldMarkdownHeadersAndCode() foldtext=FoldTextMarkdown()
 :autocmd BufNewFile,BufRead TODO setlocal filetype=markdown
 :autocmd BufNewFile,BufRead *.jelly setlocal filetype=xml
 "cfengine promises files
