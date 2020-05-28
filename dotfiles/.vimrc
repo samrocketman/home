@@ -80,7 +80,6 @@ nnoremap <F4> :call ToggleErrorWidth()<CR>
 " COLOR SETTINGS {{{1
 """""""""""""""""""""""""""""
 
-
 :hi ColorColumn ctermbg=8 guibg=DarkGrey
 :hi Folded ctermbg=5 ctermfg=15 guibg=DarkMagenta guifg=White
 
@@ -145,7 +144,7 @@ func FoldMarkdownHeadersAndCode()
   return "="
 endfunc
 
-" Custom titles for folded markdown code blocks
+" Custom titles for folded markdown sections and code blocks
 func FoldTextMarkdown()
   let l:title = getline(v:foldstart)
   if l:title !~ '^```.*$' " section title
