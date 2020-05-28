@@ -82,7 +82,7 @@ nnoremap <F4> :call ToggleErrorWidth()<CR>
 
 
 :hi ColorColumn ctermbg=8 guibg=DarkGrey
-:hi Folded ctermbg=5 ctermfg=7 guibg=DarkMagenta guifg=LightGrey
+:hi Folded ctermbg=5 ctermfg=15 guibg=DarkMagenta guifg=White
 
 """""""""""""""""""""""""""""
 " FUNCTIONS {{{1
@@ -148,9 +148,16 @@ endfunc
 " Custom titles for folded markdown code blocks
 func FoldTextMarkdown()
   let l:title = getline(v:foldstart)
-  if l:title !~ '^```.*$' " not a code block so return default
-    return foldtext()
+  if l:title !~ '^```.*$' " section title
+    let l:depth = len(matchstr(l:title, '^#\+'))
+    if depth == 1
+      return foldtext()
+    endif
+    " return a substituted title showing indented sub-section as |-
+    let l:sub = repeat(' ', depth*2 - 2) . '|-'
+    return substitute(foldtext(), '^\([^#]\+\)#\+\(.*\)$', '\1' . l:sub . '\2', '')
   endif
+  " code block title
   let l:replace_expr = 'CODE BLOCK: \2 (\1)'
   if l:title == '```'
     let l:replace_expr = 'CODE BLOCK (\1)'
