@@ -9,7 +9,6 @@ Here is a summary of README files in this repository where you can learn more
 about that area.
 
 - [bin/README.md](bin/README.md)
-- [dotfiles/.git_template/README.md](dotfiles/.git_template/README.md)
 - [raspi/README.md](raspi/README.md)
 
 # Program usage tips
