@@ -139,7 +139,7 @@ func FoldMarkdownHeadersAndCode()
   endif
   let l:reference_link_expr = '^\[[^\]]\+\]: \+[^ ]\+$' " matches text like '[foo]: https://link/to/foo'
   if l:thisline =~ l:reference_link_expr " regex match to display reference links
-      return "<1"
+      return "0"
   endif
   return "="
 endfunc
