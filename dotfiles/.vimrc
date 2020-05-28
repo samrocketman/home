@@ -183,7 +183,7 @@ endfunc
 :autocmd BufReadCmd *.jpi,*.hpi call zip#Browse(expand("<amatch>"))
 :autocmd BufNewFile,BufRead .gitconfig_settings setlocal filetype=gitconfig
 :autocmd BufNewFile,BufRead *.gradle,Jenkinsfile setlocal filetype=groovy expandtab
-:autocmd BufNewFile,BufRead *.md setlocal filetype=markdown foldmethod=expr foldexpr=FoldMarkdownHeadersAndCode() foldtext=FoldTextMarkdown()
+:autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
 :autocmd BufNewFile,BufRead TODO setlocal filetype=markdown
 :autocmd BufNewFile,BufRead *.jelly setlocal filetype=xml
 "cfengine promises files
@@ -196,7 +196,7 @@ endfunc
 :autocmd FileType make,gitconfig setlocal noexpandtab
 "auto newline at 80 characters as you type and auto-format formatoptions+=a or fo+=a
 "autoformatting can also be accomplished with gq see :help gq
-:autocmd FileType markdown setlocal textwidth=80
+:autocmd FileType markdown setlocal textwidth=80 foldmethod=expr foldexpr=FoldMarkdownHeadersAndCode() foldtext=FoldTextMarkdown()
 "auto newline at 73 chars as you type. git commit messages are 73 chars wide on GitHub
 :autocmd FileType gitcommit setlocal textwidth=73
 "will highlight trailing white space with grey
