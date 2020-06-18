@@ -138,6 +138,97 @@ the following topics.
   or functions to be executed when an event happens.  In this case, trap is used
   to automatically clean up file locks.
 
+# Worst-case system recovery
+
+When all utilities seem lost... you still have bash ;).  The following attempts
+to use only bash builtin methods to emulate oft-used utilities.
+
+> **Note:** `http_get` is kind of like `curl`.  In order to download binary data
+> it requires `dd` to be available... unfortunately I could not get downloading
+> binary data to work in bash using strictly shell builtins.
+
+Copy and paste the following functions into a dead environment.
+
+```bash
+function ls() ( echo *; )
+function cat() { until [ "$#" -eq 0 ]; do echo "$( < "$1" )"; shift; done; }
+function catnull() {
+    while IFS=$'\0' read -r -d $'\0' line; do
+        echo "$line"
+    done < "$1"
+}
+function env() {
+    while IFS=$'\0' read -r -d $'\0' line; do
+        echo "$line"
+    done < /proc/self/environ
+}
+function pwd() { echo "${PWD}"; }
+function http_get() (
+    exec 3<>/dev/tcp/"$1/$2"
+    echo -e "GET $3 HTTP/1.1\r\nHost: ${1}\r\nConnection: close\r\n\r\n" >&3
+    # print HTTP headers to stderr
+    while read -d $'\r\n' -r line; do
+        echo "$line" >&2
+        # hack to prepare reading binary data
+        if [ -z "$(echo "$line")" ]; then
+            read -d $'\0' -N1 -r line
+            break
+        fi
+    done <&3
+    if type -P dd >&2; then
+        dd <&3
+    else
+        # does not work for binary data...
+        while IFS= read -N1 -u3 -r -s line; do echo -n "$line"; done
+    fi
+    # close the connection
+    exec 3<&-
+    exec 3>&-
+)
+function http_head() (
+    exec 3<>/dev/tcp/"$1/$2"
+    echo -e "HEAD $3 HTTP/1.1\r\nHost: ${1}\r\nConnection: close\r\n\r\n" >&3
+    while read -r line; do echo "$line"; done <&3
+    # close the connection
+    exec 3<&-
+    exec 3>&-
+)
+```
+
+My take on useful commands using bash builtins when all appears lost.  You can then use them almost like their real counterparts.
+
+Usage for files and navigation:
+
+```bash
+# print working directory
+pwd
+
+# list files in directory
+ls
+
+# cat two files into a third file
+cat file1 file2 > file3
+
+# read the environ from another process
+catnull /proc/<PID>/environ
+
+# show environment for current shell
+env
+```
+
+Usage for websites:
+
+```bash
+# read headers for remote URL
+http_head www.example.com 80 /
+
+# download a plain HTML file
+http_get www.example.com 80 / > index.html
+
+# download a binary file (requires dd to be available)
+http_get www.example.com 80 /file.png > file.png
+```
+
 [bash-eval]: https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-eval
 [bash-exec]: https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-exec
 [bash-pe]: https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
