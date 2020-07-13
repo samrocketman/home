@@ -22,6 +22,7 @@
 	sr = show-ref
 	#shorthand for git tree
 	t = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
+	fu = fetch upstream
 
 	# fun commands `git pug`, `feed doggie`.  In shell `alias feed=git`
 	pug = fetch
@@ -29,7 +30,7 @@
 
 	#longer custom commands
 	reuse = "!r() { git commit -C \"${1:-HEAD}\"; git commit --amend --reset-author; }; r"
-	ammend = commit --amend -aC HEAD
+	amend = commit --amend -aC HEAD
 	checkpoint = "!cp() { git add -A && git commit -m checkpoint; } ; cp"
 	files = "!f() { if [ \"$#\" -eq 2 ]; then git diff --name-status $(git merge-base $1 $2) $2;elif [ \"$#\" -eq 1 ]; then git diff --name-status $(git merge-base $1 HEAD) HEAD;else echo 'Call with one or two args';fi }; f"
 	gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
