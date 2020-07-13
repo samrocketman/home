@@ -81,7 +81,8 @@ nnoremap <F4> :call ToggleErrorWidth()<CR>
 """""""""""""""""""""""""""""
 
 :hi ColorColumn ctermbg=8 guibg=DarkGrey
-:hi Folded ctermbg=5 ctermfg=15 guibg=DarkMagenta guifg=White
+":hi Folded ctermbg=5 ctermfg=15 guibg=DarkMagenta guifg=White
+:hi Folded ctermbg=4 ctermfg=0 guibg=DarkBlue guifg=Black
 
 """""""""""""""""""""""""""""
 " FUNCTIONS {{{1
