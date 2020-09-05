@@ -140,6 +140,9 @@ the following topics.
 
 # Worst-case system recovery
 
+> You may find all of these functions availab within the source-able script
+> [`recovery_functions.sh`](recovery_functions.sh).
+
 When all utilities seem lost... you still have bash ;).  The following attempts
 to use only bash builtin methods to emulate oft-used utilities.
 
@@ -150,7 +153,14 @@ to use only bash builtin methods to emulate oft-used utilities.
 Copy and paste the following functions into a dead environment.
 
 ```bash
+# remove all aliases since they could affect functions
+unalias -a
+# a simple PS1 to know where you are located
+PS1='${USER}:${PWD}$ '
+
+# bash built-in recovery functions
 function ls() ( echo *; )
+function pwd() { echo "${PWD}"; }
 function cat() { until [ "$#" -eq 0 ]; do echo "$( < "$1" )"; shift; done; }
 function catnull() {
     while IFS=$'\0' read -r -d $'\0' line; do
@@ -162,10 +172,47 @@ function env() {
         echo "$line"
     done < /proc/self/environ
 }
-function pwd() { echo "${PWD}"; }
+function grep() (
+    local expr="$1"
+    local filename=""
+    local count=0
+    shift
+    until [ "$#" -eq 0 ]; do
+        filename="$1"
+        shift;
+        count=0
+        while read -r line; do
+            ((count = count + 1))
+            echo $expr
+            if [ ! "$line" = "${line//${expr}/}" ]; then
+                echo "${filename}:${count}:${line}"
+            fi
+        done < "${filename}"
+    done;
+)
 function http_get() (
-    exec 3<>/dev/tcp/"$1/$2"
-    echo -e "GET $3 HTTP/1.1\r\nHost: ${1}\r\nConnection: close\r\n\r\n" >&3
+    if [ ! "$#" -eq 1 -a ! "$#" -eq 3 ]; then
+        echo 'ERROR: must provide 1 or 3 arguments.' >&2
+        echo 'Example usage:' >&2
+        echo '    http_get example.com/' >&2
+        echo '    http_get example.com 80 /' >&2
+        return 1
+    fi
+    if [ "$#" = 1 ]; then
+        if [ "$1" = "${1#*/}" ]; then
+            echo 'ERROR: Must end with trailing slash.' >&2
+            return 1
+        fi
+        connecthost="${1%%/*}"
+        connectport=80
+        path="/${1#*/}"
+    else
+        connecthost="$1"
+        connectport="$2"
+        path="$3"
+    fi
+    exec 3<>/dev/tcp/"${connecthost}/${connectport}"
+    echo -e "GET ${path} HTTP/1.1\r\nHost: ${connecthost}\r\nConnection: close\r\n\r\n" >&3
     # print HTTP headers to stderr
     while read -d $'\r\n' -r line; do
         echo "$line" >&2
