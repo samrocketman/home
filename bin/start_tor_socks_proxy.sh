@@ -70,7 +70,6 @@ while [ "$#" -gt 0 ]; do
 done
 
 while read c; do
-  echo $c
   if [ -z "${country_config:-}" ]; then
     country_config="{${c}}"
   else
@@ -108,6 +107,5 @@ if [ -n '${country_config}' ]; then
 fi
 /usr/bin/tor  --defaults-torrc /etc/tor/torrc -f /etc/tor/torrc2
 "
-
 
 echo 'Started a new proxy.'
