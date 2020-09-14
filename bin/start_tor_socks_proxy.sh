@@ -105,6 +105,7 @@ if [ -n '${country_config}' ]; then
   echo 'EntryNodes ${country_config}' >> /etc/tor/torrc2
   echo 'MiddleNodes ${country_config}' >> /etc/tor/torrc2
   echo 'ExitNodes ${country_config}' >> /etc/tor/torrc2
+  echo 'StrictNodes 1' >> /etc/tor/torrc2
 fi
 /usr/bin/tor  --defaults-torrc /etc/tor/torrc -f /etc/tor/torrc2
 "
