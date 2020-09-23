@@ -22,11 +22,11 @@ declare -a gpg_opts=()
 declare -a files=()
 declare -a find_args=()
 declare -a opt_find_args=()
-declare -a find_ignore_files=('.gpg' 'sha*sum.txt' '.checksumrequired' '.sig')
+declare -a find_ignore_files=('.gpg' 'sha1sum.txt' '.checksumrequired' '.sig')
 declare -a passthrough_opts=()
 
 function helpdoc() {
-cat >&2 <<'EOF'
+cat <<'EOF'
 SYNOPSIS
   gpg.sh MODE_OPTION [-o] [--rm] [-i] [-r] FILES...
 
@@ -41,6 +41,11 @@ DESCRIPTION
 
   You must pass in one mode option.  FILES can be files or directories.
 
+REQUARED ARGUMENTS:
+  FILES
+    A list of files provided to perform an operation.  The list can include
+    regular files or directories.
+
 MODE OPTIONS:
   -e or --encrypt
     encrypt mode.  Will encrypt individual files.
@@ -54,6 +59,48 @@ MODE OPTIONS:
   -v FINGERPRINT or --verify FINGERPRINT
     verify mode.  Will verify every gpg file is signed by the provided
     FINGERPRINT.
+
+  -p or --find-plain-files
+    find_plain_files mode.  Will search a directory of mixed encrypted and
+    plain text content.  It will find and print all plain (unencrypted) files.
+    It will not print gpg encrypted files, gpg signature files, or hashed files
+    like sha1sum.txt (legacy way of validating integrity before using
+    signatures).
+
+DESTRUCTIVE OPTIONS:
+  --rm or --remove
+    Performs a destructive operation.  Varies depending on the mode.  The
+    following is a description of --rm behavior by mode it affects.
+    | MODE             | BEHAVIOR                                              |
+    | ---------------- | ----------------------------------------------------- |
+    | encrypt          | Removes original plain text files after it is gpg     |
+    |                  | encrypted.                                            |
+    | decrypt          | Removes encrypted gpg and sig file after it is        |
+    |                  | decrypted.                                            |
+    | find_plain_files | Deletes all of the plain files found.  Useful if      |
+    |                  | you've encrypted a directory and forgot to remove the |
+    |                  | originals.                                            |
+
+
+OTHER OPTIONS:
+  -r FINGERPRINT or --recipient FINGERPRINT
+    A recipient to encrypt the contents of a file to a specified gpg key
+    FINGERPRINT.  There can by many recipients that can decrypt the same set of
+    files.  This option can be specified multiple times for multiple
+    recipients.  Additionally, a space-separated list of fingerprints can be
+    provided in the recipient_list environment variable.
+
+  -i PATTERN or --ignore-path-pattern PATTERN
+    The find command is used to search paths for encrypting files.  You can
+    partially exclude paths using this option.  For testing patterns, use the
+    --find-plain-files mode option to print a list of files to be encrypted
+    when the ignore pattern is applied.
+
+    For example, to exclude files within `./foo` directory is the following
+    command example.
+
+      gpg.sh --find-plain-files -i './foo/*' .
+      gpg.sh --encrypt -i './foo/*' .
 EOF
 }
 
@@ -227,7 +274,8 @@ trap '[ ! -d "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR}"' EXIT
 parse_args "$@"
 
 if [ -z "${parallel}" ] && type -P nproc &> /dev/null; then
-  parallel="$(nproc)"
+  # parallel is 2x CPU
+  parallel="$(( $(nproc)*2 ))"
 else
   parallel=8
 fi
