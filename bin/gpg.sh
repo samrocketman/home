@@ -13,7 +13,7 @@ set -eo pipefail
 
 # global arrays and variables
 remove_files="false"
-overwrite_encrypted_file=false
+overwrite_file=false
 recipient_list="${recipient_list:-}"
 keyring_file=""
 verifying_public_key=""
@@ -68,9 +68,24 @@ MODE OPTIONS:
     signatures).
 
 DESTRUCTIVE OPTIONS:
+  -o or --overwrite-file
+    Performs a destructive operation.  Varies depending on the mode.  The
+    following is --overwrite-file behavior by mode it affects.  The default
+    behavior without this option is to exit with an error since a file exists.
+    | MODE             | BEHAVIOR                                              |
+    | ---------------- | ----------------------------------------------------- |
+    | encrypt          | If a gpg file exists of the same name as the file to  |
+    |                  | be encrypted, then the gpg file will be overwritten.  |
+    | decrypt          | If a plaintext file (without .gpg extention) exists,  |
+    |                  | then it will be overwritten.                          |
+    | sign             | When gpg encrypted files are signed and a file of the |
+    |                  | same name (extension .gpg.sig) exists, then it will   |
+    |                  | be overwritten.                                       |
+
   --rm or --remove
     Performs a destructive operation.  Varies depending on the mode.  The
-    following is a description of --rm behavior by mode it affects.
+    following is --remove behavior by mode it affects.  The default behavior
+    without this option is to leave files behind.
     | MODE             | BEHAVIOR                                              |
     | ---------------- | ----------------------------------------------------- |
     | encrypt          | Removes original plain text files after it is gpg     |
@@ -134,8 +149,8 @@ function parse_args() {
         passthrough_opts+=( "$1" "$2" )
         shift 2
         ;;
-      -o|--overwrite-encrypted-file)
-        overwrite_encrypted_file=true
+      -o|--overwrite-file)
+        overwrite_file=true
         passthrough_opts+=( "$1" )
         shift
         ;;
@@ -198,7 +213,7 @@ function encrypt_file() {
     echo "WARNING: ${1} is not a file so skipping." >&2
     return
   fi
-  if [ "${overwrite_encrypted_file}" = false -a -f "${1}.gpg" ]; then
+  if [ "${overwrite_file}" = false -a -f "${1}.gpg" ]; then
     echo "ERROR: '${1}.gpg' exists." >&2
     exit 1
   fi
@@ -216,7 +231,7 @@ function decrypt_file() {
     echo "WARNING: ${1} is not a file so skipping." >&2
     return
   fi
-  if [ "${overwrite_encrypted_file}" = false -a -f "${1%.gpg}" ]; then
+  if [ "${overwrite_file}" = false -a -f "${1%.gpg}" ]; then
     echo "ERROR: '${1%.gpg}' exists." >&2
     exit 1
   fi
@@ -234,7 +249,7 @@ function sign_file() {
     echo "WARNING: ${1} is not a file so skipping." >&2
     return
   fi
-  if [ "${overwrite_encrypted_file}" = false -a -f "${1}.sig" ]; then
+  if [ "${overwrite_file}" = false -a -f "${1}.sig" ]; then
     echo "ERROR: '${1}.sig' exists." >&2
     exit 1
   fi
