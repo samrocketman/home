@@ -116,6 +116,11 @@ OTHER OPTIONS:
 
       gpg.sh --find-plain-files -i './foo/*' .
       gpg.sh --encrypt -i './foo/*' .
+
+  -P NUMBER or --parallel NUMBER
+    Launches NUMBER parallel processes when performing an operation.  By
+    default it is double the number of CPUs or 8 if nproc utility is not
+    available.
 EOF
 }
 
@@ -192,6 +197,10 @@ function parse_args() {
         set_mode "$1" find_plain_files
         shift
         ;;
+      -P|--parallel)
+        parallel="$2"
+        shift 2
+        ;;
       --help)
         helpdoc
         exit 1
@@ -254,6 +263,7 @@ function sign_file() {
     exit 1
   fi
   gpg -s --output - --detach-sig "${1}" > "${1}.sig"
+  echo "Signed '${1}'"
 }
 
 function verify_file() {
@@ -271,6 +281,7 @@ function verify_file() {
     echo "FAILED SIGNATURE: '${1}'"
     exit 1
   fi
+  echo "Verified '${1}'"
 }
 
 #
@@ -292,10 +303,17 @@ if [ -z "${parallel}" ] && type -P nproc &> /dev/null; then
   # parallel is 2x CPU
   parallel="$(( $(nproc)*2 ))"
 else
-  parallel=8
+  parallel="${parallel:-8}"
+fi
+if ! grep '^[0-9]\+$' &> /dev/null <<< "${parallel}"; then
+  echo 'ERROR: --parallel option must be a number.'
+  exit 1
 fi
 case "${mode}" in
   encrypt)
+    echo "Overwrite encrypted files: ${overwrite_files}"
+    echo "Remove original plaintext files: ${remove}"
+    echo "Parallel processes: ${parallel}"
     find "${files[@]}" "${find_args[@]}" "${opt_find_args[@]}" -type f -print0 | \
       xargs -0 -n1 "-P${parallel}" -- "$0" -f "${passthrough_opts[@]}"
     ;;
@@ -305,6 +323,9 @@ case "${mode}" in
     done
     ;;
   decrypt)
+    echo "Overwrite plaintext files: ${overwrite_files}"
+    echo "Remove original encrypted files and signatures: ${remove}"
+    echo "Parallel processes: ${parallel}"
     find "${files[@]}" "${opt_find_args[@]}" -type f -name '*.gpg' -print0 | \
       xargs -0 -n1 "-P${parallel}" -- "$0" --decrypt-file "${passthrough_opts[@]}"
     ;;
@@ -314,6 +335,8 @@ case "${mode}" in
     done
     ;;
   sign)
+    echo "Parallel processes: ${parallel}"
+    echo "Overwrite signature files: ${overwrite_files}"
     find "${files[@]}" "${opt_find_args[@]}" -type f -name '*.gpg' -print0 | \
       xargs -0 -n1 "-P${parallel}" -- "$0" --sign-file "${passthrough_opts[@]}"
     ;;
@@ -323,6 +346,7 @@ case "${mode}" in
     done
     ;;
   verify)
+    echo "Parallel processes: ${parallel}"
     TMP_DIR="$(mktemp -d)"
     gpg --export "$verifying_public_key" | \
       gpg --no-default-keyring --keyring "${TMP_DIR}/keyring" \
