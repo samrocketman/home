@@ -32,6 +32,8 @@ COMMIT
 :OUTPUT_allow - [0:0]
 :DOCKER - [0:0]
 :DOCKER-ISOLATION - [0:0]
+:DISCORD_NETWORKS - [0:0]
+:DISCORD_NETWORKS_allow - [0:0]
 :GOOGLE_NETWORKS - [0:0]
 :GOOGLE_NETWORKS_allow - [0:0]
 :VALVE_NETWORKS - [0:0]
@@ -67,6 +69,7 @@ COMMIT
 -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 -A OUTPUT -j OUTPUT_allow
+-A OUTPUT -j DISCORD_NETWORKS
 -A OUTPUT -j GOOGLE_NETWORKS
 -A OUTPUT -j VALVE_NETWORKS
 -A OUTPUT -j IRC_NETWORKS
@@ -116,6 +119,8 @@ COMMIT
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
 #Windward game
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 5127 -j ACCEPT
+#python -m SimpleHTTPServer
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 8000 -j ACCEPT
 
 # END GLESKE INTERNAL NETWORKS
 ########################################################################
@@ -128,6 +133,12 @@ COMMIT
 
 #MALWARE
 -A PUBLIC_deny -s 192.168.10.1 -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
+-A PUBLIC_deny -s 224.0.0.251 -j DROP
+-A PUBLIC_deny -d 224.0.0.251 -j DROP
+-A PUBLIC_deny -d 192.168.10.255 -j DROP
+-A PUBLIC_deny -p udp --sport 17500 --dport 17500 -j DROP
+#drop local broadcast
+-A PUBLIC_deny -d 255.255.255.255 -j DROP
 
 #ALLOW CONNECTIONS
 
@@ -136,6 +147,9 @@ COMMIT
 
 #Terraria
 -A PUBLIC_allow -s 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+#Starbound
+-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
+#-A PUBLIC_allow -p udp -m state --state NEW -m udp --dport 21025 -j ACCEPT
 
 
 # END PUBLIC INTERNET RULES
@@ -149,11 +163,14 @@ COMMIT
 
 #MALWARE
 -A OUTPUT_deny -d 212.7.208.65 -j DROP
+-A OUTPUT_deny -d 224.0.0.251 -j DROP
 
 #OUTBOUND allow
 
 #allow all internal network outbound communications
 -A OUTPUT_allow -d 192.168.10.0/24 -j ACCEPT
+#allow broadcase
+-A OUTPUT_allow -d 255.255.255.255 -j ACCEPT
 #linksys
 -A OUTPUT_allow -d 192.168.1.1 -j ACCEPT
 -A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
@@ -192,19 +209,21 @@ COMMIT
 -A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
 -A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 24 -j ACCEPT
 
-#
--A OUTPUT_allow -d 103.246.31.101 -p tcp -m state --state NEW -m tcp --dport 133 -j ACCEPT
-
 #Rust game
 -A OUTPUT_allow -p udp --dport 28015 -j ACCEPT
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 28016 -j ACCEPT
 -A OUTPUT_allow -p udp -m multiport --dports 17500,28015,28016,28026,28215,28231,28315 -j ACCEPT
+#play.deadlock.com:1333 rust server
+-A OUTPUT_allow -d 86.18.105.216 -p udp -m udp --dport 1333 -j ACCEPT
 
 #twitch streaming
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 1935 -j ACCEPT
 
 # GPG hkp keyserver protocol
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 11371 -j ACCEPT
+
+# starbound
+-A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
 
 # END OUTBOUND RULES
 ########################################################################
@@ -279,6 +298,17 @@ COMMIT
 
 
 # END BLIZZARD NETWORKS RULES
+########################################################################
+
+########################################################################
+# DISCORD NETWORKS RULES
+# For Voice chat
+
+-A DISCORD_NETWORKS -d 138.128.141.39 -g DISCORD_NETWORKS_allow
+# UDP port 54619
+-A DISCORD_NETWORKS_allow -p udp -m udp --dport 54619 -j ACCEPT
+
+# END DISCORD NETWORKS RULES
 ########################################################################
 
 ########################################################################

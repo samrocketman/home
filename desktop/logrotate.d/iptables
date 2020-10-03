@@ -1,0 +1,11 @@
+/var/log/iptables.log {
+	daily
+	rotate 7
+        copytruncate
+	compress
+	delaycompress
+	missingok
+	notifempty
+        su root syslog
+	create 644 syslog adm
+}

@@ -9,6 +9,7 @@ Here is a summary of README files in this repository where you can learn more
 about that area.
 
 - [bin/README.md](bin/README.md)
+- [desktop/README.md](desktop/README.md)
 - [raspi/README.md](raspi/README.md)
 
 # Program usage tips
@@ -34,11 +35,11 @@ cheatsheets).
 Generate bullet list of readme files:
 
 ```bash
-find -s * -mindepth 1 -type f -iname 'readme*' -exec echo "- [{}]({})" \;
+find * -mindepth 1 -type f -iname 'readme*' -exec echo "- [{}]({})" \;
 ```
 
 Generate bullet list of cheatsheets:
 
 ```bash
-find -s tips -type f -iname "*.md" -exec echo "- [{}]({})" \;
+find tips -type f -iname "*.md" -exec echo "- [{}]({})" \;
 ```
