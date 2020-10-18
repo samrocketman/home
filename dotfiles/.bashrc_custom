@@ -201,3 +201,7 @@ export JENKINS_HEADERS_FILE=~/.jenkins-headers.json
 
 # joke aliases
 alias feed=git
+
+#Rust game aliases
+# Join deadlock server
+alias deadlock='xdg-open steam://connect/play.deadlock.com:1333'

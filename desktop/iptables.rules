@@ -92,6 +92,7 @@ COMMIT
 #LOGGING Chain
 #-A LOGGING -m limit --limit 2/min -j LOG --log-prefix "iptables DROP: " --log-level 4
 #-A LOGGING -j LOG --log-prefix "iptables DROP: " --log-level 4
+-A LOGGING -s 172.0.0.0/8 -d 172.0.0.0/8 -j RETURN
 -A LOGGING -m limit --limit 1/second -j LOG --log-prefix "iptables DROP: " --log-level 4
 
 #docker related chains
@@ -121,6 +122,9 @@ COMMIT
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 5127 -j ACCEPT
 #python -m SimpleHTTPServer
 -A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 8000 -j ACCEPT
+#magicite
+-A INTERNAL_allow -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+-A INTERNAL_allow -p udp -m state --state NEW -m udp --dport 7777 -j ACCEPT
 
 # END GLESKE INTERNAL NETWORKS
 ########################################################################
@@ -176,6 +180,10 @@ COMMIT
 -A OUTPUT_allow -d 10.9.8.0/24 -j ACCEPT
 # docker using RFC1918 space
 -A OUTPUT_allow -d 172.16.0.0/12 -j ACCEPT
+
+# Voice chat
+-A OUTPUT_allow -p udp -j ACCEPT
+-A OUTPUT_allow -p tcp -j ACCEPT
 
 #Allow Google network for XMPP chatting
 -A OUTPUT_allow -d 173.194.0.0/16 -p tcp -m tcp --dport 5222 -j ACCEPT
