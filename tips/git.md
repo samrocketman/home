@@ -8,7 +8,7 @@ of the commits.  This is essentially the same thing.
 Where `5a5f9c5` is a merge commit.  One can also see the changelog of a branch
 only showing merge commits.
 
-    git log --first-parent master
+    git log --first-parent main
 
 This is essentially the equivalent of squashing commits from the branch where
 the changes were merged from.
