@@ -149,12 +149,11 @@ fi
 aws ec2 attach-volume --instance-id "${INSTANCE_ID}" --device "/dev/xvdf" --volume-id "${VOLUME_ID}"
 wait_for_volume_attachment "${VOLUME_ID}"
 echo 'Waiting for disk to become available.'
-VOLUME_DEVICE="$(get_volume_device "${VOLUME_ID}")"
-until [ -n "${VOLUME_DEVICE:-}" ]; do
+until [ -n "$(get_volume_device "${VOLUME_ID}")" ]; do
     echo "Retrying to detect volume device for volume ${VOLUME_ID}." >&2
     sleep 1
-    VOLUME_DEVICE="$(get_volume_device "${VOLUME_ID}")"
 done
+VOLUME_DEVICE="$(get_volume_device "${VOLUME_ID}")"
 
 
 if [ ! -e "${VOLUME_DEVICE:-}" ]; then
@@ -183,6 +182,8 @@ if ! blkid | grep -F -- "${REAL_DEVICE}:"; then
     mkfs.xfs -K -d agcount=8 "${REAL_DEVICE}"
 fi
 
+DEVICE_UUID="$(lsblk -no UUID "${VOLUME_DEVICE}")"
+
 mount "${VOLUME_DEVICE}" "${MOUNT_PATH}"
 
 if [[ "${REQUIRED_FORMAT}" = yes && -n "${CHOWN_VALUE}" ]]; then
@@ -190,5 +191,5 @@ if [[ "${REQUIRED_FORMAT}" = yes && -n "${CHOWN_VALUE}" ]]; then
 fi
 
 grep -F -- "${MOUNT_PATH}" /etc/fstab ||
-    echo "${VOLUME_DEVICE} ${MOUNT_PATH} xfs noatime,nodiratime,nobarrier 0 0" |
+    echo "UUID=${DEVICE_UUID} ${MOUNT_PATH} xfs noatime,nodiratime,nobarrier 0 0" |
     tee -a /etc/fstab
