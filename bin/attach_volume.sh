@@ -182,14 +182,13 @@ if ! blkid | grep -F -- "${REAL_DEVICE}:"; then
     mkfs.xfs -K -d agcount=8 "${REAL_DEVICE}"
 fi
 
-DEVICE_UUID="$(lsblk -no UUID "${VOLUME_DEVICE}")"
-
 mount "${VOLUME_DEVICE}" "${MOUNT_PATH}"
 
 if [[ "${REQUIRED_FORMAT}" = yes && -n "${CHOWN_VALUE}" ]]; then
     chown -- "${CHOWN_VALUE}" "${MOUNT_PATH}"
 fi
 
+DEVICE_UUID="$(lsblk -no UUID "${VOLUME_DEVICE}")"
 grep -F -- "${MOUNT_PATH}" /etc/fstab ||
     echo "UUID=${DEVICE_UUID} ${MOUNT_PATH} xfs noatime,nodiratime,nobarrier 0 0" |
     tee -a /etc/fstab
