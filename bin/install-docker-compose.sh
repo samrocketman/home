@@ -7,7 +7,7 @@
 function latest_tag() {
   curl -sfI "${RELEASES}"/latest |
   tr '\r' '\n' |
-  awk '$1 == "Location:" { gsub(/^.*\//, "", $2);print $2 }'
+  awk '$1 ~ "^[Ll]ocation:" { gsub(/^.*\//, "", $2);print $2 }'
 }; declare -rf latest_tag
 
 # get the checksum for the downloaded binary
