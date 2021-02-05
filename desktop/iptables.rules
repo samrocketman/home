@@ -16,6 +16,9 @@
 :OUTPUT ACCEPT [44:3277]
 :POSTROUTING ACCEPT [44:3277]
 :DOCKER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
+:DOCKER-USER - [0:0]
 -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
 -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
 -A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
@@ -32,6 +35,9 @@ COMMIT
 :OUTPUT_allow - [0:0]
 :DOCKER - [0:0]
 :DOCKER-ISOLATION - [0:0]
+:DOCKER-USER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
 :DISCORD_NETWORKS - [0:0]
 :DISCORD_NETWORKS_allow - [0:0]
 :GOOGLE_NETWORKS - [0:0]
@@ -50,6 +56,7 @@ COMMIT
 :INTERNAL_allow - [0:0]
 :PUBLIC_deny - [0:0]
 :PUBLIC_allow - [0:0]
+:WORLD_allow - [0:0]
 :LOGGING - [0:0]
 
 #INPUT Chain
@@ -59,6 +66,7 @@ COMMIT
 #docker
 -A INPUT -s 172.17.0.0/16 -j ACCEPT
 -A INPUT -j INTERNAL
+-A INPUT -j WORLD_allow
 -A INPUT -j US_NETWORKS
 -A INPUT -j PUBLIC_allow
 -A INPUT -j LOGGING
@@ -80,7 +88,12 @@ COMMIT
 #FORWARD Chain
 -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 #docker
--A FORWARD -j DOCKER-ISOLATION
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
 -A FORWARD -o docker0 -j DOCKER
 -A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -i docker0 ! -o docker0 -j ACCEPT
@@ -98,6 +111,10 @@ COMMIT
 #docker related chains
 -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 22 -j ACCEPT
 -A DOCKER-ISOLATION -j RETURN
+
+#  Self-hosted Rust server
+-A WORLD_allow -p udp -m udp --dport 28015 -j ACCEPT
+-A WORLD_allow -p tcp -m tcp --dport 8000 -j ACCEPT
 
 ########################################################################
 # GLESKE INTERNAL NETWORKS
@@ -138,6 +155,8 @@ COMMIT
 #MALWARE
 -A PUBLIC_deny -s 192.168.10.1 -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A PUBLIC_deny -s 224.0.0.251 -j DROP
+-A PUBLIC_deny -s 37.1.215.39 -j DROP
+-A PUBLIC_deny -d 37.1.215.39 -j DROP
 -A PUBLIC_deny -d 224.0.0.251 -j DROP
 -A PUBLIC_deny -d 192.168.10.255 -j DROP
 -A PUBLIC_deny -p udp --sport 17500 --dport 17500 -j DROP
@@ -146,13 +165,13 @@ COMMIT
 
 #ALLOW CONNECTIONS
 
-#ssh from everyone in the world
-#-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+#ssh from everyone in the United States
+-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 
 #Terraria
--A PUBLIC_allow -s 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+#-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
 #Starbound
--A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
+#-A PUBLIC_allow -p tcp -m state --state NEW -m tcp --dport 21025 -j ACCEPT
 #-A PUBLIC_allow -p udp -m state --state NEW -m udp --dport 21025 -j ACCEPT
 
 
@@ -218,7 +237,6 @@ COMMIT
 -A OUTPUT_allow -d 23.243.71.225 -p tcp -m state --state NEW -m tcp --dport 24 -j ACCEPT
 
 #Rust game
--A OUTPUT_allow -p udp --dport 28015 -j ACCEPT
 -A OUTPUT_allow -p tcp -m state --state NEW -m tcp --dport 28016 -j ACCEPT
 -A OUTPUT_allow -p udp -m multiport --dports 17500,28015,28016,28026,28215,28231,28315 -j ACCEPT
 #play.deadlock.com:1333 rust server
