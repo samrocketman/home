@@ -16,9 +16,9 @@
 #    @reboot start_tor_socks_proxy.sh
 
 function helpdoc() {
-cat <<'EOF'
+cat <<EOF
 SYNOPSIS
-    $0 [-f] [-c CODE] [restart]
+    ${0##*/} [-f] [-c CODE] [restart]
 
 BASIC OPTIONS
   -f or --strict-firewall
@@ -37,6 +37,9 @@ OPTIONS WITH ARGUMENTS
     country.  If you're looking for a compromise between anonymity and speed,
     then restricting exit nodes to your own country is more performant than no
     restriction.
+  -e CODE or --country-entry CODE
+    Same as -c but allows you to specify a specific entry point into the TOR
+    network.
 EOF
   exit 1
 }
@@ -48,6 +51,15 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     restart)
       stopproxy=true
+      shift
+      ;;
+    --country-entry|-e)
+      if [ -z "${country_entry:-}" ]; then
+        country_entry="$2"
+      else
+        country_entry+=",$2"
+      fi
+      shift
       shift
       ;;
     --country|-c)
@@ -69,13 +81,25 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-while read c; do
-  if [ -z "${country_config:-}" ]; then
-    country_config="{${c}}"
-  else
-    country_config+=",{${c}}"
-  fi
-done <<< "$(tr ',' '\n' <<< "${country}")"
+function get_country_config() {
+  local country_config
+  [ -n "$1" ] || return
+  while read c; do
+    if [ -z "${country_config:-}" ]; then
+      country_config="{${c}}"
+    else
+      country_config+=",{${c}}"
+    fi
+  done <<< "$(tr ',' '\n' <<< "${1}")"
+  echo "$country_config" | tr 'A-Z' 'a-z'
+}
+
+country_config="$(get_country_config "$country")"
+if [ -z "${country_entry:-}" ]; then
+  country_entry="$country_config"
+else
+  country_entry="$(get_country_config "$country_entry")"
+fi
 
 if [ true = "${stopproxy}" ]; then
   docker rm -f tor-socks-proxy
@@ -102,7 +126,7 @@ if [ '${strict_firewall}' = true ]; then
 fi
 if [ -n '${country_config}' ]; then
   echo 'GeoIPExcludeUnknown 1' >> /etc/tor/torrc2
-  echo 'EntryNodes ${country_config}' >> /etc/tor/torrc2
+  echo 'EntryNodes ${country_entry}' >> /etc/tor/torrc2
   echo 'MiddleNodes ${country_config}' >> /etc/tor/torrc2
   echo 'ExitNodes ${country_config}' >> /etc/tor/torrc2
   echo 'StrictNodes 1' >> /etc/tor/torrc2
