@@ -75,6 +75,10 @@ while [ "$#" -gt 0 ]; do
       strict_firewall=true
       shift
       ;;
+    stop)
+      docker rm -f tor-socks-proxy
+      exit
+      ;;
     *)
       helpdoc
       ;;
@@ -102,7 +106,7 @@ else
 fi
 
 if [ true = "${stopproxy}" ]; then
-  docker rm -f tor-socks-proxy
+  "$0" stop
 fi
 
 if docker ps -a | grep tor-socks-proxy; then
