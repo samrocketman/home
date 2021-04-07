@@ -17,7 +17,7 @@ function checksum() {
 }; declare -rf checksum
 
 function sha256sum() (
-  if type -P sha256sum > /dev/null; then
+  if [ ! "$(uname)" = Darwin ] && type -P sha256sum > /dev/null; then
     command sha256sum "${@}"
   elif type -P shasum > /dev/null; then
     command shasum -a 256 "${@}"

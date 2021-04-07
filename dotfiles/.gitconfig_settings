@@ -8,6 +8,7 @@
 	d = diff
 	f = fetch
 	p = push
+	ppr = push-pull-request
 	#shorthand for git gerrit <branch>; defaults to pushing to current branch
 	g = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 	l = log
@@ -21,7 +22,7 @@
 	s = status
 	sr = show-ref
 	#shorthand for git tree
-	t = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
+	t = tree
 	fu = fetch upstream
 
 	# fun commands `git pug`, `feed doggie`.  In shell `alias feed=git`
@@ -29,6 +30,7 @@
 	doggie = push
 
 	#longer custom commands
+	push-pull-request = "!f() { openUrl=\"$(type -P xdg-open)\"; openUrl=\"${openUrl:-open}\";branch=\"$(git rev-parse --abbrev-ref HEAD)\"; git push -u \"${1:-origin}\" $branch 2>&1 | grep -o 'https://github.com/.*/pull/new/.*' | xargs \"$openUrl\"; }; f"
 	reuse = "!r() { git commit -C \"${1:-HEAD}\"; git commit --amend --reset-author; }; r"
 	amend = commit --amend -aC HEAD
 	checkpoint = "!cp() { git add -A && git commit -m checkpoint; } ; cp"

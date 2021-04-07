@@ -42,7 +42,7 @@ if ! type -p pbcopy &> /dev/null; then
   alias pbcopy='xsel --clipboard --input'
   alias pbpaste='xsel --clipboard --output'
 fi
-alias root='cd $(git root)'
+alias cd_git_root='cd "$(git root)"'
 
 # ENVIRONMENT VARIABLES
 prepend_path "$HOME/bin"
@@ -66,11 +66,16 @@ fi
 ####################
 # FANCY PS1
 ####################
+if [ "$(uname)" = Darwin ]; then
+  hostprompt=work
+else
+  hostprompt="$HOSTNAME"
+fi
 #fancy sadface
 PS1=$'$(if [ "$?" -eq 0 ]; then echo \'\\[\e[33m\\]^_^\\[\e[0m\\]\'; else echo \'\\[\e[31m\\]O_O\\[\e[0m\\]\'; fi)'
 
 #fancy hostname
-PS1+='[\h|'
+PS1+='[${hostprompt}|'
 
 #fancy git
 PS1+=$'$(if git rev-parse --git-dir &> /dev/null; then if ! git diff --quiet || ! git diff --cached --quiet; then echo -n \'\\[\e[36m\\]*\\[\e[0m\\]\'; fi; if git ls-files --other --exclude-standard --directory 2> /dev/null | head -n1 | grep \'[a-z]\' > /dev/null; then echo -n \'\\[\e[36m\\]+\\[\e[0m\\]\'; fi; echo -n \'\\[\e[36m\\]\'; git symbolic-ref --short HEAD 2> /dev/null || git rev-parse --short HEAD 2> /dev/null; fi)\\[\e[0m\\]'
