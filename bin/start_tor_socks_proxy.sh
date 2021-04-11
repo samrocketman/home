@@ -18,7 +18,7 @@
 function helpdoc() {
 cat <<EOF
 SYNOPSIS
-    ${0##*/} [-f] [-c CODE] [restart]
+    ${0##*/} [-f] [-c CODE] [restart|stop]
 
 BASIC OPTIONS
   -f or --strict-firewall
@@ -29,6 +29,9 @@ BASIC OPTIONS
     Will kill an already running TOR docker container before starting.  Without
     this option, an already running TOR docker container will make this command
     a no-op.
+
+  stop
+    Permanently stops the TOR docker container.
 
 OPTIONS WITH ARGUMENTS
   -c CODE or --country CODE
@@ -44,13 +47,12 @@ EOF
   exit 1
 }
 
-stopproxy=false
 country=""
 strict_firewall=false
 while [ "$#" -gt 0 ]; do
   case "$1" in
     restart)
-      stopproxy=true
+      "$0" stop
       shift
       ;;
     --country-entry|-e)
@@ -105,10 +107,6 @@ else
   country_entry="$(get_country_config "$country_entry")"
 fi
 
-if [ true = "${stopproxy}" ]; then
-  "$0" stop
-fi
-
 if docker ps -a | grep tor-socks-proxy; then
   docker start tor-socks-proxy
   echo 'Started existing proxy.'
@@ -123,19 +121,19 @@ docker run -d --restart=always --name tor-socks-proxy \
   --init \
   peterdavehello/tor-socks-proxy:latest \
   /bin/sh -exc "
-echo > /etc/tor/torrc2
+echo > /var/lib/tor/torrc2
 if [ '${strict_firewall}' = true ]; then
-  echo 'FascistFirewall 1' >> /etc/tor/torrc2
-  echo 'ReachableAddresses *:80,*:443' >> /etc/tor/torrc2
+  echo 'FascistFirewall 1' >> /var/lib/tor/torrc2
+  echo 'ReachableAddresses *:80,*:443' >> /var/lib/tor/torrc2
 fi
 if [ -n '${country_config}' ]; then
-  echo 'GeoIPExcludeUnknown 1' >> /etc/tor/torrc2
-  echo 'EntryNodes ${country_entry}' >> /etc/tor/torrc2
-  echo 'MiddleNodes ${country_config}' >> /etc/tor/torrc2
-  echo 'ExitNodes ${country_config}' >> /etc/tor/torrc2
-  echo 'StrictNodes 1' >> /etc/tor/torrc2
+  echo 'GeoIPExcludeUnknown 1' >> /var/lib/tor/torrc2
+  echo 'EntryNodes ${country_entry}' >> /var/lib/tor/torrc2
+  echo 'MiddleNodes ${country_config}' >> /var/lib/tor/torrc2
+  echo 'ExitNodes ${country_config}' >> /var/lib/tor/torrc2
+  echo 'StrictNodes 1' >> /var/lib/tor/torrc2
 fi
-/usr/bin/tor  --defaults-torrc /etc/tor/torrc -f /etc/tor/torrc2
+/usr/bin/tor  --defaults-torrc /etc/tor/torrc -f /var/lib/tor/torrc2
 "
 
 echo 'Started a new proxy.'
