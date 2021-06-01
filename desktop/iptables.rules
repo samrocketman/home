@@ -152,11 +152,16 @@ COMMIT
 
 #DENY CONNECTIONS
 
+# Dropping these because... they were attempting sketchy attack probing
+-A PUBLIC_deny -s 37.1.0.0/16 -j DROP
+-A PUBLIC_deny -s 196.245.0.0/16 -j DROP
+-A PUBLIC_deny -s 192.241.0.0/16 -j DROP
+-A PUBLIC_deny -s 180.149.0.0/16 -j DROP
+-A PUBLIC_deny -s 2.57.0.0/16 -j DROP
+
 #MALWARE
 -A PUBLIC_deny -s 192.168.10.1 -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A PUBLIC_deny -s 224.0.0.251 -j DROP
--A PUBLIC_deny -s 37.1.215.39 -j DROP
--A PUBLIC_deny -d 37.1.215.39 -j DROP
 -A PUBLIC_deny -d 224.0.0.251 -j DROP
 -A PUBLIC_deny -d 192.168.10.255 -j DROP
 -A PUBLIC_deny -p udp --sport 17500 --dport 17500 -j DROP
