@@ -1,4 +1,18 @@
 # SET UP SOME COMMON ALIASES
+function diskusage() (
+  shopt -s dotglob
+  {
+    if [ -z "${1:-}" ]; then
+      du -shc *
+    else
+      du -shc "${1%/}"/*
+    fi
+  } 2> /dev/null | sort -n | grep '^[^[:space:]]\+[G]' || {
+    echo 'No file or directory found over 1GB.'
+    echo 'Instead, you can run the following command.'
+    echo '    du -shc *'
+  } >&2
+)
 function prepend_path() {
   if ! grep "^${1}:\\|:${1}:" <<< "${PATH}" > /dev/null; then
     PATH="${1}:${PATH}"
