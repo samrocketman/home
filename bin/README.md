@@ -364,6 +364,48 @@ Using `github_wait_mergeable.sh`.
 
     github_wait_mergeable.sh https://github.com/yourorg/yourproject/pull/123
 
+# Counting lines of code
+
+- [`get-bare-repository-lines.sh`](get-bare-repository-lines.sh) - Walks through
+  a directory containing an archive of bare Git repositories.  It will output
+  the repository name, if it has Jervis integration, aand how many lines of
+  code.
+- [`get-repo-name.sh`](get-repo-name.sh) - Gets the repository name assuming the
+  current working directory is a bare repository.
+- [`get-repository-lines-added.sh`](get-repository-lines-added.sh) - Gets the
+  total number of lines added to a repository since the initial commit.
+- [`is-jervis-repo.sh`](is-jervis-repo.sh) - Checks if the current repository
+  has a Jervis integration.  Learn more [about
+  Jervis](https://github.com/samrocketman/jervis).
+- [`get-line-count-summary.sh`](get-line-count-summary.sh) - Summarize line
+  count results from a bare repository archive.
+
+Get total lines of code added to a single repository.
+
+    get-repository-lines-added.sh
+
+Get specific lines of code added to a single repository.
+
+    get-repository-lines-added.sh 'java,py,groovy,js'
+
+Query a directory containing an archive of bare repositories for total lines of
+code.
+
+    get-bare-repository-lines.sh some-directory | get-line-count-summary.sh
+
+Query a directory containing multiple subdirectories of bare repositories.
+Limit the line count to specific file types.
+
+```bash
+export SOURCE_FILE_TYPES='java,py,groovy,js'
+for x in *; do
+    echo "$x";
+    get-bare-repository-lines.sh "$x" | get-line-count-summary.sh;
+    echo;
+done
+```
+
+
 [gimp]: https://www.gimp.org/
 [jenkins-script-console-scripts]: https://github.com/samrocketman/jenkins-script-console-scripts
 [jenkins-scripts]: https://github.com/jenkinsci/jenkins-scripts
