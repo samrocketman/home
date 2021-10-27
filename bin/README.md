@@ -8,6 +8,7 @@ Table of Contents
 - [Mass GPG encrypted file management](#mass-gpg-encrypted-file-management)
 - [Jenkins Productivity Scripts](#jenkins-productivity-scripts)
 - [GitHub Productivity Scripts](#github-productivity-scripts)
+- [Counting lines of code](#counting-lines-of-code)
 
 ----
 # man2pdf
