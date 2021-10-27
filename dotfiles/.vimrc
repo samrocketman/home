@@ -225,3 +225,9 @@ if filereadable(expand("~/.vim/autoload/pathogen.vim"))
     execute pathogen#infect()
     filetype plugin indent on
 endif
+
+" BUG FIXES {{{1
+""""""""""""""""
+
+" Silly Mac OS vim bug fix https://github.com/vim/vim/issues/7280
+set re=0
