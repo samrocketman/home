@@ -1,0 +1,78 @@
+#!/bin/bash
+#Created by Sam Gleske
+#Sat Nov 20 10:52:00 EST 2021
+#MIT Licensed https://github.com/samrocketman/home
+#DESCRIPTION
+#  Pull an issue description directly from Jira to start filling out a Git
+#  commit.  The first issue in the list of issues will be the commit header.
+#  This script was written for speedy commit messages with additional context
+#  pulled from Jira for reviewers' convenience.
+#
+#  The output is markdown which is the preferred markup language of GitHub for
+#  pull request descriptions.
+#USAGE
+#  Pass one or more Jira issues and the header is set to the first issue.
+#    jira-descriptions JIRA-123 JIRA-1234
+set -euo pipefail
+export JIRA_BASE_URL JIRA_USER JIRA_PASS JIRA_API_URL
+JIRA_BASE_URL="${JIRA_BASE_URL:-}"
+JIRA_BASE_URL="${JIRA_BASE_URL%/}"
+JIRA_USER="${JIRA_USER:-}"
+JIRA_PASS="${JIRA_PASS:-}"
+JIRA_API_URL="${JIRA_BASE_URL}/rest/api/2"
+JIRA_DESCRIPTION_KEY="${JIRA_ISSUE_KEY:-summary}"
+
+if [ -z "${JIRA_BASE_URL:-}" ] ||
+   [ -z "${JIRA_USER:-}" ] ||
+   [ -z "${JIRA_PASS:-}" ]; then
+  echo 'ERROR: all three variables must be set.' >&2
+  echo '  - JIRA_BASE_URL' >&2
+  echo '  - JIRA_USER' >&2
+  echo '  - JIRA_PASS' >&2
+fi
+
+function curl_api() (
+#  set +x
+  curl -sSfu "${JIRA_USER}:${JIRA_PASS}" "${1}"
+)
+
+function description() (
+  jq -r .fields.summary < "$1"
+)
+
+function checkutil() (
+  if ! type -P "$1" &> /dev/null; then
+    echo "Error: missing utility '$1'." >&2
+    return 1
+  fi
+  return 0
+)
+
+checkutil jq
+checkutil curl
+
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+header=true
+for x in "$@"; do
+  curl_api "${JIRA_API_URL}"/issue/"$x" > "${TMP_DIR}"/"$x"
+  if "$header"; then
+    echo "[$x]"
+    echo
+    header=false
+  fi
+done
+
+# write out markdown description
+echo 'See also:'
+echo
+for issue in "${TMP_DIR}"/*;do
+  echo "- [${issue##*/}][${issue##*/}] $(description "$issue")"
+done
+echo
+
+# write out markdown links
+for issue in "${TMP_DIR}"/*;do
+  echo "[${issue##*/}]: ${JIRA_BASE_URL}/browse/${issue##*/}"
+done
