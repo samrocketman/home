@@ -19,21 +19,27 @@ JIRA_BASE_URL="${JIRA_BASE_URL:-}"
 JIRA_BASE_URL="${JIRA_BASE_URL%/}"
 JIRA_USER="${JIRA_USER:-}"
 JIRA_PASS="${JIRA_PASS:-}"
+JIRA_NOAUTH="${JIRA_NOAUTH:-false}"
 JIRA_API_URL="${JIRA_BASE_URL}/rest/api/2"
 JIRA_DESCRIPTION_KEY="${JIRA_ISSUE_KEY:-summary}"
 
 if [ -z "${JIRA_BASE_URL:-}" ] ||
-   [ -z "${JIRA_USER:-}" ] ||
-   [ -z "${JIRA_PASS:-}" ]; then
+   ! ( [ "${JIRA_NOAUTH}" = false ] || ([ -n "${JIRA_USER:-}" ] &&
+   [ -n "${JIRA_PASS:-}" ]; ); ); then
   echo 'ERROR: all three variables must be set.' >&2
   echo '  - JIRA_BASE_URL' >&2
   echo '  - JIRA_USER' >&2
   echo '  - JIRA_PASS' >&2
+  exit 1
 fi
 
 function curl_api() (
 #  set +x
-  curl -sSfu "${JIRA_USER}:${JIRA_PASS}" "${1}"
+  if [ "$JIRA_NOAUTH" = true ]; then
+    curl -sSf "${1}"
+  else
+    curl -sSfu "${JIRA_USER}:${JIRA_PASS}" "${1}"
+  fi
 )
 
 function description() (
