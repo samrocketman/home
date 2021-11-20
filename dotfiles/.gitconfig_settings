@@ -8,7 +8,7 @@
 	d = diff
 	f = fetch
 	p = push
-	ppr = push-pull-request
+	ppr = "!git push-pull-request"
 	#shorthand for git gerrit <branch>; defaults to pushing to current branch
 	g = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 	l = log
@@ -30,7 +30,7 @@
 	doggie = push
 
 	#longer custom commands
-	push-pull-request = "!f() { openUrl=\"$(type -P xdg-open)\"; openUrl=\"${openUrl:-open}\";branch=\"$(git rev-parse --abbrev-ref HEAD)\"; git push -u \"${1:-origin}\" $branch 2>&1 | grep -o 'https://github.com/.*/pull/new/.*' | xargs \"$openUrl\"; }; f"
+	push-pull-request = "!f() { local openUrl=''; if [ \"$(uname)\" = Linux ]; then openUrl=xdg-open; else openUrl=open; fi; branch=\"$(git rev-parse --abbrev-ref HEAD)\"; git push -u \"${1:-origin}\" $branch 2>&1 | grep -o 'https://github.com/.*/pull/new/.*' | xargs -- \"$openUrl\"; }; f"
 	reuse = "!r() { git commit -C \"${1:-HEAD}\"; git commit --amend --reset-author; }; r"
 	amend = commit --amend -aC HEAD
 	checkpoint = "!cp() { git add -A && git commit -m checkpoint; } ; cp"
