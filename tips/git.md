@@ -36,3 +36,18 @@ Limit search all of the history on just a specific file.
 Using rsync to deploy github pages from a build directory.
 
     rsync -av --exclude '.git' --delete-after ./build/doc/groovydoc/ ./
+
+# Show GitHub default branch
+
+Using `remote`.
+
+    git remote show origin | awk '$0 ~ /HEAD branch:/ { print $3; exit }'
+
+Using `ls-remote`.
+
+    git ls-remote -q --symref origin | awk '
+        $1 == "ref:" && $3 == "HEAD" {
+            gsub("refs/heads/", "", $2);
+            print $2;
+            exit
+          }'
