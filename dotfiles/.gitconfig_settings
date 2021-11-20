@@ -22,7 +22,7 @@
 	s = status
 	sr = show-ref
 	#shorthand for git tree
-	t = tree
+	t = "!git tree"
 	fu = fetch upstream
 
 	# fun commands `git pug`, `feed doggie`.  In shell `alias feed=git`
