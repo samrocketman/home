@@ -31,40 +31,41 @@ function helptext() {
   cat <<'EOF'
 SYNOPSIS
 
-  jira-issues JIRA_ISSUE [...JIRA_ISSUE]
+  jira-issues ISSUE [...ISSUE]
 
 DESCRIPTION
 
-  Provide a JIRA_ISSUE or multiple JIRA issues (for example JIRA-123 issue
-  key).  This script will query the JIRA API, get the description of each
+  Provide a Jira ISSUE or multiple Jira issues (for example JIRA-123 issue
+  key).  This script will query the Jira API, get the description of each
   issue, and output a message intended to be used in a Git commit.  The output
   is markdown which is the preferred markup language of GitHub for pull request
   descriptions.
 
+ARGUMENTS
+
+  ISSUE - A Jira issue key.  Multiple Jira issues can be provided as additional
+          arguments.
+
 ENVIRONMENT VARIABLES
 
-         JIRA_BASE_URL - A JIRA frontend URL.  Example: https://issues.jenkins.io
+         JIRA_BASE_URL - A Jira frontend URL.  Example: https://issues.jenkins.io
   JIRA_DESCRIPTION_KEY - by default '.fields.summary'.  This is a jq expression
                          walking a parsed result from a single issue.  The
-                         result is a JSON response from the JIRA API.  This
+                         result is a JSON response from the Jira API.  This
                          will likely never change.
            JIRA_NOAUTH - When set to 'true' it will skip requiring a JIRA_USER
                          and JIRA_PASS.  The script will not attempt to
-                         authenticate with the JIRA API.
-             JIRA_USER - Username used to authenticate with the JIRA API.
-             JIRA_PASS - Password used to authenticate with the JIRA API.
+                         authenticate with the Jira API.
+             JIRA_USER - Username used to authenticate with the Jira API.
+             JIRA_PASS - Password used to authenticate with the Jira API.
 
-ARGUMENTS
-
-  JIRA_ISSUE - A JIRA issue key.  Multiple JIRA issues can be provided as
-               additional arguments.
 EXAMPLE USAGE
 
   Pass one or more Jira issues and the header is set to the first issue.
 
     jira-descriptions JIRA-123 JIRA-1234
 
-  Use an alternate unauthenticated JIRA without changing your environment.
+  Use an alternate unauthenticated Jira without changing your environment.
 
     JIRA_BASE_URL=https://issues.jenkins.io JIRA_NOAUTH=true \
       jira-descriptions JENKINS-1234
@@ -89,7 +90,7 @@ function preflight_checks() (
     (( return_code=return_code+1 ))
   fi
   if [ "$#" -le 0 ]; then
-    echo 'ERROR: Provide one or more JIRA tickets as arguments.' >&2
+    echo 'ERROR: Provide one or more Jira tickets as arguments.' >&2
     echo >&2
     (( return_code=return_code+1 ))
   fi
@@ -127,6 +128,8 @@ function checkutil() (
 #
 
 preflight_checks "$@"
+
+# create a temporary directory and clean it up when script exits
 trap '[ -z "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR:-}"' EXIT
 TMP_DIR="$(mktemp -d)"
 
