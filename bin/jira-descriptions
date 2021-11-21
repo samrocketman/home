@@ -13,7 +13,11 @@
 #USAGE
 #  Pass one or more Jira issues and the header is set to the first issue.
 #    jira-descriptions JIRA-123 JIRA-1234
+
+# shell settings
 set -euo pipefail
+
+# environment variables
 export JIRA_BASE_URL JIRA_USER JIRA_PASS JIRA_API_URL
 JIRA_BASE_URL="${JIRA_BASE_URL:-}"
 JIRA_BASE_URL="${JIRA_BASE_URL%/}"
@@ -21,21 +25,38 @@ JIRA_USER="${JIRA_USER:-}"
 JIRA_PASS="${JIRA_PASS:-}"
 JIRA_NOAUTH="${JIRA_NOAUTH:-false}"
 JIRA_API_URL="${JIRA_BASE_URL}/rest/api/2"
-JIRA_DESCRIPTION_KEY="${JIRA_ISSUE_KEY:-summary}"
+JIRA_DESCRIPTION_KEY="${JIRA_DESCRIPTION_KEY:-.fields.summary}"
 
-if [ -z "${JIRA_BASE_URL:-}" ] ||
-   ! ( [ "${JIRA_NOAUTH}" = true ] || ([ -n "${JIRA_USER:-}" ] &&
-   [ -n "${JIRA_PASS:-}" ]; ); ); then
-  echo 'ERROR: all three variables must be set.' >&2
-  echo '  - JIRA_BASE_URL' >&2
-  echo '  - JIRA_USER' >&2
-  echo '  - JIRA_PASS' >&2
-  echo 'Set JIRA_NOAUTH=true to skip user and pass variables.' >&2
-  exit 1
-fi
+function preflight_checks() (
+  set +e
+  return_code=0
+  checkutil jq || (( return_code=return_code+1 ))
+  checkutil curl || (( return_code=return_code+1 ))
+  if [ -z "${JIRA_BASE_URL:-}" ] ||
+     ! ( [ "${JIRA_NOAUTH}" = true ] || ([ -n "${JIRA_USER:-}" ] &&
+     [ -n "${JIRA_PASS:-}" ]; ); ); then
+    echo 'ERROR: all three variables must be set.' >&2
+    echo '    - JIRA_BASE_URL' >&2
+    echo '    - JIRA_USER' >&2
+    echo '    - JIRA_PASS' >&2
+    echo '  Set JIRA_NOAUTH=true to skip user and pass variables.' >&2
+    echo >&2
+    (( return_code=return_code+1 ))
+  fi
+  if [ "$#" -le 0 ]; then
+    echo 'ERROR: Provide one or more JIRA tickets as arguments.' >&2
+    echo >&2
+    (( return_code=return_code+1 ))
+  fi
+  if [ "$return_code" -gt 1 ]; then
+    echo "ERROR: Multiple errors.  Encountered $return_code errors."
+  elif [ "$return_code" -eq 1 ]; then
+    echo "ERROR: Encountered $return_code error."
+  fi
+  return ${return_code}
+)
 
 function curl_api() (
-#  set +x
   if [ "$JIRA_NOAUTH" = true ]; then
     curl -sSf "${1}"
   else
@@ -44,27 +65,25 @@ function curl_api() (
 )
 
 function description() (
-  jq -r .fields.summary < "$1"
+  jq -r "${JIRA_DESCRIPTION_KEY}" < "$1"
 )
 
 function checkutil() (
   if ! type -P "$1" &> /dev/null; then
-    echo "Error: missing utility '$1'." >&2
+    echo "ERROR: missing utility '$1'." >&2
+    echo >&2
     return 1
   fi
   return 0
 )
 
-checkutil jq
-checkutil curl
+#
+# MAIN
+#
 
-if [ "$#" -le 0 ]; then
-  echo 'ERROR: Provide one or more JIRA tickets as arguments.' >&2
-  exit 1
-fi
-
+preflight_checks "$@"
+trap '[ -z "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR:-}"' EXIT
 TMP_DIR="$(mktemp -d)"
-trap 'rm -rf "${TMP_DIR}"' EXIT
 
 header=true
 for x in "$@"; do
