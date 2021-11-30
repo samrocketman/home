@@ -87,6 +87,9 @@ OPTIONS:
     Default: '${status_phrase}'
 
 EXAMPLE:
+  A harmless example executing a sleep.
+    ${0##*/} -i 5 -- sleep 11
+
   Run a maven build.
     ${0##*/} -- mvn clean verify
 
