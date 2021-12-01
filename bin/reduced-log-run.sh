@@ -16,8 +16,8 @@ SYNOPSIS:
 DESCRIPTION:
   Run a command with reduced log output.  This will execute the command and
   hide log output.  The script will output a short status every 30 seconds.  If
-  the command being executed exits with an error, then the stderr log output
-  from the command is printed along with the overall exit status.
+  the command being executed exits with an error, then the stderr log from the
+  command is printed along with the overall exit status.
 
 ARGUMENTS:
   COMMAND
@@ -36,32 +36,34 @@ OPTIONS:
 
   -d, --debug-bundle
     Create a debug bundle archive which contains the full contents of stdout
-    and stderr log.  These are the logs are the output of the COMMAND being
-    executed.  It will create a tar.gz file in the current working directory.
+    and stderr log.  These logs are the output of the COMMAND being executed.
+    It will create a tar.gz file in the current working directory.
     Default: Disabled by default.
 
   -b, --no-background-status
-    While executing a command a short status phrase will be printed every 30
+    While executing a command, a short status phrase will be printed every 30
     seconds.  This option disables the behavior and hides all output during
     execution.
     Default: Background status is enabled by default.
 
   -e, --hide-errors
-    If the COMMAND exits with an error, then this script print the stderr log
-    and print the last known exit status.  This option disables the behavior so
-    that no additional command logs are printed.
+    This option will hide any errors which would occur.  If an error occurs,
+    then no exit status will be printed and no stderr log will be printed.
+    However, the script will still exit non-zero.
     Default: Errors on exit are shown by default.
 
   -E, --extended-regexp
-    Modifies behavior of --status-logfile-regexp option.  Enables grep extended
+    Modifies behavior of --status-logfile-regexp option.  Enables extended grep
     patterns for --status-logfile-regexp option.
     Default: Disabled by default.
 
   -g EXPR, --status-logfile-regexp EXPR
     When using a --background-status-logfile, this will limit the output of the
-    log entry using the 'grep -o EXPR' command.  It will find the last 50
-    entries in the log file and output based on the user provided EXPR.  This
-    option is only effective when --background-status-logfile is provided.
+    log entry using the 'grep -o EXPR' command.  The resulting output will be a
+    filtered partial entry log line printed from the
+    --background-status-logfile.  It will find the last 50 entries in the log
+    file and output based on the user provided EXPR.  This option is only
+    effective when --background-status-logfile is provided.
     Default: '${log_filter_expr}'
 
   -i INTERVAL, --background-interval INTERVAL
@@ -75,7 +77,7 @@ OPTIONS:
       * stdout - If LOGFILE is 'stdout', then the log is derived from the
                  COMMAND stdout.
       * stderr - If LOGFILE is 'stderr', then the log is derived from the
-                 COMMAND stderr. 
+                 COMMAND stderr.
     Otherwise, the LOGFILE will be read as a normal file to determine status
     entries.
     Default: Disabled by default.
