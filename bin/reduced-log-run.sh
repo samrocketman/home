@@ -59,9 +59,9 @@ OPTIONS:
 
   -g EXPR, --status-logfile-regexp EXPR
     When using a --background-status-logfile, this will limit the output of the
-    log entry using the 'grep -o EXPR' command.  The resulting output will be a
-    filtered partial entry log line printed from the
-    --background-status-logfile.  It will find the last 50 entries in the log
+    log entry using the 'grep -o EXPR' command.  The background status message
+    will include a filtered partial output printed from the
+    --background-status-logfile.  It will find the last 50 lines in the log
     file and output based on the user provided EXPR.  This option is only
     effective when --background-status-logfile is provided.
     Default: '${log_filter_expr}'
@@ -75,9 +75,9 @@ OPTIONS:
     When a status phrase is printed every 30 seconds it can also be paired with
     an entry from the LOGFILE.  There's two special LOGFILEs.
       * stdout - If LOGFILE is 'stdout', then the log is derived from the
-                 COMMAND stdout.
+                 COMMAND stdout output.
       * stderr - If LOGFILE is 'stderr', then the log is derived from the
-                 COMMAND stderr.
+                 COMMAND stderr output.
     Otherwise, the LOGFILE will be read as a normal file to determine status
     entries.
     Default: Disabled by default.
@@ -89,7 +89,8 @@ OPTIONS:
 
   -R INTERVAL, --retry-sleep INTERVAL
     Time INTERVAL to wait between a failed command and when it retries again
-    with --retry option. INTERVAL is a number greater than 0.
+    with --retry option. INTERVAL is a number greater than 0.  This option is
+    only effective when paired with the --retry option.
     Default: No wait.
 
   -s PHRASE, --status-phrase PHRASE
