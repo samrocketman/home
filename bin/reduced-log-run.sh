@@ -340,6 +340,7 @@ if [ "${background_status}" = true ]; then
   background_status &
 fi
 if [ "${retry}" -gt 0 ]; then
+  # Subshell is necessary to properly abort the script when 'kill 0' is called.
   (
     set -x
     until "${cmd_line[@]}"; do
