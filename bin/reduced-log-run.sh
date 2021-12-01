@@ -90,6 +90,10 @@ EXAMPLE:
   A harmless example executing a sleep.
     ${0##*/} -i 5 -- sleep 11
 
+  Limit execution within a timeout.
+
+    timeout 1 ${0##*/} -- sleep 11
+
   Run a maven build.
     ${0##*/} -- mvn clean verify
 
@@ -173,11 +177,26 @@ function cleanup_on() {
     fi
   fi
   [ ! -d "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR:-}"
-  [ "${background_status}" = false ] || kill $(jobs -p)
+  [ "${background_status}" = false ] || signal_exit SIGTERM
+}
+
+function signal_exit() {
+  set +x
+  if [ "${flag:-false}" = true ]; then
+    return
+  fi
+  flag=true
+  kill -s $1 0
 }
 
 TMP_DIR="$(mktemp -d)"
 exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2> "$TMP_DIR"/stderr
+# Capturing signals allows for cleanup and output if the script is killed
+# normally
+flag=false
+for signal in SIGHUP SIGINT SIGTERM; do
+  trap "signal_exit ${signal}" "${signal}"
+done
 trap 'cleanup_on $?' EXIT
 
 #
