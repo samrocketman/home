@@ -80,6 +80,16 @@ OPTIONS:
     entries.
     Default: Disabled by default.
 
+  -r TIMES, --retry TIMES
+    Number of TIMES to retry the command if it fails.  TIMES is a number
+    greater than 0.
+    Default: Runs once.
+
+  -R INTERVAL, --retry-sleep INTERVAL
+    Time INTERVAL to wait between a failed command and when it retries again
+    with --retry option. INTERVAL is a number greater than 0.
+    Default: No wait.
+
   -s PHRASE, --status-phrase PHRASE
     Every 30 seconds output a PHRASE as a short execution status.  The PHRASE
     may be paired with an entry or partial entry from a log file provided by
@@ -177,11 +187,17 @@ function cleanup_on() {
     fi
   fi
   [ ! -d "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR:-}"
-  [ "${background_status}" = false ] || signal_exit SIGTERM
+  # early exit is to prevent the script being killed prematurely during option
+  # processing.
+  # This affects running a command like: reduced-log-run.sh --help | less
+  if [ "${early_exit}" = false ] && [ "${background_status}" = false ]; then
+    signal_exit SIGTERM
+  fi
 }
 
 function signal_exit() {
   set +x
+  # flag is to prevent recursive kill being called
   if [ "${flag:-false}" = true ]; then
     return
   fi
@@ -207,8 +223,11 @@ background_interval=30
 background_status=true
 background_status_logfile=''
 debug_bundle=false
+early_exit=true
 extended_regexp=false
 log_filter_expr='.*'
+retry=0
+retry_sleep=0
 show_error_on_failure=true
 status_phrase='Command in progress...'
 while [ "$#" -gt 0 ]; do
@@ -248,14 +267,14 @@ while [ "$#" -gt 0 ]; do
       shift
       ;;
     -i|--background-interval)
-      background_interval="$2"
-      if ! grep -- '^[0-9]\+' <<< "${background_interval}" &> /dev/null ||
-        [ ! "${background_interval}" -gt 0 ]; then
+      if ! grep -- '^[0-9]\+' <<< "${2}" &> /dev/null ||
+        [ ! "${2}" -gt 0 ]; then
         show_error_on_failure=false
         echo_stderr '-i|--background-interval option must be a number greater than 0.'
         echo_stderr "See also: ${0##*/} --help"
         exit 1
       fi
+      background_interval="$2"
       shift
       shift
       ;;
@@ -267,6 +286,30 @@ while [ "$#" -gt 0 ]; do
       debug_bundle=true
       shift
       ;;
+    -r|--retry)
+      if ! grep -- '^[0-9]\+' <<< "${2}" &> /dev/null ||
+        [ ! "${2}" -gt 0 ]; then
+        show_error_on_failure=false
+        echo_stderr '-r|--retry option must be a number greater than 0.'
+        echo_stderr "See also: ${0##*/} --help"
+        exit 1
+      fi
+      retry="$2"
+      shift
+      shift
+      ;;
+    -R|--retry-sleep)
+      if ! grep -- '^[0-9]\+' <<< "${2}" &> /dev/null ||
+        [ ! "${2}" -gt 0 ]; then
+        show_error_on_failure=false
+        echo_stderr '-R|--retry-sleep option must be a number greater than 0.'
+        echo_stderr "See also: ${0##*/} --help"
+        exit 1
+      fi
+      retry_sleep="$2"
+      shift
+      shift
+      ;;
     --)
       shift
       break
@@ -276,10 +319,10 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
-
 if [ "$#" -gt 0 ]; then
   cmd_line+=( "$@" )
 fi
+early_exit=false
 
 #
 # Execute command in silence...
@@ -293,5 +336,24 @@ echo_stdout "Running command: ${cmd_line[*]}"
 if [ "${background_status}" = true ]; then
   background_status &
 fi
-set -x
-"${cmd_line[@]}"
+if [ "${retry}" -gt 0 ]; then
+  (
+    set -x
+    until "${cmd_line[@]}"; do
+      status=$?
+      set +x
+      if [ "${retry}" -eq 0 ]; then
+        exit "${status}"
+      fi
+      (( retry=retry-1 ))
+      if [ "${retry_sleep}" -gt 0 ]; then
+        sleep "${retry_sleep}"
+      fi
+      echo_stdout "Retry command: ${cmd_line[*]}"
+      set -x
+    done
+  )
+else
+  set -x
+  "${cmd_line[@]}"
+fi
