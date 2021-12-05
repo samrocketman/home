@@ -191,7 +191,7 @@ function background_status() (
 )
 
 function cleanup_on() {
-  set +exo pipefail
+  set +x
   if [ "$1" -ne 0 ]; then
     # exited with error
     if [ "${show_error_on_failure}" = true ]; then
@@ -215,10 +215,12 @@ function cleanup_on() {
     fi
   fi
   [ ! -d "${TMP_DIR:-}" ] || rm -rf "${TMP_DIR:-}"
+  [ "${debug_bundle}" = false ] || echo_stdout 'Cleaned tmp.'
   # early exit is to prevent the script being killed prematurely during option
   # processing.
   # This affects running a command like: reduced-log-run.sh --help | less
-  if [ "${early_exit}" = false ] && [ "${background_status}" = true ]; then
+  if [ "${early_exit:-true}" = false -a "${background_status:-}" = true ]; then
+    [ "${debug_bundle}" = false ] || echo_stdout 'Finish child processes.'
     signal_exit SIGTERM
   fi
 }
