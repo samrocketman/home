@@ -46,6 +46,11 @@ OPTIONS:
     execution.
     Default: Background status is enabled by default.
 
+  -c, --combined-log
+    Combine stdout and stderr into a single in-line log.  This means -l stderr
+    has no effect since stdout and stderr logs are combined.
+    Default: Logs are split separately between stdout and stderr.
+
   -e, --hide-errors
     This option will hide any errors which would occur.  If an error occurs,
     then no exit status will be printed and no stderr log will be printed.
@@ -127,22 +132,38 @@ EOF
 
 # usage: echo_stdout 'hello world'
 function echo_stdout() {
-  echo "$*" >&3
+  if [ "${early_exit:-true}" = true ]; then
+    echo "$*"
+  else
+    echo "$*" >&3
+  fi
 }
 
 # usage: echo_stderr 'hello world'
 function echo_stderr() {
-  echo "$*" >&4
+  if [ "${early_exit:-true}" = true ]; then
+    echo "$*" >&2
+  else
+    echo "$*" >&4
+  fi
 }
 
 # usage: echo 'hello world' | piped_stdout
 function piped_stdout() {
-  cat >&3
+  if [ "${early_exit:-true}" = true ]; then
+    cat
+  else
+    cat >&3
+  fi
 }
 
 # usage: echo 'hello world' | piped_stderr
 function piped_stderr() {
-  cat >&4
+  if [ "${early_exit:-true}" = true ]; then
+    cat >&2
+  else
+    cat >&4
+  fi
 }
 
 function command_status() {
@@ -170,11 +191,15 @@ function background_status() (
 )
 
 function cleanup_on() {
-  set +x
+  set +exo pipefail
   if [ "$1" -ne 0 ]; then
     # exited with error
     if [ "${show_error_on_failure}" = true ]; then
-      piped_stderr < "${TMP_DIR:-}"/stderr
+      if [ "${combined_log:-false}" = true ]; then
+        piped_stderr < "${TMP_DIR:-}"/stdout
+      else
+        piped_stderr < "${TMP_DIR:-}"/stderr
+      fi
       echo_stderr "ERROR Exit code: $1"
     fi
   fi
@@ -193,7 +218,7 @@ function cleanup_on() {
   # early exit is to prevent the script being killed prematurely during option
   # processing.
   # This affects running a command like: reduced-log-run.sh --help | less
-  if [ "${early_exit}" = false ] && [ "${background_status}" = false ]; then
+  if [ "${early_exit}" = false ] && [ "${background_status}" = true ]; then
     signal_exit SIGTERM
   fi
 }
@@ -201,18 +226,17 @@ function cleanup_on() {
 function signal_exit() {
   set +x
   # flag is to prevent recursive kill being called
-  if [ "${flag:-false}" = true ]; then
+  if [ "${flag:-false}" = "$1" ]; then
     return
   fi
-  flag=true
+  flag="$1"
   kill -s $1 0
 }
 
+#
+# INITIAL trap setup
+#
 TMP_DIR="$(mktemp -d)"
-exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2> "$TMP_DIR"/stderr
-# Capturing signals allows for cleanup and output if the script is killed
-# normally
-flag=false
 for signal in SIGHUP SIGINT SIGTERM; do
   trap "signal_exit ${signal}" "${signal}"
 done
@@ -225,6 +249,7 @@ cmd_line=()
 background_interval=30
 background_status=true
 background_status_logfile=''
+combined_log=false
 debug_bundle=false
 early_exit=true
 extended_regexp=false
@@ -240,32 +265,31 @@ while [ "$#" -gt 0 ]; do
       helpdoc | piped_stdout
       exit 1
       ;;
-    -E|--extended-regexp)
-      extended_regexp=true
-      shift
-      ;;
     -b|--no-background-status)
       background_status=false
       shift
       ;;
-    -s|--status-phrase)
-      status_phrase="$2"
+    -c|--combined-log)
+      combined_log=true
+      if [ "${background_status_logfile:-}" = "$TMP_DIR"/stderr ]; then
+        background_status_logfile="$TMP_DIR"/stdout
+      fi
       shift
+      ;;
+    -d|--debug-bundle)
+      debug_bundle=true
+      shift
+      ;;
+    -e|--hide-errors)
+        show_error_on_failure=false
+        shift
+      ;;
+    -E|--extended-regexp)
+      extended_regexp=true
       shift
       ;;
     -g|--status-logfile-regexp)
       log_filter_expr="$2"
-      shift
-      shift
-      ;;
-    -l|--background-status-logfile)
-      if [ "$2" = stdout ]; then
-        background_status_logfile="$TMP_DIR"/stdout
-      elif [ "$2" = stderr ]; then
-        background_status_logfile="$TMP_DIR"/stderr
-      else
-        background_status_logfile="$2"
-      fi
       shift
       shift
       ;;
@@ -281,12 +305,16 @@ while [ "$#" -gt 0 ]; do
       shift
       shift
       ;;
-    -e|--hide-errors)
-        show_error_on_failure=false
-        shift
-      ;;
-    -d|--debug-bundle)
-      debug_bundle=true
+    -l|--background-status-logfile)
+      if [ "$2" = stdout ] ||
+        [ "${combined_log:-false}" = true -a "$2" = stdout ]; then
+        background_status_logfile="$TMP_DIR"/stdout
+      elif [ "$2" = stderr ]; then
+        background_status_logfile="$TMP_DIR"/stderr
+      else
+        background_status_logfile="$2"
+      fi
+      shift
       shift
       ;;
     -r|--retry)
@@ -313,6 +341,11 @@ while [ "$#" -gt 0 ]; do
       shift
       shift
       ;;
+    -s|--status-phrase)
+      status_phrase="$2"
+      shift
+      shift
+      ;;
     --)
       shift
       break
@@ -325,7 +358,13 @@ done
 if [ "$#" -gt 0 ]; then
   cmd_line+=( "$@" )
 fi
+if [ "${combined_log:-false}" = true ]; then
+  exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2>&1
+else
+  exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2> "$TMP_DIR"/stderr
+fi
 early_exit=false
+
 
 #
 # Execute command in silence...
