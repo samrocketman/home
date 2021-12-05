@@ -104,13 +104,16 @@ OPTIONS:
     --background-status-logfile.
     Default: '${status_phrase}'
 
-EXAMPLE:
+EXAMPLES:
   A harmless example executing a sleep.
     ${0##*/} -i 5 -- sleep 11
 
-  Limit execution within a timeout.
-
-    timeout 1 ${0##*/} -- sleep 11
+  Limit execution within a timeout.  We recommend the timeout command.
+  However, due to limitations in bash signal handling you must launch a child
+  shell, launch your process in the background, and then use bash wait command
+  to wait for the process.  In the fallowing example we want a 1 second timeout
+  for command "sudo apt-get update".
+    timeout 1 ${0##*/} -- /bin/bash -exc 'sudo apt-get update & wait \$!'
 
   Run a maven build.
     ${0##*/} -- mvn clean verify
