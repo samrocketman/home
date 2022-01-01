@@ -10,13 +10,18 @@ if [ "$(uname)" = "Darwin" ]; then
     sw_vers 2>&1 | sed 's/^[^:]*: *//' | xargs echo
   fi
 else
-  for x in /etc/redhat-release /etc/centos-release /etc/lsb-release; do
-    if [ -r "$x" ]; then
-      echo -n "${COMMENT}"
-      head -n1 "$x"
-      break
-    fi
-  done
+  if type -P lsb_release &> /dev/null; then
+    echo -n "${COMMENT}"
+    lsb_release -ds
+  else
+    for x in /etc/redhat-release /etc/centos-release /etc/lsb-release; do
+      if [ -r "$x" ]; then
+        echo -n "${COMMENT}"
+        head -n1 "$x"
+        break
+      fi
+    done
+  fi
 fi
 echo -n "${COMMENT}"
 uname -rms
@@ -36,4 +41,11 @@ if [ -r build.gradle ]; then
   elif type -P gradle &> /dev/null; then
     gradle -version | sed '/^----*/d' | sed '/^$/d' | sed 's/: */: /' | sed "s/^/${COMMENT}/"
   fi
+fi
+
+if [ "$#" -gt 0 ]; then
+  for x in "$@"; do
+    echo -n "${COMMENT}"
+    "$x" --version | head -n1
+  done
 fi
