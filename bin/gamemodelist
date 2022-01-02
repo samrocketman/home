@@ -11,6 +11,7 @@
 #     Linux 5.4.0-91-generic x86_64
 #     GNU bash, version 4.4.20(1)-release (x86_64-pc-linux-gnu)
 #     find (GNU findutils) 4.7.0-git
+#     GNU Awk 4.1.4, API: 1.1 (GNU MPFR 4.0.1, GNU MP 6.1.2)
 #     xargs (GNU findutils) 4.7.0-git
 #     ps from procps-ng 3.3.12
 
