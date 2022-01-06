@@ -45,6 +45,11 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
+# prints processor ID alongside core ID
+function cpu_layout() {
+  awk -F: '$1 ~ /processor/ {printf $0"; "};$1 ~ /core id/ {print}' /proc/cpuinfo
+}
+
 # Reads /proc/cpuinfo and creates a binary mask for calculating CPU affinity.
 function cpu_cores_to_binary() {
   cat /proc/cpuinfo | \
@@ -68,6 +73,7 @@ cat >&2 <<EOF
 SYNOPSIS
   ${0##*/} [-n NICENESS] [-t MASK] [-v] LAUNCHER [LAUNCHER...]
   ${0##*/} -p [-v]
+  ${0##*/} -c
 
 DESCRIPTION
   Finds application launchers and creates the same launcher with "Low Priority"
@@ -100,6 +106,10 @@ OPTIONS:
       The mask used by taskset will set the CPU affinity which is why this
       option is named print affinity.  No launchers will be configured and the
       program will exit when printing.
+  -c or --print-cpu-layout
+      Reads /proc/cpuinfo and prints a list of processors and CPU core ID.
+      Mostly useful for manually creating your own taskset mask which is an
+      advanced topic.
 
 EXAMPLES
   Create a low priority launcher for multiple applications.  Add more
@@ -117,6 +127,9 @@ EXAMPLES
   printed.
 
       ${0##*/} -p -v
+
+  Print CPU layout and exit.
+      ${0##*/} -c
 EOF
 }
 
@@ -124,6 +137,7 @@ launchers=()
 niceargs=""
 invert_affinity=false
 print_affinity=false
+print_cpus=false
 while [ $# -gt 0 ]; do
   case "$1" in
     -n|--nice-value)
@@ -142,6 +156,10 @@ while [ $# -gt 0 ]; do
       ;;
     -p|--print-affinity)
       print_affinity=true
+      shift
+      ;;
+    -c|--print-cpu-layout)
+      print_cpus=true
       shift
       ;;
     -h|--help)
@@ -164,11 +182,15 @@ if [ "${print_affinity}" = true ]; then
   exit
 fi
 
+if [ "${print_cpus}" = true ]; then
+  cpu_layout
+  exit
+fi
+
 launcher_dirs=( /usr/share/applications )
 if [ -d /var/lib/snapd/desktop/applications ]; then
   launcher_dirs+=( /var/lib/snapd/desktop/applications )
 fi
-created=false
 for launchertext in "${launchers[@]}"; do
   low_priority_cmd="taskset ${tasksetargs} nice"
   if [ -n "${niceargs:-}" ]; then
@@ -182,12 +204,8 @@ for launchertext in "${launchers[@]}"; do
         -e 's/^Name=/Name=Low Priority /' \
         -e "s/^Exec=/Exec=${low_priority_cmd} /" \
         -- "${destination}"
-      echo "Created: ${destination}" >&2
-      created=true
+      echo "    Created: ${destination}" >&2
     done
 done
-if [ "${created}" = true ] ; then
-  echo 'You can edit the files to customize or run this command again.' >&2
-else
-  echo 'No launchers found; nothing created.' >&2
-fi
+echo 'You can edit the files to customize or run this command again.' >&2
+echo 'If you see no desktop files printed, then nothing was created.' >&2
