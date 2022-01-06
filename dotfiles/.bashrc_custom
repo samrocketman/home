@@ -225,10 +225,6 @@ alias feed=git
 # Join deadlock server
 alias deadlock='xdg-open steam://connect/play.deadlock.com:1333'
 
-function niceprocs() {
-  ps -eo pid,ppid,ni,comm | awk 'NR == 1 {print}; $3 == "10" || $3 == "-1" {print}'
-}
-
 function highpriority() {
-  pgrep -if "${1}" | xargs -n1 -- sudo -- renice -n -1
+  pgrep -f "${1}" | xargs -n1 -- sudo -- renice -n -1
 }
