@@ -2,6 +2,8 @@
 # Created by Sam Gleske
 # Created Wed Jan  5 20:37:27 EST 2022
 # MIT License - https://github.com/samrocketman/home
+
+# DEVELOPMENT ENVIRONMMENT
 # Ubuntu 18.04.6 LTS
 # Linux 5.4.0-92-generic x86_64
 # GNU bash, version 4.4.20(1)-release (x86_64-pc-linux-gnu)
