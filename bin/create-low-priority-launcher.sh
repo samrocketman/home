@@ -4,13 +4,13 @@
 # MIT License - https://github.com/samrocketman/home
 
 # DESCRIPTION
-# Finds launchers and creates the same launcher with "Low Priority" in the
-# name.  This will customize the launcher so that it launchers processes with
-# lower priority (nice value 10 by default) and restrict the process with CPU
-# affinity to one physical core (but all threads on the core; typically 2
-# threads).
+#     Finds application launchers and creates the same launcher with "Low
+#     Priority" in the name.  This will customize the launcher so that it
+#     launchers processes with lower priority (nice value 10 by default) and
+#     restrict the process with CPU affinity to one physical core (but all
+#     threads on the core; typically 2 threads).
 #
-# Alternate can print CPU affinity mask for taskset command and exit.
+#     Alternate can print CPU affinity mask for taskset command and exit.
 
 # USAGE
 #     Create a low priority launcher for multiple applications.  Add more
@@ -70,11 +70,11 @@ SYNOPSIS
   ${0##*/} -p [-v]
 
 DESCRIPTION
-  Finds launchers and creates the same launcher with "Low Priority" in the
-  name.  This will customize the launcher so that it launches processes with
-  lower process priority (nice value 10 by default) and restrict the process
-  with CPU affinity to one physical core (but all threads on the core;
-  typically 2 threads).
+  Finds application launchers and creates the same launcher with "Low Priority"
+  in the name.  This will customize the launcher so that it launchers processes
+  with lower priority (nice value 10 by default) and restrict the process with
+  CPU affinity to one physical core (but all threads on the core; typically 2
+  threads).
 
 ARGUMENTS
   LAUNCHER
@@ -103,9 +103,11 @@ OPTIONS:
 
 EXAMPLES
   Create a low priority launcher for multiple applications.  Add more
-  applications as arguments to create multiple launchers.
+  applications as arguments to create multiple launchers.  NOTE: you do not
+  want to launch Steam in low priority when using a VR headset.  However, you
+  can launch it low priority to play other types of games.
 
-      ${0##*/} Firefox Discord Slack 'OBS Studio'
+      ${0##*/} Steam Firefox Discord Slack 'OBS Studio'
 
   Print CPU affinity 1 physical CPU core.
 
