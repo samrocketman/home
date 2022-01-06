@@ -64,7 +64,7 @@ function get_default_cpu_affinity() {
 }
 
 function printhelp() {
-cat <<EOF
+cat >&2 <<EOF
 SYNOPSIS
   ${0##*/} [-n NICENESS] [-t MASK] [-v] LAUNCHER [LAUNCHER...]
   ${0##*/} -p [-v]
@@ -80,7 +80,8 @@ ARGUMENTS
   LAUNCHER
     The launcher name to find *.desktop shortcuts to create a duplicate
     launcher which launches the same program but with low process priority and
-    limit CPUs used by the program.
+    limit CPUs used by the program.  This argument is required unless
+    --print-affinity option is passed.
 
 OPTIONS:
   -n NICENESS or --nice-value NICENESS
@@ -104,7 +105,7 @@ EXAMPLES
   Create a low priority launcher for multiple applications.  Add more
   applications as arguments to create multiple launchers.
 
-      ${0##*/} Firefox Discord Slack "OBS Studio"
+      ${0##*/} Firefox Discord Slack 'OBS Studio'
 
   Print CPU affinity 1 physical CPU core.
 
@@ -140,6 +141,10 @@ while [ $# -gt 0 ]; do
     -p|--print-affinity)
       print_affinity=true
       shift
+      ;;
+    -h|--help)
+      printhelp
+      exit 1
       ;;
     *)
       launchers+=( "$1" )
