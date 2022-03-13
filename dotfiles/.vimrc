@@ -206,6 +206,8 @@ endfunc
 :autocmd BufWinEnter * let w:extrawhite=matchadd('ExtraWhitespace', '\s\+\%#\@<!$', -1)
 "highlight lines longer than 80 chars in red
 :autocmd BufWinEnter *.md,*.sh call ToggleErrorWidth()
+"endless sky data files
+:autocmd FileType text setlocal noexpandtab
 
 """"""""""""""""
 " CHARACTER MAPS {{{1
