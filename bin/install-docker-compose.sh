@@ -32,7 +32,7 @@ set -auxeEo pipefail
 DESTINATION="${DESTINATION:-${HOME}/usr/bin/docker-compose}"
 RELEASES="https://github.com/docker/compose/releases"
 TAG="$( latest_tag )"
-BINARY="docker-compose-$(uname -s)-$(uname -m)"
+BINARY="docker-compose-$(uname -s | tr 'A-Z' 'a-z')-$(uname -m)"
 CHECKSUM_FILE="${BINARY}.sha256"
 if [ ! -x "${DESTINATION}" ] ||
     ! sha256sum -c - <<< "$(checksum)  ${DESTINATION}"; then
