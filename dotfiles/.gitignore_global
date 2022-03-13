@@ -55,3 +55,6 @@ jd-gui.cfg
 
 #aws stuff
 *.snap
+
+#app images
+*.[Aa]pp[Ii]mage
