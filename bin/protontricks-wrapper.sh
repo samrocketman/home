@@ -8,7 +8,10 @@
 
 set -eo pipefail
 
-if [ ! -d ~/usr/share/protontricks-venv ]; then
+if [ ! -f ~/usr/share/protontricks-venv/bin/activate ]; then
+  if [ -d ~/usr/share/protontricks-venv ]; then
+    rm -rf ~/usr/share/protontricks-venv
+  fi
   mkdir -p ~/usr/share
   python3 -m venv ~/usr/share/protontricks-venv
 fi
