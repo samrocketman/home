@@ -58,3 +58,5 @@ jd-gui.cfg
 
 #app images
 *.[Aa]pp[Ii]mage
+
+.clang-format

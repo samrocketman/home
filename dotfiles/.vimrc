@@ -190,7 +190,7 @@ endfunc
 "cfengine promises files
 :autocmd BufNewFile,BufRead *.cf setlocal filetype=conf
 "Set options in a specific way based on what type of file is opened
-:autocmd FileType java,xml,python,markdown,make,gitconfig,groovy,cpp,go setlocal shiftwidth=4 tabstop=4 softtabstop=4
+:autocmd FileType java,xml,python,markdown,make,gitconfig,groovy,go setlocal shiftwidth=4 tabstop=4 softtabstop=4
 :autocmd FileType groovy setlocal expandtab
 :autocmd FileType c,cpp,java,groovy setlocal cindent
 "indent with tabs when following FileTypes are opened
@@ -207,7 +207,7 @@ endfunc
 "highlight lines longer than 80 chars in red
 :autocmd BufWinEnter *.md,*.sh call ToggleErrorWidth()
 "endless sky data files
-:autocmd FileType text setlocal noexpandtab
+:autocmd FileType text,cpp setlocal noexpandtab softtabstop=8
 
 """"""""""""""""
 " CHARACTER MAPS {{{1
