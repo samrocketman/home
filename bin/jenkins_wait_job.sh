@@ -13,7 +13,7 @@ PIPELINE_INPUT=false
 count=0
 while true; do
   [ "$(jenkins-call-url ${1%/}/api/json | json building)" = 'false' ] && break
-  if [ "$count" -eq "0" ]; then
+  if [ "$count" -eq "0" ] && [ -z "${SKIP_PIPELINE_INPUT:-}" ]; then
     if ( jenkins-call-url ${1%/}/consoleText | tail | grep 'Input requested' ); then
       PIPELINE_INPUT=true
       break
