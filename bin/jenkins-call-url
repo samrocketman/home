@@ -31,14 +31,14 @@ import sys
 import time
 
 # Python 3 requires pip3 install PySocks
-#try:
-#    import socket
-#    import socks
-#    socks_supported = True
-#except ImportError:
-#    socks_supported = False
+try:
+    import socket
+    import socks
+    socks_supported = True
+except ImportError:
+    socks_supported = False
 
-version = "0.10"
+version = "0.12"
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -129,6 +129,12 @@ def printCurl(settings, url=trim_url_slash(args.jenkins_web)):
 def getHost(url):
     return url.split('/')[2].split(':')[0]
 
+# create_connection method only used for patching socket for SOCKS5
+def create_connection(address, timeout=None, source_address=None):
+    sock = socks.socksocket()
+    sock.connect(address)
+    return sock
+
 #print to stdout
 def printOut(*messages):
     print(*messages)
@@ -181,9 +187,33 @@ else:
 
 #configure SOCKS5 proxy
 if args.socks_proxy != None:
-    printErr("SOCKS5 proxying is not available for this version")
-    printErr("If you really need SOCKS5 proxying, then use the python 2.7 version of this script for now.")
+    proxy = args.socks_proxy
+elif 'socks_proxy' in settings:
+    if args.verbosity >= 2:
+        printErr("Reusing proxy configuration from headers file.")
+    proxy = str(settings['socks_proxy'])
+else:
+    proxy = ''
+
+if proxy and not re.match(r'[-0-9a-zA-Z.]+:[0-9]+', proxy):
+    printErr("Invalid --proxy specified: %s" % args.socks_proxy)
+    parser.print_help()
     sys.exit(1)
+
+if proxy:
+    if args.verbosity >= 1:
+        printErr("Using SOCKS5 proxy: %s" % proxy)
+    settings['socks_proxy'] = proxy
+    proxy_host = proxy.split(':')[0]
+    proxy_port = int(proxy.split(':')[1])
+    if not socks_supported:
+        printErr("ERROR: Python socks module not installed so socks is not supported")
+        printErr("    pip3 install pysocks")
+        sys.exit(1)
+    else:
+        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_host, proxy_port)
+        socket.socket = socks.socksocket
+        socket.create_connection = create_connection
 else:
     if args.verbosity >= 3:
         printErr("Removing proxy configuration from headers file.")
@@ -216,7 +246,7 @@ def getUrl(url, headers, data=None, method='GET'):
     if args.verbosity >= 3:
         printErr('%s %s' % (method, url))
     responseCode = -1
-    responseString = ""
+    responseString = b''
     responseErrorReason = None
     try:
         if url.startswith('https'):
@@ -363,6 +393,8 @@ if reason:
 sys.exit(STATUS)
 
 # CHANGELOG
+# 0.12
+#  - Add back SOCKS5 proxy support.
 # 0.11
 #  - Python 3 upgrade and drop python 2.7.  See jenkins-call-url-2.7 if that is
 #    required.
