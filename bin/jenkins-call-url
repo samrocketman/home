@@ -21,6 +21,7 @@
 #       export JENKINS_CALL_ARGS="-m POST -v --data-string script= http://localhost:8080/scriptText --data-file"
 #       jenkins-call-url ./script.groovy
 
+
 import argparse
 import base64
 import json
@@ -38,7 +39,7 @@ try:
 except ImportError:
     socks_supported = False
 
-version = "0.12"
+version = "0.13"
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -257,7 +258,6 @@ def getUrl(url, headers, data=None, method='GET'):
                 context.load_verify_locations(cafile=args.pinned_cert)
             else:
                 context.load_default_certs()
-            printOut(url)
             req = Request(url, data=data, headers=headers)
             if method != 'GET':
                 req.get_method = lambda: method
@@ -371,7 +371,7 @@ if len(response) > 0:
         if args.raw_response:
             printOut(response)
         else:
-            printOut(str(response).strip() + '\n')
+            printOut(response.strip() + '\n')
     else:
         with open(args.output, 'w') as f:
             f.write(response)
@@ -394,6 +394,8 @@ if reason:
 sys.exit(STATUS)
 
 # CHANGELOG
+# 0.13
+#  - Removed print statement interfering with responses.
 # 0.12
 #  - Add back SOCKS5 proxy support.
 # 0.11
