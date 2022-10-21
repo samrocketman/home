@@ -130,6 +130,7 @@ def getHost(url):
     return url.split('/')[2].split(':')[0]
 
 # create_connection method only used for patching socket for SOCKS5
+# see also https://www.michaelrinderle.com/2020/05/21/patching-a-python-socket-to-use-socks5-protocol/
 def create_connection(address, timeout=None, source_address=None):
     sock = socks.socksocket()
     sock.connect(address)
