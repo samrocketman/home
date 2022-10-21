@@ -142,7 +142,7 @@ EOF
 
 function jenkins_script_console() {
   echo "Calling jenkins_script_console $1" >&2
-  jenkins-call-url <("$1")
+  jenkins_call.sh <("$1")
 }
 
 if grep -- '-h\|--help' <<< "$*" &> /dev/null; then

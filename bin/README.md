@@ -216,14 +216,20 @@ Interesting tasks I regularly do:
 
 Here's a list of some scripts and what they do:
 
+- `jenkins_call.sh` - All scripts rely on `jenkins_call.sh`.  This serves as an
+  entrypoint for `jenkins-call-url` to provide widest range of compatibility
+  with different operating systems which might have only Python 2.7, Python 3,
+  or both.
+  - [`jenkins-call-url`](jenkins-call-url) - For Python 3.  It makes calling
+    Jenkins URLs easy (for doing things like web API calls).  Supports
+    credentials Jenkins CSRF protection and common HTTP methods like HEAD, GET,
+    and POST which are used by the web API.
+  - [`jenkins-call-url-2.7`](jenkins-call-url-2.7) - For Python 2.7.  Same as
+    `jenkins-call-url` with the same options and features.
 - [`say_job_done.sh`](say_job_done.sh) - not really a Jenkins specific script.
   It will output "Job Done" to my speakers.  If you pass it an argument then it
   will say what you pass as an argument.  Other productivity scripts depend on
   this one.
-- [`jenkins-call-url`](jenkins-call-url) - It makes calling Jenkins URLs easy
-  (for doing things like web API calls).  Supports credentials Jenkins CSRF
-  protection and common HTTP methods like HEAD, GET, and POST which are used by
-  the web API.
 - [`jenkins_script_console.sh`](jenkins_script_console.sh) - Utilizes
   `jenkins-call-url` to execute script console scripts.
 - [`jenkins_wait_job.sh`](jenkins_wait_job.sh) - Utilizes `jenkins-call-url` and

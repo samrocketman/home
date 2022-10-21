@@ -1,3 +1,3 @@
 #!/bin/bash
 
-jenkins-call-url -avvo /dev/null -m HEAD "$1"
+jenkins_call.sh -avvo /dev/null -m HEAD "$1"
