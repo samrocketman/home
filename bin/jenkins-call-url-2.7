@@ -20,6 +20,16 @@
 #      export JENKINS_CALL_ARGS="-m POST -v --data-string script= http://localhost:8080/scriptText --data-file"
 #      jenkins-call-url ./script.groovy
 
+import sys
+
+def version_check(version):
+    import platform
+    return platform.python_version().startswith(version)
+
+if not version_check("2.7"):
+    print("ERROR: This script is designed for python 2.7.  Use the Python 3 version instead.")
+    sys.exit(1)
+
 try:
     from httplib import HTTPSConnection
 except ModuleNotFoundError:
@@ -30,7 +40,6 @@ import json
 import os
 import re
 import ssl
-import sys
 import time
 
 try:
@@ -40,7 +49,7 @@ try:
 except ImportError:
     socks_supported = False
 
-version = "0.10"
+version = "0.10.1"
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -384,6 +393,8 @@ if reason:
 sys.exit(STATUS)
 
 # CHANGELOG
+# 0.10.1
+#  - Add a Python 3 detection error.
 # 0.10
 #  - Python 2 version of the script renamed to jenkins-call-url-2.7.
 #  - This is the last release of the Python 2 version of the script.  Further
