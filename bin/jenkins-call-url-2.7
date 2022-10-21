@@ -6,7 +6,7 @@
 #Linux 4.4.0-59-generic x86_64
 #Python 2.7.12
 #LICENSE MIT
-#Source: https://github.com/samrocketman/home/blob/master/bin/jenkins-call-url
+#Source: https://github.com/samrocketman/home/blob/master/bin/jenkins-call-url-2.7
 #The above comment block must remain intact for usage.
 
 #DESCRIPTION:
@@ -40,7 +40,7 @@ try:
 except ImportError:
     socks_supported = False
 
-version = "0.9"
+version = "0.10"
 
 parser = argparse.ArgumentParser(description="Reads Jenkins API and can make calls to arbitrary Jenkins URL endpoints.  Useful for calling Jenkins URLs for killing jobs or executing script console scripts.", epilog="""
 environment variables:
@@ -384,6 +384,11 @@ if reason:
 sys.exit(STATUS)
 
 # CHANGELOG
+# 0.10
+#  - Python 2 version of the script renamed to jenkins-call-url-2.7.
+#  - This is the last release of the Python 2 version of the script.  Further
+#    development will only occur in the Python 3 version located at:
+#    https://github.com/samrocketman/home/blob/main/bin/jenkins-call-url
 # 0.9
 #  - Bugfix backwards compatibility for older Jenkins when fixing security
 #    issues in version 0.8.
