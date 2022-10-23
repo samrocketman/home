@@ -370,7 +370,7 @@ if len(response) > 0:
         if args.raw_response:
             print(response)
         else:
-            print(str(response).strip() + '\n')
+            print(str(response).strip())
     else:
         with open(args.output, 'w') as f:
             f.write(response)
