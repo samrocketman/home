@@ -44,6 +44,9 @@
 	tree2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset) %C(bold white). %an%C(reset)%n''          %C(white)%s%C(reset)' --abbrev-commit
 	tree3 = log --oneline --decorate --graph
 	init-commit = "!f() { [ -d .git ] || git init; git log > /dev/null || (touch README.md; git add README.md; git commit -m 'initial commit' ); }; f"
+
+	# https://stackoverflow.com/questions/8475448/find-merge-commit-which-include-a-specific-commit
+	find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
 [push]
 	default = simple
 [core]
