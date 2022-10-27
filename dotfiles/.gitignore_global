@@ -51,6 +51,7 @@ jd-gui.cfg
 
 *.log
 *.tgz
+*.zip
 .venv
 
 #aws stuff
