@@ -16,11 +16,11 @@ function minimum() (
 )
 
 if minimum python3 '3.8'; then
-  "${SCRIPT_LIBRARY_PATH}"/jenkins-call-url "$@"
+  jenkins-call-url "$@"
 elif minimum python '3.8'; then
-  python "${SCRIPT_LIBRARY_PATH}"/jenkins-call-url "$@"
+  python jenkins-call-url "$@"
 elif minimum python '2.7'; then
-  "${SCRIPT_LIBRARY_PATH}"/jenkins-call-url-2.7 "$@"
+  jenkins-call-url-2.7 "$@"
 else
   echo 'Python 2 or 3.8+ could not be detected.' >&2
   exit 1
