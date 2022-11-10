@@ -23,9 +23,9 @@ fi
 
 if [ -z "${SILENT:-}" ]; then
   if type -P espeak &> /dev/null;then
-    espeak -v en-german 2> /dev/null <<< "${PHRASE}"
+    espeak -v "${FORCE_VOICE:-en-german}" 2> /dev/null <<< "${PHRASE}"
   elif type -P say &> /dev/null;then
-    say -v Daniel "${PHRASE}"
+    say -v "${FORCE_VOICE:-Daniel}" "${PHRASE}"
   else
     echo "No speaking command available." 1>&2
     exit 1
