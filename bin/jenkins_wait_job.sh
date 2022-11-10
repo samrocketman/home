@@ -39,9 +39,12 @@ fi
 
 export NOTIFY_TITLE="jenkins wait job"
 
-[ "${RESULT}" = 'SUCCESS' ] && \
-  say_job_done.sh "${MESSAGE}" || (
-    say_job_done.sh 'Jobb failed.'
-    jenkins_call.sh ${1%/}/consoleText
-    false
-  )
+JOB_NAME="$(grep -o 'job/[^/]\+' <<< "$1" | cut -d/ -f2 | xargs)"
+
+if ! [ "${RESULT}" = 'SUCCESS' ]; then
+  jenkins_call.sh ${1%/}/consoleText
+  MESSAGE='Jobb failed.'
+fi
+
+say_job_done.sh "${MESSAGE} for ${JOB_NAME}."
+[ "${RESULT}" = 'SUCCESS' ]
