@@ -102,8 +102,18 @@
 		}; f"
 
 	# Open URL to GitHub
-	hub = "!set -ex; urlopen() ( if type -P open > /dev/null; then open \"$1\"; else xdg-open \"$1\"; fi; ); \
-		default_branch() { git ls-remote 2> /dev/null | awk '$2 == \"HEAD\" { hash=$1; next }; $1 == hash { gsub(\".*/\", \"\", $2); print $2; exit; }'; }; \
+	hub = "!\
+		urlopen() ( \
+			if type -P open > /dev/null; then \
+				open \"$1\"; \
+			else \
+				xdg-open \"$1\"; \
+			fi; \
+		); \
+		default_branch() { \
+			git ls-remote 2> /dev/null | \
+				awk '$2 == \"HEAD\" { hash=$1; next }; $1 == hash { gsub(\".*/\", \"\", $2); print $2; exit; }'; \
+		}; \
 		f() ( \
 			set -e; \
 			if ! git ls-remote --get-url 2>&1 | grep -F github.com > /dev/null; then echo Not a GitHub URL; exit 1; fi; \
