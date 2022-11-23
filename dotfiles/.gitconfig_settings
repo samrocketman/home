@@ -33,7 +33,10 @@
 			if [ -n \"$1\" ]; then \
 				ref=\"$(git ls-remote | grep \"refs/pull/$1/head\" | awk '{print $2}')\"; \
 				git fetch origin ${ref}; \
-				[ -n \"${ref}\" ] && git merge --no-ff FETCH_HEAD || ( echo 'Pull request not found.'; return 1 ); \
+				[ -n \"${ref}\" ] && git merge --no-ff FETCH_HEAD || ( \
+					echo 'Pull request not found.'; \
+					return 1; \
+				); \
 			else \
 				echo 'Missing pull request as argument.'; \
 				return 1; \
