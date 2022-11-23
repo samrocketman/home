@@ -45,8 +45,21 @@
 	tree3 = log --oneline --decorate --graph
 	init-commit = "!f() { [ -d .git ] || git init; git log > /dev/null || (touch README.md; git add README.md; git commit -m 'initial commit' ); }; f"
 
-	# https://stackoverflow.com/questions/8475448/find-merge-commit-which-include-a-specific-commit
-	find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+	# Open URL to GitHub
+	hub = "!set -ex; urlopen() ( if type -P open > /dev/null; then open \"$1\"; else xdg-open \"$1\"; fi; ); \
+		default_branch() { git ls-remote 2> /dev/null | awk '$2 == \"HEAD\" { hash=$1; next }; $1 == hash { gsub(\".*/\", \"\", $2); print $2; exit; }'; }; \
+		f() ( \
+			set -e; \
+			if ! git ls-remote --get-url 2>&1 | grep -F github.com > /dev/null; then echo Not a GitHub URL; exit 1; fi; \
+			url=\"`git ls-remote --get-url | grep -F github.com`\"; \
+			if echo $url | grep -F github.com: > /dev/null; then \
+			  url=\"https://github.com/`echo $url | sed -e 's/^.*://'`\"; \
+			fi; \
+			url=\"`echo $url | sed -e 's/\\.git$//'`\";\
+			case \"$#\" in 1) url=\"$url/blob/$(default_branch)/$1\"; ;; 2) url=\"$url/blob/$(default_branch)/$1#L$2\"; ;; esac; \
+			urlopen \"$url\"; \
+		); f"
+
 [push]
 	default = simple
 [core]
