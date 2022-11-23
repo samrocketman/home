@@ -4,18 +4,16 @@
 	b = branch
 	c = commit
 	co = checkout
-	cp = "!cp() { git add -A && git commit -m checkpoint; } ; cp"
+	cp = "!git checkpoint"
 	d = diff
 	f = fetch
 	p = push
 	ppr = "!git push-pull-request"
-	#shorthand for git gerrit <branch>; defaults to pushing to current branch
-	g = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 	l = log
 	lr = ls-remote
 	m = merge
 	#no-ff merge pull request from GitHub via git
-	mpr = "!f() { if [ -n \"$1\" ];then ref=\"$(git ls-remote | grep \"refs/pull/$1/head\" | awk '{print $2}')\";git fetch origin ${ref}; [ -n \"${ref}\" ] && git merge --no-ff FETCH_HEAD || ( echo 'Pull request not found.'; return 1 ) ; else  echo 'Missing pull request as argument.'; return 1;fi; }; f"
+	mpr = "!git merge-pull-request"
 	r = rev-parse --show-toplevel
 	rb = rebase
 	rs = reset
@@ -30,20 +28,78 @@
 	doggie = push
 
 	#longer custom commands
-	push-pull-request = "!f() { local openUrl=''; if [ \"$(uname)\" = Linux ]; then openUrl=xdg-open; else openUrl=open; fi; branch=\"$(git rev-parse --abbrev-ref HEAD)\"; git push -u \"${1:-origin}\" $branch 2>&1 | grep -o 'https://github.com/.*/pull/new/.*' | xargs -- \"$openUrl\"; }; f"
-	reuse = "!r() { git commit -C \"${1:-HEAD}\"; git commit --amend --reset-author; }; r"
+	merge-pull-request = "!\
+		f() { \
+			if [ -n \"$1\" ]; then \
+				ref=\"$(git ls-remote | grep \"refs/pull/$1/head\" | awk '{print $2}')\"; \
+				git fetch origin ${ref}; \
+				[ -n \"${ref}\" ] && git merge --no-ff FETCH_HEAD || ( echo 'Pull request not found.'; return 1 ); \
+			else \
+				echo 'Missing pull request as argument.'; \
+				return 1; \
+			fi; \
+		}; f"
+	push-pull-request = "!\
+		f() { \
+			local openUrl=''; \
+			if [ \"$(uname)\" = Linux ]; then \
+				openUrl=xdg-open; \
+			else \
+				openUrl=open; \
+			fi; \
+			branch=\"$(git rev-parse --abbrev-ref HEAD)\"; \
+			git push -u \"${1:-origin}\" $branch 2>&1 | grep -o 'https://github.com/.*/pull/new/.*' | xargs -- \"$openUrl\"; \
+		}; f"
+	reuse = "!\
+		r() { \
+			git commit -C \"${1:-HEAD}\"; \
+			git commit --amend --reset-author; \
+		}; r"
 	amend = commit --amend -aC HEAD
-	checkpoint = "!cp() { git add -A && git commit -m checkpoint; } ; cp"
-	files = "!f() { if [ \"$#\" -eq 2 ]; then git diff --name-status $(git merge-base $1 $2) $2;elif [ \"$#\" -eq 1 ]; then git diff --name-status $(git merge-base $1 HEAD) HEAD;else echo 'Call with one or two args';fi }; f"
-	gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
+	checkpoint = "!\
+		cp() { \
+			git add -A && git commit -m checkpoint; \
+		} ; cp"
+	files = "!\
+		f() { \
+			if [ \"$#\" -eq 2 ]; then \
+				git diff --name-status $(git merge-base $1 $2) $2; \
+			elif [ \"$#\" -eq 1 ]; then \
+				git diff --name-status $(git merge-base $1 HEAD) HEAD; \
+			else \
+				echo 'Call with one or two args'; \
+			fi \
+		}; f"
 	pop = "stash pop"
 	root = rev-parse --show-toplevel
 	short = log -1 --pretty='format:%h'
-	squash = "!s() { if [ ! -z \"$1\" ];then if [ ! \"$(git rev-parse --abbrev-ref HEAD)\" = \"$1\" ];then git rebase --interactive $(git merge-base HEAD $1) ;else echo \"HEAD can't rebase against itself.  You can't rebase against the branch you have checked out.\"; return 1; fi; else echo \"No argument supplied.  Pass in a branch that you want to interactively rebase against compared to your current HEAD.\"; return 1; fi } ; s"
+	squash = "!\
+		s() { \
+			if [ ! -z \"$1\" ]; then \
+				if [ ! \"$(git rev-parse --abbrev-ref HEAD)\" = \"$1\" ]; then \
+					git rebase --interactive $(git merge-base HEAD $1); \
+				else \
+					echo \"HEAD can't rebase against itself.  You can't rebase against the branch you have checked out.\"; \
+					return 1; \
+				fi; \
+			else \
+				echo \"No argument supplied.  Pass in a branch that you want to interactively rebase against compared to your current HEAD.\"; \
+				return 1; \
+			fi; \
+		}; s"
 	tree = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white). %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
 	tree2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset) %C(bold white). %an%C(reset)%n''          %C(white)%s%C(reset)' --abbrev-commit
 	tree3 = log --oneline --decorate --graph
-	init-commit = "!f() { [ -d .git ] || git init; git log > /dev/null || (touch README.md; git add README.md; git commit -m 'initial commit' ); }; f"
+	init-commit = "!\
+		f() { \
+			[ -d .git ] || git init; \
+			git log > /dev/null || ( \
+				touch README.md; \
+				git add README.md; \
+				git commit -m 'initial commit'; \
+				git branch -m main; \
+			); \
+		}; f"
 
 	# Open URL to GitHub
 	hub = "!set -ex; urlopen() ( if type -P open > /dev/null; then open \"$1\"; else xdg-open \"$1\"; fi; ); \
@@ -59,6 +115,11 @@
 			case \"$#\" in 1) url=\"$url/blob/$(default_branch)/$1\"; ;; 2) url=\"$url/blob/$(default_branch)/$1#L$2\"; ;; esac; \
 			urlopen \"$url\"; \
 		); f"
+
+	# Ye olde aliases (but I still want to keep them)
+	#shorthand for git gerrit <branch>; defaults to pushing to current branch
+	#g = "!git gerrit"
+	#gerrit = "!g() { [ -z \"$1\" ] && git push origin HEAD:refs/for/$(git rev-parse --abbrev-ref HEAD) || git push origin HEAD:refs/for/$1; }; g"
 
 [push]
 	default = simple
