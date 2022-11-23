@@ -51,7 +51,6 @@ jd-gui.cfg
 
 *.log
 *.tgz
-*.zip
 .venv
 
 #aws stuff
@@ -61,3 +60,4 @@ jd-gui.cfg
 *.[Aa]pp[Ii]mage
 
 .clang-format
+\?
