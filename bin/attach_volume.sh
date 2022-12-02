@@ -1,4 +1,5 @@
 #!/bin/bash
+# MIT Licensed Sam Gleske (@samrocketman on GitHub)
 # DESCRIPTION:
 #     Search for volumes based on a tag and attach it to the AWS instance where
 #     this script is run.  This assumes IAM permission to do so on the
