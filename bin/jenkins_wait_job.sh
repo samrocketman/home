@@ -39,7 +39,7 @@ fi
 
 export NOTIFY_TITLE="jenkins wait job"
 
-JOB_NAME="$(grep -o 'job/[^/]\+' <<< "$1" | cut -d/ -f2 | xargs)"
+JOB_NAME="$(grep -o 'job/[^/]\+' <<< "$1" | cut -d/ -f2 | xargs | sed 's/\./ dot /g')"
 
 if ! [ "${RESULT}" = 'SUCCESS' ]; then
   jenkins_call.sh ${1%/}/consoleText
