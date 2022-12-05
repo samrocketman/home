@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -
+set -e
 
 if [ -z "${GITHUB_TOKEN:-}" ]; then
   echo 'ERROR: Missing GITHUB_TOKEN credential.' >&2
