@@ -187,7 +187,21 @@ if [ "${print_cpus}" = true ]; then
   exit
 fi
 
-launcher_dirs=( /usr/share/applications )
+declare -a launcher_dirs
+if [ -n "${XDG_DATA_DIRS:-}" ]; then
+  declare -a temp_arr
+  IFS=: read -ra temp_arr <<< "$XDG_DATA_DIRS"
+  for x in "${temp_arr[@]}"; do
+    if [ -d "${x}/applications" ]; then
+      launcher_dirs+=( "${x%/}/applications" )
+    elif [ -d "${x}" ]; then
+      launcher_dirs+=( "${x%/}" )
+    fi
+  done
+fi
+if [ -z "${launcher_dirs}" ]; then
+  launcher_dirs=( /usr/share/applications )
+fi
 if [ -d /var/lib/snapd/desktop/applications ]; then
   launcher_dirs+=( /var/lib/snapd/desktop/applications )
 fi
@@ -196,7 +210,7 @@ for launchertext in "${launchers[@]}"; do
   if [ -n "${niceargs:-}" ]; then
     low_priority_cmd+=" ${niceargs}"
   fi
-  find "${launcher_dirs[@]}" -maxdepth 1 -type f -name '*.desktop' | \
+  find "${launcher_dirs[@]}" -maxdepth 2 \( -type f -o -type l \) -name '*.desktop' | \
     xargs -- grep -l -- "${launchertext}" | while read launcher; do
       destination="${HOME}/.local/share/applications/nice-${launcher##*/}"
       cp -f "${launcher}" "${destination}"
