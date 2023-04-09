@@ -1,8 +1,9 @@
-#!/usr/bin/python -t
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #Author: James Antill <james.antill@redhat.com>
 #Contributors:
 #    Sam Gleske <sag47@drexel.edu>
+#    Sam Gleske <sam.mxracer@gmail.com> converted to python3 Apr 5, 2023
 
 #Source1: http://www.redhat.com/archives/rhl-list/2009-July/msg00228.html
 #Source2: http://markmail.org/message/dodinyrhwgey35mh
@@ -46,7 +47,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 #help documentation
 if len(sys.argv) > 1 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
-  print """
+  print("""
 NAME:
     wasted-ram-updates.py - discovers programs with open file handles to
                             deleted files.
@@ -98,12 +99,12 @@ LINKS:
         http://www.redhat.com/archives/rhl-list/2009-July/msg00228.html
     Source 2:
         http://markmail.org/message/dodinyrhwgey35mh
-"""
+""")
   sys.exit(0)
 
 def loc_num(x):
     """ Return a string of a number in the readable "locale" format. """
-    return locale.format("%d", int(x), True)
+    return locale.format_string("%d", int(x), True)
 def kmgtp_num(x):
     """ Return a string of a number in the MEM size format, Ie. "30 MB". """
     ends = [" ", "K", "M", "G", "T", "P"]
@@ -167,8 +168,8 @@ for pid in pids.keys():
                 ino = int(data[4])
                 dev = int(data[3].split(":", 2)[0], 16)
             except:
-                print "DBG: Bad line:", lines[off - 1]
-                print "DBG:     data=", data
+                print("DBG: Bad line: " + lines[off - 1])
+                print("DBG:     data= " + data)
                 continue
 
             if dev == 0:
@@ -234,7 +235,7 @@ for pid in pids.keys():
                     except:
                         pass
             except:
-                print "DBG: Bad data:", lines[off - 1]
+                print("DBG: Bad data: " + lines[off - 1])
 
     except:
         pass
@@ -265,48 +266,54 @@ for x in files.values():
     referenced      += x.referenced
 
     if out_type == "files":
-        print "%5sB:" % kmgtp_num(x.vsz), x.name,
-        print "\ts_size          = %5sB" % kmgtp_num(x.s_size * 1024)
-        print "\ts_rss           = %5sB" % kmgtp_num(x.s_rss * 1024)
-        print "\ts_shared_clean  = %5sB" % kmgtp_num(x.s_shared_clean * 1024)
-        print "\ts_shared_dirty  = %5sB" % kmgtp_num(x.s_shared_dirty * 1024)
-        print "\ts_private_clean = %5sB" % kmgtp_num(x.s_private_clean * 1024)
-        print "\ts_private_dirty = %5sB" % kmgtp_num(x.s_private_dirty * 1024)
-        print "\treferenced      = %5sB" % kmgtp_num(x.referenced * 1024)
+        print("%5sB:" % kmgtp_num(x.vsz), x.name,)
+        print("\ts_size          = %5sB" % kmgtp_num(x.s_size * 1024))
+        print("\ts_rss           = %5sB" % kmgtp_num(x.s_rss * 1024))
+        print("\ts_shared_clean  = %5sB" % kmgtp_num(x.s_shared_clean * 1024))
+        print("\ts_shared_dirty  = %5sB" % kmgtp_num(x.s_shared_dirty * 1024))
+        print("\ts_private_clean = %5sB" % kmgtp_num(x.s_private_clean * 1024))
+        print("\ts_private_dirty = %5sB" % kmgtp_num(x.s_private_dirty * 1024))
+        print("\treferenced      = %5sB" % kmgtp_num(x.referenced * 1024))
         for pid in frozenset(x.pids):
-            print "\t\t", pid, pids[pid].name
+            print("\t\t" + pid + " " + pids[pid].name)
 
 
+pids_to_remove = []
 for pid in pids.keys():
     if not pids[pid].vsz:
-         del pids[pid]
+        pids_to_remove.append(pid)
+
+for pid in pids_to_remove:
+    del pids[pid]
+
+pids_to_remove = []
 
 if out_type == "pids":
     for pid in pids.keys():
-        print "%5sB:" % kmgtp_num(pids[pid].vsz), pid, pids[pid].name
-        print "\ts_size          = %5sB" % kmgtp_num(pids[pid].s_size * 1024)
-        print "\ts_rss           = %5sB" % kmgtp_num(pids[pid].s_rss * 1024)
-        print "\ts_shared_clean  = %5sB" % kmgtp_num(pids[pid].s_shared_clean * 1024)
-        print "\ts_shared_dirty  = %5sB" % kmgtp_num(pids[pid].s_shared_dirty * 1024)
-        print "\ts_private_clean = %5sB" % kmgtp_num(pids[pid].s_private_clean * 1024)
-        print "\ts_private_dirty = %5sB" % kmgtp_num(pids[pid].s_private_dirty * 1024)
-        print "\treferenced      = %5sB" % kmgtp_num(pids[pid].referenced * 1024)
+        print("%5sB:" % kmgtp_num(pids[pid].vsz), pid, pids[pid].name)
+        print("\ts_size          = %5sB" % kmgtp_num(pids[pid].s_size * 1024))
+        print("\ts_rss           = %5sB" % kmgtp_num(pids[pid].s_rss * 1024))
+        print("\ts_shared_clean  = %5sB" % kmgtp_num(pids[pid].s_shared_clean * 1024))
+        print("\ts_shared_dirty  = %5sB" % kmgtp_num(pids[pid].s_shared_dirty * 1024))
+        print("\ts_private_clean = %5sB" % kmgtp_num(pids[pid].s_private_clean * 1024))
+        print("\ts_private_dirty = %5sB" % kmgtp_num(pids[pid].s_private_dirty * 1024))
+        print("\treferenced      = %5sB" % kmgtp_num(pids[pid].referenced * 1024))
         for key in pids[pid].files:
-            print "\t\t", files[key].name,
+            print("\t\t" + files[key].name)
 
-print "\
-=============================================================================="
-print "files           = %8s" % loc_num(len(files))
-print "pids            = %8s" % loc_num(len(pids.keys()))
-print "vsz             = %5sB" % kmgtp_num(vsz)
-print "\
-------------------------------------------------------------------------------"
-print "s_size          = %5sB" % kmgtp_num(s_size * 1024)
-print "s_rss           = %5sB" % kmgtp_num(s_rss * 1024)
-print "s_shared_clean  = %5sB" % kmgtp_num(s_shared_clean * 1024)
-print "s_shared_dirty  = %5sB" % kmgtp_num(s_shared_dirty * 1024)
-print "s_private_clean = %5sB" % kmgtp_num(s_private_clean * 1024)
-print "s_private_dirty = %5sB" % kmgtp_num(s_private_dirty * 1024)
-print "referenced      = %5sB" % kmgtp_num(referenced * 1024)
-print "\
-=============================================================================="
+print("\
+==============================================================================")
+print("files           = %8s" % loc_num(len(files)))
+print("pids            = %8s" % loc_num(len(pids.keys())))
+print("vsz             = %5sB" % kmgtp_num(vsz))
+print("\
+------------------------------------------------------------------------------")
+print("s_size          = %5sB" % kmgtp_num(s_size * 1024))
+print("s_rss           = %5sB" % kmgtp_num(s_rss * 1024))
+print("s_shared_clean  = %5sB" % kmgtp_num(s_shared_clean * 1024))
+print("s_shared_dirty  = %5sB" % kmgtp_num(s_shared_dirty * 1024))
+print("s_private_clean = %5sB" % kmgtp_num(s_private_clean * 1024))
+print("s_private_dirty = %5sB" % kmgtp_num(s_private_dirty * 1024))
+print("referenced      = %5sB" % kmgtp_num(referenced * 1024))
+print("\
+==============================================================================")
