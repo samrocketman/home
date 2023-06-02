@@ -53,18 +53,15 @@ if [ ! -e "$HOME/bin" ]; then
   ln -s "$HOME/git/home/bin" "$HOME/bin"
 fi
 
-mkdir -p ~/usr/bin ~/usr/src
-(
-  if [ ! -e ~/usr/bin/git-idm ]; then
-    cd ~/usr/src
-    git clone https://github.com/samrocketman/git-identity-manager
-    ln -s ~/usr/src/git-identity-manager/git-idm ~/usr/bin/git-idm
-  fi
-)
-
 #
 # RASPBERRY PI ONLY SETUP
 #
 if (uname -rms | grep -v 'Darwin' &> /dev/null) && grep -q 'Raspbian' /etc/issue; then
   ./raspi/setup.sh
 fi
+
+#
+# Download preferred utilities
+#
+mkdir -p ~/usr/bin ~/usr/src ~/usr/share
+./misc/install-utilities.sh
