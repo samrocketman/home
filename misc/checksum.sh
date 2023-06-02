@@ -2,13 +2,6 @@
 
 set -euo pipefail
 
-if [ ! -d ~/usr/share/yml-install-files ]; then
-  mkdir -p ~/usr/share ~/usr/bin
-  pushd ~/usr/share
-  git clone https://github.com/samrocketman/yml-install-files.git
-  popd
-fi
-
 create_tmp() {
   export exec_tmp
   exec_tmp="$(mktemp -d)"
@@ -31,6 +24,23 @@ create_tmp() {
   rm "$exec_tmp"/file
 }
 
+checksum_file() (
+  if type -P shasum &> /dev/null; then
+    shasum -a 256 -c -
+  else
+    sha256sum -c -
+  fi
+)
+
+install_download_sh() (
+  curl -sSfL \
+    https://github.com/samrocketman/yml-install-files/releases/download/v2.10/universal.tgz | \
+  tar -xzC "$exec_tmp"/ --no-same-owner download-utilities.sh
+  echo "8450069fef0a49796cfa53677bc52e86fd89fcf7aebcec7f521628a3ed82d15b  ${exec_tmp}/download-utilities.sh" | \
+  checksum_file || return $?
+  chmod 755 "${exec_tmp}/download-utilities.sh"
+)
+
 cleanup_on() {
   if [ -d "${exec_tmp:-}" ]; then
     rm -rf "${exec_tmp}"
@@ -38,22 +48,23 @@ cleanup_on() {
 }
 
 update() (
-  ~/usr/share/yml-install-files/download-utilities.sh --update \
+  download-utilities.sh --update \
     ~/git/home/misc/download-utilities.yml
 )
 
 checksum() (
   export skip_checksum=1
-  os="$1" arch="$2" ~/usr/share/yml-install-files/download-utilities.sh \
+  os="$1" arch="$2" download-utilities.sh \
     ~/git/home/misc/download-utilities.yml
 
-  ~/usr/share/yml-install-files/download-utilities.sh --checksum \
+  download-utilities.sh --checksum \
     ~/git/home/misc/download-utilities.yml \
     > ~/git/home/misc/checksums/"$1-$2".sha256
 )
 
 trap cleanup_on EXIT
 create_tmp
+install_download_sh
 export PATH="$exec_tmp:$PATH"
 
 force_yq=1 update
