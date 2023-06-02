@@ -1,0 +1,152 @@
+versions:
+  crane: 0.15.2
+  docker-buildx: 0.10.5
+  docker-compose: 2.18.1
+  download-utilities.sh: "2.10"
+  gh: 2.30.0
+  git-idm: 946120be3235c6e174d0902e0aa6d4f45afc89aa
+  gitleaks: 8.16.3
+  goss: 0.3.22
+  jq: "1.6"
+  kind: 0.19.0
+  kubectl: 1.27.2
+  yq: 4.34.1
+
+# These utilities are installed by
+# https://github.com/samrocketman/yml-install-files
+defaults: &defaults
+  # dest could be /usr/local/bin in Docker builds
+  dest: usr/bin
+  perm: '0755'
+  checksum_file: checksums/$(uname)-$(arch).sha256
+  os:
+    Linux: linux
+    Darwin: darwin
+  arch:
+    x86_64: amd64
+    aarch64: arm64
+  pre_command: |
+    if [ ! "$HOME" = "$PWD" ]; then
+      echo 'ERROR: this must run from the HOME.' >&2
+      exit 5
+    fi
+    if [ "$USER" = root ]; then
+      echo 'ERROR: this must run as a normal user.' >&2
+      exit 5
+    fi
+    if [ "${checksum_failed:-true}" = true ]; then
+      rm -f ${dest}/${utility}
+    fi
+  update: |
+    case "${download}" in
+      https://github.com/*)
+        owner="$(awk -F/ '{print $4"/"$5}' <<< "${download}")"
+        export download=https://github.com/"${owner}"/releases/latest
+        eval "${default_download_head}" |
+        awk '$1 ~ /[Ll]ocation:/ { gsub(".*/[^0-9.]*", "", $0); print;exit}'
+        ;;
+      https://dl.k8s.io/release*)
+        download=https://dl.k8s.io/release/stable.txt
+        extract=cat
+        export download extract
+        eval "${default_download_extract}" |
+        awk '{gsub("v", "", $0); print}'
+        ;;
+      https://get.helm.sh/*)
+        export download=https://github.com/helm/helm/releases/latest
+        eval "${default_download_head}" |
+        awk '$1 ~ /[Ll]ocation:/ { gsub(".*/[^0-9.]*", "", $0); print;exit}'
+        ;;
+    esac
+utility:
+  crane:
+    <<: *defaults
+    # Darwin and Linux
+    os:
+    # x86_64 and arm64
+    arch:
+      aarch64: arm64
+    download: https://github.com/google/go-containerregistry/releases/download/v${version}/go-containerregistry_${os}_${arch}.tar.gz
+    extract: tar -xzC ${dest}/ --no-same-owner ${utility}
+  docker-buildx:
+    <<: *defaults
+    download: https://github.com/docker/buildx/releases/download/v${version}/buildx-v${version}.${os}-${arch}
+    post_command: |
+      if [ ! -L ~/.docker/cli-plugins/${utility} ]; then
+        mkdir -p ~/.docker/cli-plugins
+        ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
+      fi
+  docker-compose:
+    <<: *defaults
+    # x86_64 and aarch64 are the two supported architectures.
+    arch:
+      arm64: aarch64
+    download: https://github.com/docker/compose/releases/download/v${version}/docker-compose-${os}-${arch}
+    post_command: |
+      if [ ! -L ~/.docker/cli-plugins/${utility} ]; then
+        ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
+      fi
+  download-utilities.sh:
+    <<: *defaults
+    download: https://github.com/samrocketman/yml-install-files/releases/download/v${version}/universal.tgz
+    extract: tar -xzC ${dest}/ --no-same-owner ${utility}
+  gh:
+    <<: *defaults
+    os:
+      Linux: linux
+      Darwin: macOS
+    extension:
+      default: tar.gz
+      macOS: zip
+    default_download_extract: |
+      trap '[ ! -f /tmp/file.zip ] || rm -f /tmp/file.zip' EXIT
+      if type -P curl; then
+        curl -sSfL ${download} | ${extract}
+      else
+        wget -q -O - ${download} | ${extract}
+      fi
+    extract:
+      macOS: |
+        {
+          cat > /tmp/file.zip
+          unzip -o -j -d ${dest} /tmp/file.zip '*/bin/gh'
+        }
+      linux: tar -xzC ${dest}/ --no-same-owner --strip-components=2 gh_${version}_${os}_${arch}/bin/gh
+    download: https://github.com/cli/cli/releases/download/v${version}/gh_${version}_${os}_${arch}.${extension}
+  git-idm:
+    <<: *defaults
+    download: https://raw.githubusercontent.com/samrocketman/git-identity-manager/${version}/git-idm
+    update: >
+      git ls-remote https://github.com/samrocketman/git-identity-manager.git |
+      awk '$2 == "refs/heads/main" {print $1;exit}'
+  gitleaks:
+    <<: *defaults
+    arch:
+      x86_64: x64
+      aarch64: arm64
+    download: https://github.com/gitleaks/gitleaks/releases/download/v${version}/gitleaks_${version}_${os}_${arch}.tar.gz
+    extract: tar -xzC ${dest}/ --no-same-owner ${utility}
+  goss:
+    <<: *defaults
+    os:
+      Linux: linux
+      Darwin: alpha-darwin
+    # Mac OS is alpha and Mac only supports AMD64.  Linux supports arm and AMD64
+    only: "[ ! ${os} = alpha-darwin ] || [ ${arch} = amd64 ]"
+    download: https://github.com/goss-org/goss/releases/download/v${version}/goss-${os}-${arch}
+  jq:
+    <<: *defaults
+    only: "[ ${arch} = amd64 ]"
+    os:
+      Linux: linux64
+      Darwin: osx-amd64
+    download: https://github.com/jqlang/jq/releases/download/jq-${version}/jq-${os}
+  kind:
+    <<: *defaults
+    download: https://github.com/kubernetes-sigs/kind/releases/download/v0.19.0/kind-${os}-${arch}
+  kubectl:
+    <<: *defaults
+    download: https://dl.k8s.io/release/v${version}/bin/${os}/${arch}/kubectl
+  yq:
+    <<: *defaults
+    download: https://github.com/mikefarah/yq/releases/download/v${version}/yq_${os}_${arch}
