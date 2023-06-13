@@ -2,11 +2,11 @@ versions:
   crane: 0.15.2
   docker-buildx: 0.10.5
   docker-compose: 2.18.1
-  download-utilities.sh: "2.10"
+  download-utilities.sh: "2.12"
   gh: 2.30.0
   git-idm: 946120be3235c6e174d0902e0aa6d4f45afc89aa
-  gitleaks: 8.16.3
-  goss: 0.3.22
+  gitleaks: 8.16.4
+  goss: 0.3.23
   jq: "1.6"
   kind: 0.19.0
   kubectl: 1.27.2
