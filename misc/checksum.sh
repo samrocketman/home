@@ -10,7 +10,7 @@ create_tmp() {
   if [ ! -x "$exec_tmp"/file ]; then
     rm -r "$exec_tmp"
   else
-    return
+    return 0
   fi
   mkdir -p ~/usr/tmp
   exec_tmp=~/usr/tmp
