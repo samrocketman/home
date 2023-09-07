@@ -275,7 +275,7 @@ for x in files.values():
         print("\ts_private_dirty = %5sB" % kmgtp_num(x.s_private_dirty * 1024))
         print("\treferenced      = %5sB" % kmgtp_num(x.referenced * 1024))
         for pid in frozenset(x.pids):
-            print("\t\t" + pid + " " + pids[pid].name)
+            print("\t\t%d %s" % ( pid, pids[pid].name ))
 
 
 pids_to_remove = []
