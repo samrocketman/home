@@ -55,4 +55,6 @@ install_download_sh
 export PATH="$exec_tmp:$PATH"
 
 cd ~
+# self-bootstrap of yq required since I am installing yq via yaml
+export force_yq=1
 download-utilities.sh ~/git/home/misc/download-utilities.yml
