@@ -1,16 +1,16 @@
 versions:
-  crane: 0.15.2
-  docker-buildx: 0.10.5
-  docker-compose: 2.18.1
+  crane: 0.16.1
+  docker-buildx: 0.11.2
+  docker-compose: 2.22.0
   download-utilities.sh: "2.12"
-  gh: 2.30.0
+  gh: 2.35.0
   git-idm: 946120be3235c6e174d0902e0aa6d4f45afc89aa
-  gitleaks: 8.16.4
-  goss: 0.3.23
-  jq: "1.6"
-  kind: 0.19.0
-  kubectl: 1.27.2
-  yq: 4.34.1
+  gitleaks: 8.18.0
+  goss: 0.4.2
+  jq: "1.7"
+  kind: 0.20.0
+  kubectl: 1.28.2
+  yq: 4.35.2
 
 # These utilities are installed by
 # https://github.com/samrocketman/yml-install-files
@@ -128,11 +128,6 @@ utility:
     extract: tar -xzC ${dest}/ --no-same-owner ${utility}
   goss:
     <<: *defaults
-    os:
-      Linux: linux
-      Darwin: alpha-darwin
-    # Mac OS is alpha and Mac only supports AMD64.  Linux supports arm and AMD64
-    only: "[ ! ${os} = alpha-darwin ] || [ ${arch} = amd64 ]"
     download: https://github.com/goss-org/goss/releases/download/v${version}/goss-${os}-${arch}
   jq:
     <<: *defaults
