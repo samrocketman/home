@@ -33,11 +33,13 @@ checksum() (
 )
 
 install_download_sh() (
+  vers=2.12
+  checksum_hash=da73e2cdc16e02b2c30ab63260ca7cab2303a1fa4a58e53eda5e21f2679a3da9
   curl -sSfL \
-    https://github.com/samrocketman/yml-install-files/releases/download/v2.10/universal.tgz | \
+    https://github.com/samrocketman/yml-install-files/releases/download/v"${vers}"/universal.tgz | \
   tar -xzC "$exec_tmp"/ --no-same-owner download-utilities.sh
-  echo "8450069fef0a49796cfa53677bc52e86fd89fcf7aebcec7f521628a3ed82d15b  ${exec_tmp}/download-utilities.sh" | \
-  checksum || return $?
+  echo "${checksum_hash}  ${exec_tmp}/download-utilities.sh" | \
+  checksum || (retval=$?; sha256sum "${exec_tmp}/download-utilities.sh"; return "${retval}"; )
   chmod 755 "${exec_tmp}/download-utilities.sh"
 )
 
