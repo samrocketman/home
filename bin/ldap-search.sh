@@ -24,7 +24,9 @@ ldap_scope="${ldap_scope:-}"
 [ -z "${basedn}" ] || args+=(-b "${basedn}")
 [ -z "${ldap_scope}" ] || args+=(-s "${ldap_scope}")
 
-[ "${ldap_passwd}" = CHANGEME ] || args+=(-W)
+if [ "${ldap_passwd}" = CHANGEME ]; then
+  args+=(-W)
+fi
 
 #firstname="$1"
 #lastname="$2"
