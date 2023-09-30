@@ -15,9 +15,10 @@ SYNOPSIS:
 
 DESCRIPTION:
   Run a command with reduced log output.  This will execute the command and
-  hide log output.  The script will output a short status every 30 seconds.  If
-  the command being executed exits with an error, then the stderr log from the
-  command is printed along with the overall exit status.
+  hide log output.  The script will output a short status every
+  ${background_interval} seconds.  If the command being executed exits with an
+  error, then the stderr log from the command is printed along with the overall
+  exit status.
 
 ARGUMENTS:
   COMMAND
@@ -41,15 +42,10 @@ OPTIONS:
     Default: Disabled by default.
 
   -b, --no-background-status
-    While executing a command, a short status phrase will be printed every 30
-    seconds.  This option disables the behavior and hides all output during
-    execution.
+    While executing a command, a short status phrase will be printed every
+    ${background_interval} seconds.  This option disables the behavior and
+    hides all output during execution.
     Default: Background status is enabled by default.
-
-  -c, --combined-log
-    Combine stdout and stderr into a single in-line log.  This means -l stderr
-    has no effect since stdout and stderr logs are combined.
-    Default: Logs are split separately between stdout and stderr.
 
   -e, --hide-errors
     This option will hide any errors which would occur.  If an error occurs,
@@ -63,29 +59,15 @@ OPTIONS:
     Default: Disabled by default.
 
   -g EXPR, --status-logfile-regexp EXPR
-    When using a --background-status-logfile, this will limit the output of the
-    log entry using the 'grep -o EXPR' command.  The background status message
-    will include a filtered partial output printed from the
-    --background-status-logfile.  It will find the last 50 lines in the log
-    file and output based on the user provided EXPR.  This option is only
-    effective when --background-status-logfile is provided.
+    If provided, this will limit the output of the log entry using the 'grep -o
+    EXPR' command.  It will find the last 50 lines in the log file and output
+    based on the user provided EXPR.
     Default: '${log_filter_expr}'
 
   -i INTERVAL, --background-interval INTERVAL
     Customize the INTERVAL for how often the --status-phrase is printed while
     executing the COMMAND.  The INTERVAL is in seconds.
     Default: ${background_interval}
-
-  -l LOGFILE, --background-status-logfile LOGFILE
-    When a status phrase is printed every 30 seconds it can also be paired with
-    an entry from the LOGFILE.  There's two special LOGFILEs.
-      * stdout - If LOGFILE is 'stdout', then the log is derived from the
-                 COMMAND stdout output.
-      * stderr - If LOGFILE is 'stderr', then the log is derived from the
-                 COMMAND stderr output.
-    Otherwise, the LOGFILE will be read as a normal file to determine status
-    entries.
-    Default: Disabled by default.
 
   -r TIMES, --retry TIMES
     Number of TIMES to retry the command if it fails.  TIMES is a number
@@ -99,9 +81,9 @@ OPTIONS:
     Default: No wait.
 
   -s PHRASE, --status-phrase PHRASE
-    Every 30 seconds output a PHRASE as a short execution status.  The PHRASE
-    may be paired with an entry or partial entry from a log file provided by
-    --background-status-logfile.
+    Every ${background_interval} seconds output a PHRASE as a short execution
+    status.  The PHRASE may be paired with an entry or partial entry from a log
+    file provided by --status-logfile-regexp.
     Default: '${status_phrase}'
 
 EXAMPLES:
@@ -174,18 +156,18 @@ function command_status() {
   if [ "${extended_regexp}" = true ]; then
     grep_opts+=( -E )
   fi
-  [ ! -f "${background_status_logfile:-}" ] ||
-    tail -n50 "${background_status_logfile:-}" | \
+  [ ! -f "${background_status_logfile}" ] ||
+    tail -n50 "${background_status_logfile}" | \
     grep "${grep_opts[@]}" -- "${log_filter_expr}" | tail -n1 || echo
 }
 
 function background_status() (
   while true; do
-    sleep "${background_interval:-30}"
+    sleep "${background_interval}"
     if [ ! -d "${TMP_DIR:-}" ]; then
       break
     fi
-    if [ ! -f "${background_status_logfile:-}" ]; then
+    if [ -z "${log_filter_expr:-}" ]; then
       echo_stdout "${status_phrase}"
     else
       echo_stdout "${status_phrase} $(command_status)"
@@ -198,11 +180,7 @@ function cleanup_on() {
   if [ "$1" -ne 0 ]; then
     # exited with error
     if [ "${show_error_on_failure}" = true ]; then
-      if [ "${combined_log:-false}" = true ]; then
-        piped_stderr < "${TMP_DIR:-}"/stdout
-      else
-        piped_stderr < "${TMP_DIR:-}"/stderr
-      fi
+      piped_stderr < "${background_status_logfile}"
       echo_stderr "ERROR Exit code: $1"
     fi
   fi
@@ -251,10 +229,9 @@ trap 'cleanup_on $?' EXIT
 # Process arguments
 #
 cmd_line=()
-background_interval=30
+background_interval=15
 background_status=true
-background_status_logfile=''
-combined_log=false
+background_status_logfile="$TMP_DIR"/stdout
 debug_bundle=false
 early_exit=true
 extended_regexp=false
@@ -272,13 +249,6 @@ while [ "$#" -gt 0 ]; do
       ;;
     -b|--no-background-status)
       background_status=false
-      shift
-      ;;
-    -c|--combined-log)
-      combined_log=true
-      if [ "${background_status_logfile:-}" = "$TMP_DIR"/stderr ]; then
-        background_status_logfile="$TMP_DIR"/stdout
-      fi
       shift
       ;;
     -d|--debug-bundle)
@@ -307,18 +277,6 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
       background_interval="$2"
-      shift
-      shift
-      ;;
-    -l|--background-status-logfile)
-      if [ "$2" = stdout ] ||
-        [ "${combined_log:-false}" = true -a "$2" = stdout ]; then
-        background_status_logfile="$TMP_DIR"/stdout
-      elif [ "$2" = stderr ]; then
-        background_status_logfile="$TMP_DIR"/stderr
-      else
-        background_status_logfile="$2"
-      fi
       shift
       shift
       ;;
@@ -363,11 +321,7 @@ done
 if [ "$#" -gt 0 ]; then
   cmd_line+=( "$@" )
 fi
-if [ "${combined_log:-false}" = true ]; then
-  exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2>&1
-else
-  exec 3>&1 4>&2 > "$TMP_DIR"/stdout 2> "$TMP_DIR"/stderr
-fi
+exec 3>&1 4>&2 > "$background_status_logfile" 2> "$background_status_logfile"
 early_exit=false
 
 
