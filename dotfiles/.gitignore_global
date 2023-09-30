@@ -61,3 +61,6 @@ jd-gui.cfg
 
 .clang-format
 \?
+
+#java
+*.class
