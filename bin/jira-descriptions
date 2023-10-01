@@ -149,7 +149,8 @@ for x in "$@"; do
 done
 
 # write out markdown description
-echo 'See also:'
+echo 'See also'
+echo '--------'
 echo
 for issue in "${TMP_DIR}"/*;do
   echo "- [${issue##*/}][${issue##*/}] $(description "$issue")"
