@@ -156,8 +156,8 @@ until [ -n "$(get_volume_device "${VOLUME_ID}")" ]; do
 done
 VOLUME_DEVICE="$(get_volume_device "${VOLUME_ID}")"
 
-if [ ! "${VOLUME_DEVICE}" = "${DEVICE_PATH}" ]; then
-  echo "WARNING: volume device '${VOLUME_DEVICE}' does not match requested device '${DEVICE_PATH}'." >&2
+if [ ! "${VOLUME_DEVICE:-}" = "${DEVICE_PATH:-}" ]; then
+  echo "WARNING: volume device '${VOLUME_DEVICE:-}' does not match requested device '${DEVICE_PATH:-}'." >&2
 fi
 
 
