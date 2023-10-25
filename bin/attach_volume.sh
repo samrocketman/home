@@ -48,7 +48,7 @@ REQUIRED OPTIONS:
 
 OPTIONAL OPTIONS:
     --device PATH            A local raw device which is the destination of the
-                             attached volume.  Default is /dev/vda.
+                             attached volume.  Default is ${DEVICE_PATH}.
 
     --owner CHOWN_VALUE      An owner of the formated path once the volume is
                              mounted.  This supports any value that chown
@@ -64,6 +64,7 @@ EOF
 tags=()
 MOUNT_PATH=""
 CHOWN_VALUE=""
+DEVICE_PATH="/dev/xvdf"
 while [ $# -gt 0 ]; do
     case "$1" in
         --help|-h)
@@ -79,8 +80,7 @@ while [ $# -gt 0 ]; do
             done
             ;;
         --device)
-            # kept around for compatibility.  This is a no-op.
-            echo 'WARNING: --device option is no longer supported.  Update calling attach_volume.sh without --device option.' >&2
+            DEVICE_PATH="${2:-}"
             shift
             shift
             ;;
@@ -147,7 +147,7 @@ if [[ -z "${VOLUME_ID}" || "${VOLUME_ID}" = null ]]; then
     die "A VOLUME_ID could not be determined with the given --volume-tags ${tags[*]:-}"
 fi
 
-aws ec2 attach-volume --instance-id "${INSTANCE_ID}" --device "/dev/xvdf" --volume-id "${VOLUME_ID}"
+aws ec2 attach-volume --instance-id "${INSTANCE_ID}" --device "${DEVICE_PATH}" --volume-id "${VOLUME_ID}"
 wait_for_volume_attachment "${VOLUME_ID}"
 echo 'Waiting for disk to become available.'
 until [ -n "$(get_volume_device "${VOLUME_ID}")" ]; do
@@ -155,6 +155,10 @@ until [ -n "$(get_volume_device "${VOLUME_ID}")" ]; do
     sleep 1
 done
 VOLUME_DEVICE="$(get_volume_device "${VOLUME_ID}")"
+
+if [ ! "${VOLUME_DEVICE}" = "${DEVICE_PATH}" ]; then
+  echo "WARNING: volume device '${VOLUME_DEVICE}' does not match requested device '${DEVICE_PATH}'." >&2
+fi
 
 
 if [ ! -e "${VOLUME_DEVICE:-}" ]; then
