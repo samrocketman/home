@@ -4,6 +4,7 @@
 # Ubuntu 22.04.3 LTS
 # Linux 6.2.0-36-generic x86_64
 # GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
+# Also tested with Alpine Linux 3.18
 # MIT Licensed (https://github.com/samrocketman/home)
 
 # DESCRIPTION
