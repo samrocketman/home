@@ -30,7 +30,6 @@
 #
 #     copy-bin.sh --prefix /base \
 #                 --ldd /bin/busybox \
-#                 --bin /bin/busybox \
 #                 --links /bin:/sbin:/usr/bin:/usr/sbin
 
 # EXIT CODES
