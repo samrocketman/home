@@ -75,6 +75,7 @@ help() {
   stderr
   stderr '--bin  BIN, -b BIN'
   stderr '  Symlinks should match destination bin.  (does not perform copy)'
+  stderr '  Defaults to LDD if not specified and --links is specified.'
   stderr
   stderr '--links LINK, -L LINK'
   stderr '  Copy symlink LINK to PREFIX if it points to BIN.  This option can'
@@ -117,9 +118,9 @@ parse_args() {
         ;;
     esac
   done
-  #if [ ! "x$ldd" = x ] && [ "x$bin" = x ] && [ ! "x$links" = x ]; then
-  #  bin="$ldd"
-  #fi
+  if [ ! "x$ldd" = x ] && [ "x$bin" = x ] && [ ! "x$links" = x ]; then
+    bin="$ldd"
+  fi
 }
 
 validate_args() {
