@@ -160,7 +160,10 @@ deref_symlink() {
     local basepath="`dirname "$1"`"
     deref="$basepath/$deref"
   fi
-  echo $deref
+  if [ ! -e "$deref" ]; then
+    return 1
+  fi
+  echo "$deref"
 }
 
 copy_links() {
