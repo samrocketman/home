@@ -196,9 +196,6 @@ copy_ldd() {
     if deref="`deref_symlink "$file"`"; then
       cp_lite "$deref"
     fi
-    # and copy any links related to the linked lib; e.g. alternate names
-    base_file_path="`dirname "$file"`"
-    "$0" --prefix "$prefix" --bin "$file" --links "$base_file_path"
   done
   cp_lite "$ldd"
 }
