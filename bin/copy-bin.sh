@@ -151,6 +151,18 @@ validate_args() {
   return "$errcode"
 }
 
+deref_symlink() {
+  local deref="`readlink "$1"`"
+  if [ "x$deref" = x ]; then
+    return 1
+  fi
+  if ! echo "$deref" | grep '^/' > /dev/null; then
+    local basepath="`dirname "$1"`"
+    deref="$basepath/$deref"
+  fi
+  echo $deref
+}
+
 copy_links() {
   if [ "x$bin" = x ]; then
     return
@@ -159,7 +171,7 @@ copy_links() {
   echo "$links" | tr : '\n' | while read -r linkpath; do
     find "$linkpath" -maxdepth 1 -type l | while read -r linkfile; do
       # deref link or ignore dead links
-      deref="`readlink -f "$linkfile"`" || continue
+      deref="`deref_symlink "$linkfile"`" || continue
       if [ ! "$bin" = "$deref" ]; then
         continue
       fi
@@ -181,7 +193,7 @@ copy_ldd() {
   ldd "$ldd" | parse_ldd | while read -r file; do
     cp_lite "$file"
     # if it was a symlink then copy the link
-    if deref="`readlink -f "$file"`"; then
+    if deref="`deref_symlink "$file"`"; then
       cp_lite "$deref"
     fi
     # and copy any links related to the linked lib; e.g. alternate names
