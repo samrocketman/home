@@ -48,6 +48,16 @@ checkutil() {
   fi
 }
 
+# only copy if nothing exists
+cp_lite() {
+  if [ -e "$prefix$1" ]; then
+    return
+  fi
+  local basepath="`dirname "$1"`"
+  mkdir -p "$prefix""$basepath"
+  cp -P "$1" "$prefix""$1"
+}
+
 help() {
   stderr 'A utility for copying binaries and shared object dependencies.'
   stderr
@@ -107,6 +117,9 @@ parse_args() {
         ;;
     esac
   done
+  #if [ ! "x$ldd" = x ] && [ "x$bin" = x ] && [ ! "x$links" = x ]; then
+  #  bin="$ldd"
+  #fi
 }
 
 validate_args() {
@@ -142,7 +155,6 @@ copy_links() {
     return
   fi
   local deref=""
-  local basepath=""
   echo "$links" | tr : '\n' | while read -r linkpath; do
     find "$linkpath" -maxdepth 1 -type l | while read -r linkfile; do
       # deref link or ignore dead links
@@ -150,9 +162,7 @@ copy_links() {
       if [ ! "$bin" = "$deref" ]; then
         continue
       fi
-      basepath="`dirname "$linkfile"`"
-      mkdir -p "$prefix/$basepath"
-      cp_lite "$linkfile" "$prefix/$linkfile"
+      cp_lite "$linkfile"
     done
   done
 }
@@ -161,35 +171,23 @@ parse_ldd() {
   awk 'NF == 2 && $1 ~ /^\// { print $1; next }; NF == 4 { print $3 }' | sort -u
 }
 
-# only copy if nothing exists
-cp_lite() {
-  if [ -e "$2" ]; then
-    return
-  fi
-  cp -P "$1" "$2"
-}
-
 copy_ldd() {
   if [ "x$ldd" = x ]; then
     return
   fi
   local deref=""
   local base_file_path=""
-  local base_deref_path=""
   ldd "$ldd" | parse_ldd | while read -r file; do
-    base_file_path="`dirname "$file"`"
-    mkdir -p "$prefix/$base_file_path"
-    cp_lite "$file" "$prefix/$file"
+    cp_lite "$file"
     # if it was a symlink then copy the link
     if deref="`readlink -f "$file"`"; then
-      base_deref_path="`dirname "$deref"`"
-      mkdir -p "$prefix/$base_deref_path"
-      cp_lite "$deref" "$prefix/$deref"
+      cp_lite "$deref"
     fi
     # and copy any links related to the linked lib; e.g. alternate names
+    base_file_path="`dirname "$file"`"
     "$0" --prefix "$prefix" --bin "$file" --links "$base_file_path"
   done
-  cp_lite "$ldd" "$prefix/$ldd"
+  cp_lite "$ldd"
 }
 
 #
