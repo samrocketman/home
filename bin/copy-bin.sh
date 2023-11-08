@@ -56,7 +56,7 @@ cp_lite() {
   fi
   local basepath="`dirname "$1"`"
   mkdir -p "$prefix""$basepath"
-  cp -P "$1" "$prefix""$1"
+  cp -a "$1" "$prefix""$1"
 }
 
 help() {
@@ -204,6 +204,7 @@ checkutil awk
 checkutil cp
 checkutil dirname
 checkutil find
+checkutil grep
 checkutil ldd
 checkutil mkdir
 checkutil readlink
