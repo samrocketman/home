@@ -195,16 +195,18 @@ copy_ldd() {
   fi
   local deref=""
   local base_file_path=""
-  ldd "$ldd" 2> /dev/null | parse_ldd | while read -r file; do
-    if [ "x$file" = x ]; then
-      continue
-    fi
-    cp_lite "$file"
-    # if it was a symlink then copy the link
-    if deref="`deref_symlink "$file"`"; then
-      cp_lite "$deref"
-    fi
-  done
+  if ldd "$ldd" &> /dev/null; then
+    ldd "$ldd" | parse_ldd | while read -r file; do
+      if [ "x$file" = x ]; then
+        continue
+      fi
+      cp_lite "$file"
+      # if it was a symlink then copy the link
+      if deref="`deref_symlink "$file"`"; then
+        cp_lite "$deref"
+      fi
+    done
+  fi
   cp_lite "$ldd"
 }
 
