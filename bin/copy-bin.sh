@@ -186,7 +186,7 @@ copy_links() {
 }
 
 parse_ldd() {
-  awk 'NF == 2 && $1 ~ /^\// { print $1; next }; NF == 4 { print $3 }' | sort -u
+  awk 'NF == 2 && $1 ~ /^\// { print $1; next }; NF == 4 && $3 ~ /^\// { print $3 }' | sort -u
 }
 
 copy_ldd() {
