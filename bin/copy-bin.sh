@@ -146,7 +146,9 @@ validate_args() {
   fi
   if [ ! "$errcode" = 0 ]; then
     stderr
-    stderr 'See "copy-bin.sh --help" for details.'
+    stderr 'View source of this script at:'
+    stderr "`type "$0"`"
+    stderr 'Or see "copy-bin.sh --help" for details.'
   fi
   return "$errcode"
 }
@@ -193,7 +195,10 @@ copy_ldd() {
   fi
   local deref=""
   local base_file_path=""
-  ldd "$ldd" | parse_ldd | while read -r file; do
+  ldd "$ldd" 2> /dev/null | parse_ldd | while read -r file; do
+    if [ "x$file" = x ]; then
+      continue
+    fi
     cp_lite "$file"
     # if it was a symlink then copy the link
     if deref="`deref_symlink "$file"`"; then
