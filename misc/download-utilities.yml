@@ -1,16 +1,16 @@
 versions:
-  crane: 0.16.1
-  docker-buildx: 0.11.2
-  docker-compose: 2.22.0
-  download-utilities.sh: "2.12"
-  gh: 2.35.0
+  crane: 0.18.0
+  docker-buildx: 0.12.1
+  docker-compose: 2.24.3
+  download-utilities.sh: "2.16"
+  gh: 2.42.1
   git-idm: 946120be3235c6e174d0902e0aa6d4f45afc89aa
-  gitleaks: 8.18.0
-  goss: 0.4.2
-  jq: "1.7"
+  gitleaks: 8.18.1
+  goss: 0.4.4
+  jq: 1.7.1
   kind: 0.20.0
-  kubectl: 1.28.2
-  yq: 4.35.2
+  kubectl: 1.29.1
+  yq: 4.40.5
 
 # These utilities are installed by
 # https://github.com/samrocketman/yml-install-files
@@ -131,11 +131,10 @@ utility:
     download: https://github.com/goss-org/goss/releases/download/v${version}/goss-${os}-${arch}
   jq:
     <<: *defaults
-    only: "[ ${arch} = amd64 ]"
     os:
-      Linux: linux64
-      Darwin: osx-amd64
-    download: https://github.com/jqlang/jq/releases/download/jq-${version}/jq-${os}
+      Linux: linux
+      Darwin: macos
+    download: https://github.com/jqlang/jq/releases/download/jq-${version}/jq-${os}-${arch}
   kind:
     <<: *defaults
     download: https://github.com/kubernetes-sigs/kind/releases/download/v0.19.0/kind-${os}-${arch}

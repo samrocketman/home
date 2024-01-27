@@ -34,9 +34,9 @@ checksum_file() (
 
 install_download_sh() (
   curl -sSfL \
-    https://github.com/samrocketman/yml-install-files/releases/download/v2.10/universal.tgz | \
+    https://github.com/samrocketman/yml-install-files/releases/download/v2.16/universal.tgz | \
   tar -xzC "$exec_tmp"/ --no-same-owner download-utilities.sh
-  echo "8450069fef0a49796cfa53677bc52e86fd89fcf7aebcec7f521628a3ed82d15b  ${exec_tmp}/download-utilities.sh" | \
+  echo "db37a86921257a9a70b6e60e1d2774b97dc248842737ad99dabae9131adf4a68  ${exec_tmp}/download-utilities.sh" | \
   checksum_file || return $?
   chmod 755 "${exec_tmp}/download-utilities.sh"
 )
