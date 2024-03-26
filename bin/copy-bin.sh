@@ -189,21 +189,34 @@ parse_ldd() {
   awk 'NF == 2 && $1 ~ /^\// { print $1; next }; NF == 4 && $3 ~ /^\// { print $3 }' | sort -u
 }
 
+copy_with_links() {
+  local file="$1"
+  local recursion_limit=100
+  local rcount=0
+  # keep dereferencing recursively and copy destination links
+  while [ ! "x$file" = x ]; do
+    cp_lite "$file"
+    if file="`deref_symlink "$file"`"; then
+      rcount="$(( rcount + 1 ))"
+      if [ "$rcount" -gt "$recursion_limit" ]; then
+        stderr "Too many links.  Recursed into $recursion_limit symlinks."
+        exit 1
+      fi
+      continue
+    fi
+    unset file
+  done
+}
+
 copy_ldd() {
   if [ "x$ldd" = x ]; then
     return
   fi
-  local deref=""
-  local base_file_path=""
   ldd "$ldd" 2> /dev/null | parse_ldd | while read -r file; do
     if [ "x$file" = x ]; then
       continue
     fi
-    cp_lite "$file"
-    # if it was a symlink then copy the link
-    if deref="`deref_symlink "$file"`"; then
-      cp_lite "$deref"
-    fi
+    copy_with_links "$file"
   done
   cp_lite "$ldd"
 }
