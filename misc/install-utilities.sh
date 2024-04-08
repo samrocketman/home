@@ -33,8 +33,10 @@ checksum() (
 )
 
 install_download_sh() (
-  vers=2.16
-  checksum_hash=db37a86921257a9a70b6e60e1d2774b97dc248842737ad99dabae9131adf4a68
+  yaml_file=~/git/home/misc/download-utilities.yml
+  vers="$(awk '$1 == "download-utilities.sh:" {print $2; exit}' "${yaml_file}" | xargs)"
+  checksum_hash="$(awk 'BEGIN {skip=1} $0 ~ /^checksums:/ {skip=0}; skip {next}; $1 == "download-utilities.sh:" {print $2; exit}' "${yaml_file}" | xargs)"
+
   curl -sSfL \
     https://github.com/samrocketman/yml-install-files/releases/download/v"${vers}"/universal.tgz | \
   tar -xzC "$exec_tmp"/ --no-same-owner download-utilities.sh

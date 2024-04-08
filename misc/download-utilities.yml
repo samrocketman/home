@@ -1,16 +1,89 @@
 versions:
-  crane: 0.18.0
-  docker-buildx: 0.12.1
-  docker-compose: 2.24.3
-  download-utilities.sh: "2.16"
-  gh: 2.42.1
+  crane: 0.19.1
+  docker-buildx: 0.13.1
+  docker-compose: 2.26.1
+  download-utilities.sh: "2.20"
+  gh: 2.47.0
   git-idm: 946120be3235c6e174d0902e0aa6d4f45afc89aa
-  gitleaks: 8.18.1
-  goss: 0.4.4
+  gitleaks: 8.18.2
+  goss: 0.4.6
   jq: 1.7.1
-  kind: 0.20.0
-  kubectl: 1.29.1
-  yq: 4.40.5
+  kind: 0.22.0
+  kubectl: 1.29.3
+  yq: 4.43.1
+checksums:
+  crane:
+    Darwin:
+      arm64: a6a3813bd090ff5ad80710a2c1acd88af87f3a47cde68abb073863b1908332e9
+      x86_64: d33bc4d25d7cdfbeab8b207ef6571c4722b168ab44fbb473dd2e29acfe894560
+    Linux:
+      arm64: 7682516ebb031c0856a1353e785052e51be5ea6a2b26a88c67799d3b77797013
+      x86_64: 2d02aae72ed748529dc6c8803ce7032a6f413c00e1f2fb6d0247dfd0f1603c8a
+  docker-buildx:
+    darwin:
+      arm64: 5dceea1955717bfc1835a69d12d7d102a3e183121dc92d2440089394d35b29f6
+      amd64: 74754ed21ec740312d0593e9bca2dc39818098bb93752253fb982bc4b0081bbb
+    linux:
+      arm64: 3ba35a5d38361a64b62aeb9d20acc835ff6862a711cb438e610026b29c0ac489
+      amd64: 3e2bc8ed25a9125d6aeec07df4e0211edea6288e075b524160ef3fd305d3d74c
+  docker-compose:
+    darwin:
+      aarch64: 620f5473f0c738b5f7f8409ca26aafca4572668c1ed9e628db5513df970459b4
+      x86_64: f6bbd3739b93e625991414ec16a13d7be3e33321bcd618bf19634b92b6ee2a1e
+    linux:
+      aarch64: c86efb0d6347b72af6690f06fbd30ed17023fe67e23e28647cacb4b3f6bfb451
+      x86_64: 2f61856d1b8c9de29ffdaedaa1c6d0a5fc5c79da45068f1f4310feed8d3a3f61
+  download-utilities.sh: 47f8495b2b2004c63308ba07618d109775b3e1e7f45897eb3a8a84fba9e2a903
+  gh:
+    macOS:
+      arm64: 5aad8c7184edddf6adaacaf0d13ca6b95ac000d1802449f8463ad38d2d1df072
+      amd64: daac037640c03544556e28332261e6b900d5395c42ec3f27f56676fc3bd134da
+    linux:
+      arm64: 019309f75cdce21fec2cc2380787e6df51fc01f37a463cd5904a07c3715d548e
+      amd64: 562c19f2755f2e671f37ab02043231b94dd78fe0982f520ec2768bc952c3baa5
+  git-idm: 95c13e4bc7847c992f0b9400106d06d398a91800ee75336cbd5c5b32e9434ae9
+  gitleaks:
+    darwin:
+      arm64: 4280d28c5e32c0d5c3ccd6e4627d1c3dd3055d70665f7d2476668a905086a37d
+      x64: cc1975e621e2ffc924ce3d38ff3b9a4f0be51c3cc0a3296e99c893c0962a047d
+    linux:
+      arm64: 9dcbe517fb5b1b6f502be727645f9813bd7d5ca6d8cc5e23fa57bb717013fefe
+      x64: bc699d1a558e8b1a56113507f9047bf380fd97de63d1c23f970e2f23c162ba3b
+  goss:
+    darwin:
+      arm64: a44a9b1409aad082fcb992a9ac333e3904634464a97a2254f7e657a38050b0e5
+      amd64: 45f76e47d3b56874093179a47c93dfa454cedb0b95b9236d8df0c1915f7e18ae
+    linux:
+      arm64: f4c14810ed67eb497ab5274aa6102608178a3ecee711f2d6f618c5b227401d52
+      amd64: bc818caf99cbab563126297ec568d98911d61d2d7a25f4f37068b7a7916130b5
+  jq:
+    macos:
+      arm64: 0bbe619e663e0de2c550be2fe0d240d076799d6f8a652b70fa04aea8a8362e8a
+      amd64: 4155822bbf5ea90f5c79cf254665975eb4274d426d0709770c21774de5407443
+    linux:
+      arm64: 4dd2d8a0661df0b22f1bb9a1f9830f06b6f3b8f7d91211a1ef5d7c4f06a8b4a5
+      amd64: 5942c9b0934e510ee61eb3e30273f1b3fe2590df93933a93d7c58b81d19c8ff5
+  kind:
+    darwin:
+      arm64: 2628c53ddf4a2de19950df0452176e400e33b8c83834afab93651c2b6f9546bd
+      amd64: 32bd46859a98bffdfc2e594850c4147d297b3f93007f8376b6d4a28e82dee29a
+    linux:
+      arm64: 1326f87d766e6108c4e140238b55a588721ea612c3ab2c242ed291da3d9f7608
+      amd64: b543dca8440de4273be19ad818dcdfcf12ad1f767c962242fcccdb383dff893b
+  kubectl:
+    darwin:
+      arm64: b54bf7a3f4d52117b79e4d4f0d7273a93cb60bad54a87f3ab35c6800243cbb8e
+      amd64: 1a1f9040bce74fb28c475dc157a86565fcabf883a697ca576993ab8372935836
+    linux:
+      arm64: 191a96b27e3c6ae28b330da4c9bfefc9592762670727df4fcf124c9f1d5a466a
+      amd64: 89c0435cec75278f84b62b848b8c0d3e15897d6947b6c59a49ddccd93d7312bf
+  yq:
+    darwin:
+      arm64: 9f1063d910698834cb9176593aa288471898031929138d226c2c2de9f262f8e5
+      amd64: fdc42b132ac460037f4f0f48caea82138772c651d91cfbb735210075ddfdbaed
+    linux:
+      arm64: a8186efb079673293289f8c31ee252b0d533c7bb8b1ada6a778ddd5ec0f325b6
+      amd64: cfbbb9ba72c9402ef4ab9d8f843439693dfb380927921740e51706d90869c7e1
 
 # These utilities are installed by
 # https://github.com/samrocketman/yml-install-files
@@ -26,13 +99,15 @@ defaults: &defaults
     x86_64: amd64
     aarch64: arm64
   pre_command: |
-    if [ ! "$HOME" = "$PWD" ]; then
-      echo 'ERROR: this must run from the HOME.' >&2
-      exit 5
-    fi
-    if [ "$USER" = root ]; then
-      echo 'ERROR: this must run as a normal user.' >&2
-      exit 5
+    if [ ! "${inline_checksum:-false}" = true ]; then
+      if [ ! "$HOME" = "$PWD" ]; then
+        echo 'ERROR: this must run from the HOME.' >&2
+        exit 5
+      fi
+      if [ "$USER" = root ]; then
+        echo 'ERROR: this must run as a normal user.' >&2
+        exit 5
+      fi
     fi
     if [ "${checksum_failed:-true}" = true ]; then
       rm -f ${dest}/${utility}
