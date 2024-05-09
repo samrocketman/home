@@ -147,6 +147,7 @@
 			fi; \
 			echo \"'$1' $ancestry '$checkfor'\"; \
 		}; check_relation"
+	richdiff = diff --word-diff-regex=. --word-diff=color
 
 	# Ye olde aliases (but I still want to keep them)
 	#shorthand for git gerrit <branch>; defaults to pushing to current branch
