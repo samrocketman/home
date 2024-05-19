@@ -1,27 +1,29 @@
-#!/bin/bash
+#!/bin/sh
 # Created by Sam Gleske
-# Ubuntu 22.04.4 LTS
-# Linux 6.5.0-28-generic x86_64
+# Pop!_OS 22.04 LTS
+# Linux 6.6.10-76060610-generic x86_64
 # GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
 #DESCRIPION
 #  Prints a history of timestamps based on an interval with a customizable
 #  format.  See --help for more information and usage examples.
-set -euo pipefail
+
+set -e
 
 #
 # ENVIRONMENT VARIABLES
 #
 
 # 15-minute interval timestamps
-interval="${interval:-15}"
+#interval="15"
 
 # number of timestamps in history to print
-timestamp_limit="${timestamp_limit:-1}"
+#timestamp_limit="1"
 
-format="${format:-+%Y-%m-%d %H:%M:00}"
+# Output format
+#format="+%Y-%m-%d %H:%M:00"
 
 # Outputs UTC timezone
-timezone="${timezone:-UTC}"
+#timezone="UTC"
 
 #
 # FUNCTIONS
@@ -29,16 +31,15 @@ timezone="${timezone:-UTC}"
 
 # Prints a history of one or more timestamps based on an interval within an
 # hour.
-function print_interval_timestamp() {
-  local current_timestamp="$(( $1 - ( $1 % interval_seconds ) ))"
-  TZ="$timezone" date -d "@$current_timestamp" "$format"
+print_interval_timestamp() {
+  TZ="$timezone" date -d "@$1" "$format"
   if [ "$current_timestamp_iteration" -lt "$timestamp_limit" ]; then
     current_timestamp_iteration="$(( $current_timestamp_iteration + 1 ))"
-    print_interval_timestamp "$(( current_timestamp - interval_seconds ))"
+    print_interval_timestamp "$(( $1 - $interval_seconds ))"
   fi
 }
 
-function process_args() {
+process_args() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help)
@@ -72,27 +73,27 @@ function process_args() {
         ;;
       *)
         echo 'Unsupported argument: '"$1" >&2
-        echo "See ${0##*/} --help" >&2
+        echo "See timestamper.sh --help" >&2
         exit 1
     esac
   done
 }
 
-function helpdoc() {
+helpdoc() {
 cat >&2 <<EOF
 
-${0##*/} - A timestamping utility based on hourly intervals.
+timestamper.sh - A timestamping utility based on hourly intervals.
 
 Prints a history of timestamps based on an interval with a customizable format.
 
 SYNOPSIS
 
-  ${0##*/} [-f FORMAT] [-i INTERVAL] [-l LIMIT] [-s UNIX_TIMESTAMP] [-t TIMEZONE]
+  timestamper.sh [-f FORMAT] [-i INTERVAL] [-l LIMIT] [-s UNIX_TIMESTAMP] [-t TIMEZONE]
 
 OPTIONS:
   -f FORMAT, --format FORMAT
-    Customize the GNU date timestamp format.  Customizes the format of the
-    timestamp being printed.  Default: '+%Y-%m-%d %H:%M:00'
+    Customize the strftime format.  Customizes the format of the timestamp
+    being printed.  Default: '+%Y-%m-%d %H:%M:00'
 
   -i INTERVAL, --interval INTERVAL
     Customize the nearest interval a timestamp should be calculated against.
@@ -106,7 +107,7 @@ OPTIONS:
     starting UNIX_TIMESTAMP.  Default: current time
 
   -t TIMEZONE, --timezone TIMEZONE
-    Customize the TZ timezone for GNU date.  Default: UTC.
+    Customize the TZ timezone for date utility.  Default: UTC.
 
 ENVIRONMENT VARIABLES:
   format
@@ -126,42 +127,73 @@ ENVIRONMENT VARIABLES:
 
 EXAMPLE
 
-  ${0##*/} -i 5 -l 15 -t America/New_York -f '+%Y/%m/%d/%H/%M'
+  timestamper.sh -i 5 -l 15 -t America/New_York -f '+%Y/%m/%d/%H/%M'
 
 EOF
 }
 
-function validate_args() {
-  local errors=()
-  local val
-  for x in interval timestamp_limit unix_timestamp; do
-    val="$(eval "echo \${${x}:-}")"
-    if ! [ "$val" -gt 0 ] &> /dev/null; then
-      errors+=( "$x must be a positive integer." )
-    fi
-  done
-  if ! grep '^+' <<< "$format" &> /dev/null; then
-    errors+=( 'format must start with + and is a GNU date format.' )
+validate_args() {
+  validation_result=0
+  if ! positive_integer interval "$interval"; then
+    validation_result=1
   fi
-  if [ "${#errors[@]}" -gt 0 ]; then
-    echo 'The following argument ERRORS were found:' >&2
-    echo >&2
-    for err in "${errors[@]}"; do
-      echo "    $err" >&2
-      echo >&2
-    done
-    echo "See ${0##*/} --help" >&2
-    exit 1
+  if ! positive_integer timestamp_limit "$timestamp_limit"; then
+    validation_result=1
   fi
+  if ! positive_integer unix_timestamp "$unix_timestamp"; then
+    validation_result=1
+  fi
+  if ! echo "$format" | grep '^+' > /dev/null 2>&1; then
+    validation_error 'format must start with + and is a strftime format.' >&2
+    validation_result=1
+  fi
+  if [ "$validation_result" = 1 ]; then
+    echo 'Argument ERRORS were found.  See timestamper.sh --help' >&2
+  fi
+  return "$validation_result"
+}
+
+default_environment() {
+  if [ "x$interval" = x ]; then
+    interval=15
+  fi
+
+  if [ "x$timestamp_limit" = x ]; then
+    timestamp_limit=1
+  fi
+
+  if [ "x$format" = x ]; then
+    format='+%Y-%m-%d %H:%M:00'
+  fi
+
+  if [ "x$timezone" = x ]; then
+    timezone=UTC
+  fi
+
+  if [ "x$unix_timestamp" = x ]; then
+    unix_timestamp="`date +%s`"
+  fi
+}
+
+validation_error() {
+  echo "    $1" >&2
+  echo >&2
+}
+
+positive_integer() {
+  if ! [ "$2" -gt 0 ]; then
+    validation_error "$1 must be a positive integer."
+    return 1
+  fi
+  return 0
 }
 
 #
 # MAIN
 #
 
-# Homebrew compatibility on Mac
-if [ ! "$(uname)" = Linux ]; then
-  if ! type -P gdate >& /dev/null; then
+if [ ! "`uname`" = Linux ]; then
+  if ! type gdate > /dev/null 2>&1; then
     echo 'GNU date required.  Install via homebrew' >&2
     exit 1
   fi
@@ -170,18 +202,11 @@ if [ ! "$(uname)" = Linux ]; then
 fi
 
 process_args "$@"
-
-interval_seconds="$(( interval * 60 ))"
-
-if [ -z "${unix_timestamp:-}" ]; then
-  unix_timestamp="$(date +%s)"
-fi
-
-export interval timestamp_limit unix_timestamp
+default_environment
 validate_args
-
-# pass current unix timestamp to guarantee time consistency
+interval_seconds="$(( $interval * 60 ))"
+unix_timestamp="$(( $unix_timestamp - ( $unix_timestamp % $interval_seconds ) ))"
 current_timestamp_iteration=1
 # All internal calculation performed in UTC timezone.
-export TZ="UTC"
-print_interval_timestamp "${unix_timestamp}"
+export TZ=UTC
+print_interval_timestamp "$unix_timestamp"
