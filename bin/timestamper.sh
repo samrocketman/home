@@ -29,6 +29,28 @@ set -e
 # FUNCTIONS
 #
 
+default_environment() {
+  if [ "x$interval" = x ]; then
+    interval=15
+  fi
+
+  if [ "x$timestamp_limit" = x ]; then
+    timestamp_limit=1
+  fi
+
+  if [ "x$format" = x ]; then
+    format='+%Y-%m-%d %H:%M:00'
+  fi
+
+  if [ "x$timezone" = x ]; then
+    timezone=UTC
+  fi
+
+  if [ "x$unix_timestamp" = x ]; then
+    unix_timestamp="`date +%s`"
+  fi
+}
+
 # Prints a history of one or more timestamps based on an interval within an
 # hour.
 print_interval_timestamp() {
@@ -151,28 +173,6 @@ validate_args() {
     echo 'Argument ERRORS were found.  See timestamper.sh --help' >&2
   fi
   return "$validation_result"
-}
-
-default_environment() {
-  if [ "x$interval" = x ]; then
-    interval=15
-  fi
-
-  if [ "x$timestamp_limit" = x ]; then
-    timestamp_limit=1
-  fi
-
-  if [ "x$format" = x ]; then
-    format='+%Y-%m-%d %H:%M:00'
-  fi
-
-  if [ "x$timezone" = x ]; then
-    timezone=UTC
-  fi
-
-  if [ "x$unix_timestamp" = x ]; then
-    unix_timestamp="`date +%s`"
-  fi
 }
 
 validation_error() {
