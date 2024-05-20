@@ -207,6 +207,4 @@ validate_args
 interval_seconds="$(( $interval * 60 ))"
 unix_timestamp="$(( $unix_timestamp - ( $unix_timestamp % $interval_seconds ) ))"
 current_timestamp_iteration=1
-# All internal calculation performed in UTC timezone.
-export TZ=UTC
 print_interval_timestamp "$unix_timestamp"
