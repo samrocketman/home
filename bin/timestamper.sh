@@ -114,11 +114,11 @@ SYNOPSIS
 
 OPTIONS:
   -f FORMAT, --format FORMAT
-    Customize the strftime format.  Customizes the format of the timestamp
+    Customize the strftime FORMAT.  Customizes the format of the timestamp
     being printed.  Default: '+%Y-%m-%d %H:%M:00'
 
   -i INTERVAL, --interval INTERVAL
-    Customize the nearest interval a timestamp should be calculated against.
+    Customize the nearest minute interval when calculating timestamps.
     Default: 15
 
   -l LIMIT, --limit-timestamps LIMIT
@@ -129,7 +129,8 @@ OPTIONS:
     starting UNIX_TIMESTAMP.  Default: current time
 
   -t TIMEZONE, --timezone TIMEZONE
-    Customize the TZ timezone for date utility.  Default: UTC.
+    Customize the TIMEZONE for date utility when printing timestamps.
+    Default: UTC.
 
 ENVIRONMENT VARIABLES:
   format
