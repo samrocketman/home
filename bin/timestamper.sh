@@ -83,7 +83,12 @@ process_args() {
         interval="$1"
         shift
         ;;
-      -s|--startsat)
+      -s|--shift)
+        shift
+        shift_minutes="$1"
+        shift
+        ;;
+      --startsat)
         shift
         unix_timestamp="$1"
         shift
@@ -106,11 +111,14 @@ cat >&2 <<EOF
 
 timestamper.sh - A timestamping utility based on hourly intervals.
 
-Prints a history of timestamps based on an interval with a customizable format.
+Prints a history of timestamps based on an interval with a customizable output
+format based on strftime.
 
 SYNOPSIS
 
-  timestamper.sh [-f FORMAT] [-i INTERVAL] [-l LIMIT] [-s UNIX_TIMESTAMP] [-t TIMEZONE]
+  timstamper.sh [options ...]
+  timestamper.sh [-f FORMAT] [-i INTERVAL] [-l LIMIT] \
+    [--startsat UNIX_TIMESTAMP] [-s MINUTES] [-t TIMEZONE]
 
 OPTIONS:
   -f FORMAT, --format FORMAT
@@ -124,7 +132,11 @@ OPTIONS:
   -l LIMIT, --limit-timestamps LIMIT
     Print more than one timestamp up to a LIMIT. Default: 1
 
-  -s UNIX_TIMESTAMP, --startsat UNIX_TIMESTAMP
+  -s MINUTES, --shift MINUTES
+    Number of MINUTES to shift the interval (can be positive or negative).  It
+    only affects the initial INTERVAL offset followed by a normal INTERVAL.
+
+  --startsat UNIX_TIMESTAMP
     Customize when to start calculating the history of timestamps from a
     starting UNIX_TIMESTAMP.  Default: current time
 
@@ -139,14 +151,17 @@ ENVIRONMENT VARIABLES:
   interval
     Customize the INTERVAL.
 
+  shift_minutes
+    Number of MINUTES to shift the interval (can be positive or negative).
+
   timestamp_limit
     Customize the LIMIT.
 
-  unix_timestamp
-    Customize the UNIX_TIMESTAMP.
-
   timezone
     Customize the TIMEZONE.
+
+  unix_timestamp
+    Customize the UNIX_TIMESTAMP.
 
 EXAMPLE
 
@@ -207,5 +222,9 @@ default_environment
 validate_args
 interval_seconds="$(( $interval * 60 ))"
 unix_timestamp="$(( $unix_timestamp - ( $unix_timestamp % $interval_seconds ) ))"
+if ! [ "x$shift_minutes" = x ]; then
+  shift_seconds="$(( $shift_minutes * 60 ))"
+  unix_timestamp="$(( $unix_timestamp + $shift_seconds ))"
+fi
 current_timestamp_iteration=1
 print_interval_timestamp "$unix_timestamp"
