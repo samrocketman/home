@@ -25,6 +25,9 @@ set -e
 # Outputs UTC timezone
 #timezone="UTC"
 
+# Shift time positive or negative minutes
+#shift_minutes=0
+
 #
 # FUNCTIONS
 #
