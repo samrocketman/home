@@ -1,14 +1,35 @@
 #!/usr/bin/python3
-# Proof of concept for Garage door detection.
+# Script to detect if garage door is open by IR sensors.
 
 import RPi.GPIO as GPIO
 import time
 import signal
 import sys
-#import time.sleep as sleep
+
+################################################################################
+# Variables
+################################################################################
 
 # Frequency in Hz for how often garage door state should be checked.
 automation_frequency=2
+
+#
+# pins by function
+#
+# Flow:
+#     S1_ir -> S1_z -> G1 (garage door 1)
+#     S2_ir -> S2_z -> G2 (garage door 2)
+#
+# reading garage door status from IR sensors
+s1_garage_ir = 14
+s2_garage_ir = 18
+# for notifying the zwave universal relay
+s1_z_relay = 23
+s2_z_relay = 25
+
+################################################################################
+# Functions
+################################################################################
 
 def signal_handler(sig, frame):
     GPIO.cleanup()
@@ -18,11 +39,11 @@ def signal_handler(sig, frame):
 
 def set_input_pins(pins):
     for pin in pins:
-        GPIO.setup(pin,GPIO.IN)
+        GPIO.setup(pin, GPIO.IN, GPIO.PUD_UP)
 
 def set_output_pins(pins):
     for pin in pins:
-        GPIO.setup(pin,GPIO.OUT)
+        GPIO.setup(pin, GPIO.OUT)
         output_low(pin)
 
 def initialize():
@@ -32,27 +53,27 @@ def initialize():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-def output_high(pin):
+def activate(pin):
     GPIO.output(pin, True)
 
-def output_low(pin):
+def deactivate(pin):
     GPIO.output(pin, False)
 
-count=0
+def is_beam_broken(pin):
+    return GPIO.input(pin) == GPIO.LOW
 
-# garage doors 1 and 2
-#g1_door_open_sensor=
-#g2_door_open_sensor=
-notify_zwave_g1_open_relay=23
-#g2_open_zwave_relay=23
-
+################################################################################
+# Main execution
+################################################################################
 initialize()
-set_output_pins([notify_zwave_g1_open_relay])
-count=0
+set_input_pins([s1_garage_ir, s2_garage_ir])
+set_output_pins([s1_z_relay, s2_z_relay])
+pin_pairs = [(s1_garage_ir, s1_z_relay), (s2_garage_ir, s2_z_relay)]
+print('Monitoring GPIO pins.')
 while True:
-    if count & 1 == 0:
-        output_high(notify_zwave_g1_open_relay)
-    else:
-        output_low(notify_zwave_g1_open_relay)
-    count+=1
-    time.sleep(automation_frequency/2)
+    for (ir_sensor, relay) in pin_pairs:
+        if is_beam_broken(ir_sensor):
+            activate(relay)
+        else:
+            deactivate(relay)
+    time.sleep(1/automation_frequency)
