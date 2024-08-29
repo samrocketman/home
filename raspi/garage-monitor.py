@@ -21,8 +21,10 @@ automation_frequency=2
 #     S2_ir -> S2_z -> G2 (garage door 2)
 #
 # reading garage door status from IR sensors
+# pins: 14 (door 1 active), 18 (door 2 active), -1 (door disabled/skipped)
 s1_garage_ir = 14
-s2_garage_ir = 18
+s2_garage_ir = -1
+#s2_garage_ir = 18
 # for notifying the zwave universal relay
 s1_z_relay = 23
 s2_z_relay = 25
@@ -72,6 +74,8 @@ pin_pairs = [(s1_garage_ir, s1_z_relay), (s2_garage_ir, s2_z_relay)]
 print('Monitoring GPIO pins.')
 while True:
     for (ir_sensor, relay) in pin_pairs:
+        if ir_sensor < 0:
+            continue
         if is_beam_broken(ir_sensor):
             activate(relay)
         else:
