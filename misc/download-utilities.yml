@@ -10,6 +10,7 @@ versions:
   jq: 1.7.1
   kind: 0.23.0
   kubectl: 1.30.2
+  saml2aws: 2.36.16
   yq: 4.44.2
 checksums:
   crane:
@@ -77,6 +78,13 @@ checksums:
     linux:
       arm64: 56becf07105fbacd2b70f87f3f696cfbed226cb48d6d89ed7f65ba4acae3f2f8
       amd64: c6e9c45ce3f82c90663e3c30db3b27c167e8b19d83ed4048b61c1013f6a7c66e
+  saml2aws:
+    darwin:
+      arm64: cba61f9d06ef28b912708e2c8c8e44ff8aad698281a1bec4382a517815ead7f4
+      amd64: 7b9ab384f05c7fa94585f85a2316c6cc35ed2606c7a9ac56b68b90855495e337
+    linux:
+      arm64: 0cc0ca1e4089ef31856f7ebde0e68c7d192cd6785e2dd59ca50572a585582886
+      amd64: 316a9cfb7e0b2fedb549a440a0b981c3b92dbc978ccce07f15bf7771c3d9457c
   yq:
     darwin:
       arm64: 6cfa3c2c3a44356d0da42d8204fc85730cea999a779058d94d3a5b96d83f1030
@@ -216,6 +224,10 @@ utility:
   kubectl:
     <<: *defaults
     download: https://dl.k8s.io/release/v${version}/bin/${os}/${arch}/kubectl
+  saml2aws:
+    <<: *defaults
+    extract: tar -xzC ${dest}/ --no-same-owner ${utility}
+    download: https://github.com/Versent/saml2aws/releases/download/v${version}/saml2aws_${version}_${os}_${arch}.tar.gz
   yq:
     <<: *defaults
     download: https://github.com/mikefarah/yq/releases/download/v${version}/yq_${os}_${arch}
