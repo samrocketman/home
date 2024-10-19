@@ -140,7 +140,9 @@ if mount | grep -F -- "${MOUNT_PATH}"; then
     exit
 fi
 
-INSTANCE_ID="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-retrieval-examples
+IMDSV2_TOKEN="$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")"
+INSTANCE_ID="$(curl -H "X-aws-ec2-metadata-token: $IMDSV2_TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)"
 VOLUME_ID="$(get_volume_id "${tags[@]}")"
 
 if [[ -z "${VOLUME_ID}" || "${VOLUME_ID}" = null ]]; then
