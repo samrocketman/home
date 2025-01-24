@@ -209,6 +209,11 @@ endfunc
 "endless sky data files
 :autocmd FileType text,cpp setlocal noexpandtab softtabstop=8
 
+if filereadable(expand("~/.vim/bundle/vim-syntax-jira/syntax/jira.vim"))
+  autocmd BufNewFile,BufRead *.jira setl ft=jira
+endif
+
+
 """"""""""""""""
 " CHARACTER MAPS {{{1
 """"""""""""""""
