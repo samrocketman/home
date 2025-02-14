@@ -33,7 +33,7 @@ pr_number="${1##*/}"
 export project pr_number
 
 function getMergeableState() {
-    curl -fsH "Authorization: token $GITHUB_TOKEN" \
+    curl -sSfH "Authorization: token $GITHUB_TOKEN" \
       https://api.github.com/repos/"${project}/pulls/${pr_number}" |
       jq -r '.mergeable_state'
 }
