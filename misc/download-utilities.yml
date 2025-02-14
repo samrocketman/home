@@ -1,55 +1,56 @@
 versions:
-  crane: 0.20.2
-  docker-buildx: 0.19.3
-  docker-compose: 2.32.3
+  crane: 0.20.3
+  docker-buildx: 0.20.1
+  docker-compose: 2.33.0
   download-utilities.sh: "3.1"
-  gh: 2.65.0
+  gh: 2.67.0
   git-idm: 68c2ee1e406c2f2c72c8399e09564a970a025a0a
-  gitleaks: 8.23.1
+  gitleaks: 8.23.3
   goss: 0.4.9
   jq: 1.7.1
   kind: 0.26.0
-  kubectl: 1.32.0
+  kubectl: 1.32.1
   saml2aws: 2.36.18
+  shellcheck: 0.10.0
   yq: 4.45.1
 checksums:
   crane:
     Darwin:
-      arm64: 75096fc14f72346ce336ef67cd152600043ca7a6f59dab38ea3dec6366a975c1
-      x86_64: f296b50ae5cde7882e0c5b9de3b3be949e047ab6eca4c4dc9c0c6cd089dc38ea
+      arm64: d34f51061a226d1b183480cc7fdc1f7ec410676445cbb2432d89900ac2eb1cb3
+      x86_64: 86d4e287adfdaf7de162ac89055d2ecc6da93f6365b602f79695099522d5601f
     Linux:
-      arm64: 1dd7affc6f3e65b3f2d4b2ceed85f2b23bcf6d2165b962c9040d5a2e5ca5a23e
-      x86_64: 7e00f53d871214a6eff6f67eef434745af6fd5e1c04fb563df37b93cc352f8c1
+      arm64: 34bdb2ae7a56139c69cf745ab5cad3d7368e69896d8980e7bcf1ca194854a2ef
+      x86_64: 675f3b2f1696c1f6bc55b1ef535163364119776999f3d1471e4558ed35bab548
   docker-buildx:
     darwin:
-      arm64: 0ecfb5ea747559e53a80ab6f70e007c811fff6fc5e965ed0f059741bda9891b5
-      amd64: b636221178de58c4e88bacab3953baf480ddf4cce16a9725c9850e2c120c6df9
+      arm64: c2148c9d92df631e162b9b2ab5f61e866a31d99bb11e1b43566ad1356d9ab4ac
+      amd64: d8af275d61e770a8cf552d893e03ac4b5938517ea875fb5f7b7275e381358c92
     linux:
-      arm64: 138b587399b27bb61945a36d67866177b85dea1155101a2be63c7ab715f18a2e
-      amd64: 32ed111e941e385c2fb8261eba06a4056915718fd606f8278834ac1931d261a2
+      arm64: f7d867e9f1a3c00b32dd580f56594e229df05e3fb1b083b7099c91c2e7d2ce1e
+      amd64: 8c38f60308a895fa570f1410e453c5de11aafd65a99fa99965d96d24b6225a78
   docker-compose:
     darwin:
-      aarch64: f8e210d6b35844d9dd36a52d0b109d367ae7f25df773bd8ff30e69e061499392
-      x86_64: c8778e195961a0adbcff263cc8df1c5c4409b51f8aaa8a56999f7d8f9b74438a
+      aarch64: 4b06d9b89a2eb5784acbabe89623043a5a016a18d8d048efb61ef7b04f8796bc
+      x86_64: 9fcfa37c587b569090bced7534bc23484cd4fb7ee0a443d487c8626675f0b5c1
     linux:
-      aarch64: d1a04a3eb7fd738cc78e518d179a03adb9fe531ee422b8a14bdccf36d654b73a
-      x86_64: 6ef48e4bf25fbf1f1ad50c43b797cc24e12e4cde29765076b4145e09e35f5713
+      aarch64: 03a42a0fc0614ffc3c9ebca521cab75e02c427b68e45e3f6867d9510b9a28818
+      x86_64: 6395dbb256db6ea28d5c6695bc9bc33866c07ad1c93792f8d85857f1c21c34ee
   download-utilities.sh: 23a9abea402078e27e0250a29830fb65feff7d9beeb99b3a275900aa8404a004
   gh:
     macOS:
-      arm64: d0fe21410e2e54a864b10a7ef714fcd376f432b754f98cfb19312e1f9697543e
-      amd64: 39df7438db0705abd4b227670c77e3e9dc25bc1b2daccd16b8fde1b7aaaa68d7
+      arm64: bca73e6632495fab9857c63c477649d033650e38b7286c6c4ab30f9252c0e8b3
+      amd64: 865a278bdd91926228c26559fdd25f7c11107b5b46a862d0c7c134c8b3a2b755
     linux:
-      arm64: 54644b05e9a8cf8688286f091d33270d4946d0427e15eca88d1c10612fb17652
-      amd64: 5c2318087cb75c404a77e08870b12146aea699ad8cf6453c223d41dc62c3c42a
+      arm64: b6a8b56fbaf641669c8b27bf1992924fc9d0bbf315ce664799e17d1d89575e30
+      amd64: 32ca129895be5c9843d059d0e6923325bf239efe18c415799ecde566b366af75
   git-idm: d99592623838932190083cd1f2c8bc47af9f97e8fa4b6dab580c80830d4e2071
   gitleaks:
     darwin:
-      arm64: 67eef2177dd9e5bb7542b186bacba6c730e6521425a6e2ca61730a1e44dd5cf0
-      x64: a47987b483823d0dd22072524434b0ac36b754bb0660cd05be11d41b41d58a49
+      arm64: c8559aa08409dec28bd9bb19b4db1d5b0aa32c49bd09a5dcacdd18324feb516f
+      x64: f8659d2e136953bbc267560e55b8d91af258f219c06d745a6a862c97401acfef
     linux:
-      arm64: c1b989df00a3e887f5ee46788af047bfaf5316918afd8150e4da6ae7486aee6a
-      x64: 05739cd35c834d2f14b983027682200c673fd2f5b096dc7068000a1a0839f0cb
+      arm64: df4270c74ff96b6a4e485e7fe8418952e6c2f1211c57b1bdf518c261c2ad098c
+      x64: 8d6265411c4d0589fd4bd58177893ef1d531219377e770afbff3410e223b69ea
   goss:
     darwin:
       arm64: 111d2ada89f8787838d176011de2fd0cfe8959c64c2698ce28feb587337d01fc
@@ -73,11 +74,11 @@ checksums:
       amd64: b543dca8440de4273be19ad818dcdfcf12ad1f767c962242fcccdb383dff893b
   kubectl:
     darwin:
-      arm64: 5bfd5de53a054b4ef614c60748e28bf47441c7ed4db47ec3c19a3e2fa0eb5555
-      amd64: 516585916f499077fac8c2fdd2a382818683f831020277472e6bcf8d1a6f9be4
+      arm64: 5b89f9598e2e7da04cc0b5dd6e8daca01d23855fd00c8ea259fd2aab993114db
+      amd64: 8bffe90f5a034d392a0ba6fd7ee16c0d40b1dba1ccc4350821102c5d5c56d846
     linux:
-      arm64: ba4004f98f3d3a7b7d2954ff0a424caa2c2b06b78c17b1dccf2acc76a311a896
-      amd64: 646d58f6d98ee670a71d9cdffbf6625aeea2849d567f214bc43a35f8ccb7bf70
+      arm64: 98206fd83a4fd17f013f8c61c33d0ae8ec3a7c53ec59ef3d6a0a9400862dc5b2
+      amd64: e16c80f1a9f94db31063477eb9e61a2e24c1a4eee09ba776b029048f5369db0c
   saml2aws:
     darwin:
       arm64: 1162e015e3a8816fc0ba46f065c87972a6dd86ef2276ad78bfebe41b6f4a99e8
@@ -85,6 +86,13 @@ checksums:
     linux:
       arm64: f73fc2d3422cdf7ae2386bac98abf11b342cd373ebfd1faaffca1f2e37e7c1e0
       amd64: 71a0d3c521fd7816fbc70c9e692ca71fc12e5f978e893660f0276aff4cb0f3f9
+  shellcheck:
+    darwin:
+      aarch64: b9e420df8c78ec7d261d66277d5767cbd4cf6da4e4a9f8b02ea4811cd4cc1109
+      x86_64: 3fc3ee1458b70da5627af5de97c2adbe7f15ea994c0bfb351a1ddf75526cd4a0
+    linux:
+      aarch64: 4111c09318d10b93653a42179381273f31061b34987978346fbd19a6e81a74c3
+      x86_64: f35ae15a4677945428bdfe61ccc297490d89dd1e544cc06317102637638c6deb
   yq:
     darwin:
       arm64: 83edb55e254993f9043d01a1515205b54ffc2c7ce815a780573da64afaf2c71b
@@ -155,10 +163,8 @@ utility:
     <<: *defaults
     download: https://github.com/docker/buildx/releases/download/v${version}/buildx-v${version}.${os}-${arch}
     post_command: |
-      if [ ! -L ~/.docker/cli-plugins/${utility} ]; then
-        mkdir -p ~/.docker/cli-plugins
-        ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
-      fi
+      [ -d ~/.docker/cli-plugins ] || mkdir -p ~/.docker/cli-plugins
+      ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
   docker-compose:
     <<: *defaults
     # x86_64 and aarch64 are the two supported architectures.
@@ -166,9 +172,8 @@ utility:
       arm64: aarch64
     download: https://github.com/docker/compose/releases/download/v${version}/docker-compose-${os}-${arch}
     post_command: |
-      if [ ! -L ~/.docker/cli-plugins/${utility} ]; then
-        ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
-      fi
+      [ -d ~/.docker/cli-plugins ] || mkdir -p ~/.docker/cli-plugins
+      ln -fs "${HOME}/${dest}/${utility}" ~/.docker/cli-plugins/
   download-utilities.sh:
     <<: *defaults
     download: https://github.com/samrocketman/yml-install-files/releases/download/v${version}/universal.tgz
@@ -228,6 +233,14 @@ utility:
     <<: *defaults
     extract: tar -xzC ${dest}/ --no-same-owner ${utility}
     download: https://github.com/Versent/saml2aws/releases/download/v${version}/saml2aws_${version}_${os}_${arch}.tar.gz
+  shellcheck:
+    <<: *defaults
+    arch:
+      Darwin:
+        arm64: aarch64
+        i386: x86_64
+    download: https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.${os}.${arch}.tar.xz
+    extract: tar -xJC ${dest}/ --no-same-owner --strip-components=1 ${utility}-v${version}/${utility}
   yq:
     <<: *defaults
     download: https://github.com/mikefarah/yq/releases/download/v${version}/yq_${os}_${arch}
