@@ -67,7 +67,7 @@ EXAMPLE
     * "cafebabe" means the binary is a Java class.
     * "55" means the bytecode is targetting minimum Java 11.
 
-      dd if=Main.class bs=8 count=1 status=none | hexdump -e '7/1 "%3x" /1 " %03d" /0 "\\n"'
+      dd if=Main.class bs=8 count=1 status=none | hexdump -e '7/1 "%3x" /1 " %3d" /0 "\\n"'
 
 SEE ALSO
   unzip(1)
