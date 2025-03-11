@@ -73,6 +73,7 @@ SEE ALSO
   unzip(1)
 
   https://stackoverflow.com/questions/9170832/list-of-java-class-file-format-major-version-numbers
+  https://docs.oracle.com/javase/specs/jvms/se23/html/jvms-4.html
 AUTHORS
   Created by Sam Gleske.
 EOF
