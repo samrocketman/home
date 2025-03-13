@@ -9,7 +9,7 @@
 #     ERROR_LEVEL (set value between 1-4)
 #
 # ERROR_LEVEL=1 ; exit non-zero only if errors found
-# ERROR_LEVEL=2 ; exit non-zero if warnings or errors found
+# ERROR_LEVEL=2 ; exit non-zero if warnings or errors found (this is default)
 # ERROR_LEVEL=3 ; exit non-zero if warning, info, or error found
 # ERROR_LEVEL=4 ; exit non-zero if any findings at all
 #
@@ -23,7 +23,7 @@
 #     export CHANGE_URL=https://github.com/org/repo/
 #
 # EXAMPLE for one script and exit non-zero on any shellcheck issue found.
-# ERROR_LEVEL=1-4 ; default 1
+# ERROR_LEVEL=1-4 ; default 2
 #
 #     shellcheck -fjson setup.sh | ERROR_LEVEL=4 shellcheck-to-markdown.py
 #
@@ -46,12 +46,13 @@ import re
 import sys
 
 # error on any shellcheck issues
+ERROR_LEVEL_DEFAULT = "2"
 error_levels = ["error", "warning", "info", "style"]
 desired_error_level = int(
     os.getenv("ERROR_LEVEL")
     if os.getenv("ERROR_LEVEL") is not None
     and bool(re.fullmatch("^[1-4]$", os.getenv("ERROR_LEVEL")))
-    else "1"
+    else ERROR_LEVEL_DEFAULT
 )
 error_levels = error_levels[:desired_error_level]
 
