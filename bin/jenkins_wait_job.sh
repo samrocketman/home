@@ -18,9 +18,9 @@ MESSAGE='Jobb success.'
 PIPELINE_INPUT=false
 count=0
 while true; do
-  [ "$(jenkins_call.sh ${1%/}/api/json | json building)" = 'false' ] && break
+  [ "$(jenkins_call.sh "${1%/}"/api/json | json building)" = 'false' ] && break
   if [ "$count" -eq "0" ] && [ -z "${SKIP_PIPELINE_INPUT:-}" ]; then
-    if ( jenkins_call.sh ${1%/}/consoleText | tail | grep 'Input requested' ); then
+    if ( jenkins_call.sh "${1%/}"/consoleText | tail | grep 'Input requested' ); then
       PIPELINE_INPUT=true
       break
     fi
@@ -34,7 +34,7 @@ if ${PIPELINE_INPUT}; then
   RESULT=SUCCESS
   MESSAGE='Pipeline input requested.'
 else
-  RESULT=$(jenkins_call.sh ${1%/}/api/json | json result | tr 'a-z' 'A-Z')
+  RESULT=$(jenkins_call.sh "${1%/}"/api/json | json result | tr 'a-z' 'A-Z')
 fi
 
 export NOTIFY_TITLE="jenkins wait job"
@@ -42,7 +42,7 @@ export NOTIFY_TITLE="jenkins wait job"
 JOB_NAME="$(grep -o 'job/[^/]\+' <<< "$1" | cut -d/ -f2 | xargs | sed 's/\./ dot /g')"
 
 if ! [ "${RESULT}" = 'SUCCESS' ]; then
-  jenkins_call.sh ${1%/}/consoleText
+  jenkins_call.sh "${1%/}"/consoleText
   MESSAGE='Jobb failed.'
 fi
 
