@@ -162,4 +162,14 @@ print(
 for key, value in sorted(see_also.items(), key=lambda item: item[0]):
     print("* " + value)
 
+print(
+    """
+You can ignore shellcheck rules or enable optional features by utilizing
+[shellcheck directives][scd].  Either by creating a `.shellcheckrc` file or a
+shellcheck directive comment right next to the line of code you want behaviors
+ignored.
+
+[scd]: https://www.shellcheck.net/wiki/Directive"""
+)
+
 sys.exit(exit_code)
