@@ -105,7 +105,7 @@ parse_args() {
         shift
         ;;
       --links|-L)
-        if [ "x$links" = x ]; then
+        if [ -z "$links" ]; then
           links="$2"
         else
           links="$links:$2"
@@ -118,28 +118,28 @@ parse_args() {
         ;;
     esac
   done
-  if [ ! "x$ldd" = x ] && [ "x$bin" = x ] && [ ! "x$links" = x ]; then
+  if [ -n "$ldd" ] && [ -z "$bin" ] && [ -n "$links" ]; then
     bin="$ldd"
   fi
 }
 
 validate_args() {
   errcode=0
-  if [ "x$prefix" = x ]; then
+  if [ -z "$prefix" ]; then
     stderr 'ERROR: --prefix is required but not provided.'
     errcode=5
   elif ! echo "$prefix" | grep '^/' > /dev/null; then
     stderr 'ERROR: --prefix must be a full path and not relative.'
     errcode=5
   fi
-  if [ ! "x$ldd" = x ]; then
+  if [ -n "$ldd" ]; then
     if [ ! -f "$ldd" ]; then
       stderr 'ERROR: --ldd must point to a regular file.'
       errcode=5
     fi
   fi
-  if [ ! "x$links" = x ]; then
-    if [ "x$bin" = x ]; then
+  if [ -n "$links" ]; then
+    if [ -z "$bin" ]; then
       stderr 'ERROR: --links were specified but --bin option not provided.'
       errcode=5
     fi
@@ -155,7 +155,7 @@ validate_args() {
 
 deref_symlink() {
   deref="$(readlink "$1")"
-  if [ "x$deref" = x ]; then
+  if [ -z "$deref" ]; then
     return 1
   fi
   if ! echo "$deref" | grep '^/' > /dev/null; then
@@ -169,7 +169,7 @@ deref_symlink() {
 }
 
 copy_links() {
-  if [ "x$bin" = x ]; then
+  if [ -z "$bin" ]; then
     return
   fi
   deref=""
@@ -194,7 +194,7 @@ copy_with_links() {
   recursion_limit=100
   rcount=0
   # keep dereferencing recursively and copy destination links
-  while [ ! "x$file" = x ]; do
+  while [ -n "$file" ]; do
     cp_lite "$file"
     if file="$(deref_symlink "$file")"; then
       rcount="$(( rcount + 1 ))"
@@ -209,11 +209,11 @@ copy_with_links() {
 }
 
 copy_ldd() {
-  if [ "x$ldd" = x ]; then
+  if [ -z "$ldd" ]; then
     return
   fi
   ldd "$ldd" 2> /dev/null | parse_ldd | while read -r file; do
-    if [ "x$file" = x ]; then
+    if [ -z "$file" ]; then
       continue
     fi
     copy_with_links "$file"
