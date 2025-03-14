@@ -27,18 +27,36 @@
 #
 #     shellcheck -fjson setup.sh | ERROR_LEVEL=4 shellcheck-to-markdown.py
 #
-# EXAMPLE for one script and exit non-zero only on errors found
+# EXAMPLE for one script which exits non-zero if errors or warnings found.
 #
 #     shellcheck -fjson somescript.sh | shellcheck-to-markdown.py
 #
-# EXAMPLE for multiple scripts
+# EXAMPLE for multiple scripts.
 #
 #     find * -type f -name '*.sh' -print0 | \
 #      xargs -0 -n1 -I{} \
-#        /bin/bash -c 'shellcheck -f json1 {} | yq '"'"'.comments'"'"' -P | sed "/^\\[\\]\$/d"' | \
+#        /bin/bash -c 'shellcheck -f json1 {} | yq ".comments" -P | sed "/^\\[\\]\$/d"' | \
 #          yq -o json | \
 #            shellcheck-to-markdown.py > shellcheck_comment.md
-
+#
+# EXAMPLE search repository faster than find for all scripts in git repo.
+#
+#    git diff --name-only --diff-filter=AM "$(git rev-list --max-parents=0 HEAD)" HEAD '*.sh' | \
+#      tr '\n' '\0' | \
+#        xargs -0 -n1 -I{} \
+#          /bin/bash -c 'shellcheck -f json1 {} | yq ".comments" -P | sed "/^\\[\\]\$/d"' | \
+#            yq -o json | \
+#              shellcheck-to-markdown.py > shellcheck_comment.md
+#
+# EXAMPLE really fast only review scripts changed in a pull request.
+# Note CHANGE_TARGET is set during Jenkins pull request builds.
+#
+#    git diff --name-only --diff-filter=AM "$(git merge-base origin/"$CHANGE_TARGET" HEAD)" HEAD '*.sh' | \
+#      tr '\n' '\0' | \
+#        xargs -0 -n1 -I{} \
+#          /bin/bash -c 'shellcheck -f json1 {} | yq ".comments" -P | sed "/^\\[\\]\$/d"' | \
+#            yq -o json | \
+#              shellcheck-to-markdown.py > shellcheck_comment.md
 
 import json
 import os
