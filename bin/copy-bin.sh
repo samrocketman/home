@@ -53,7 +53,7 @@ cp_lite() {
   if [ -e "$prefix$1" ]; then
     return
   fi
-  basepath="`dirname "$1"`"
+  basepath="$(dirname "$1")"
   mkdir -p "$prefix""$basepath"
   cp -a "$1" "$prefix""$1"
 }
@@ -147,19 +147,19 @@ validate_args() {
   if [ ! "$errcode" = 0 ]; then
     stderr
     stderr 'View source of this script at:'
-    stderr "`type "$0"`"
+    stderr "$(type "$0")"
     stderr 'Or see "copy-bin.sh --help" for details.'
   fi
   return "$errcode"
 }
 
 deref_symlink() {
-  deref="`readlink "$1"`"
+  deref="$(readlink "$1")"
   if [ "x$deref" = x ]; then
     return 1
   fi
   if ! echo "$deref" | grep '^/' > /dev/null; then
-    basepath="`dirname "$1"`"
+    basepath="$(dirname "$1")"
     deref="$basepath/$deref"
   fi
   if [ ! -e "$deref" ]; then
@@ -176,7 +176,7 @@ copy_links() {
   echo "$links" | tr : '\n' | while read -r linkpath; do
     find "$linkpath" -maxdepth 1 -type l | while read -r linkfile; do
       # deref link or ignore dead links
-      deref="`deref_symlink "$linkfile"`" || continue
+      deref="$(deref_symlink "$linkfile")" || continue
       if [ ! "$bin" = "$deref" ]; then
         continue
       fi
@@ -196,7 +196,7 @@ copy_with_links() {
   # keep dereferencing recursively and copy destination links
   while [ ! "x$file" = x ]; do
     cp_lite "$file"
-    if file="`deref_symlink "$file"`"; then
+    if file="$(deref_symlink "$file")"; then
       rcount="$(( rcount + 1 ))"
       if [ "$rcount" -gt "$recursion_limit" ]; then
         stderr "Too many links.  Recursed into $recursion_limit symlinks."
