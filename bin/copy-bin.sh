@@ -53,7 +53,7 @@ cp_lite() {
   if [ -e "$prefix$1" ]; then
     return
   fi
-  local basepath="`dirname "$1"`"
+  basepath="`dirname "$1"`"
   mkdir -p "$prefix""$basepath"
   cp -a "$1" "$prefix""$1"
 }
@@ -124,7 +124,7 @@ parse_args() {
 }
 
 validate_args() {
-  local errcode=0
+  errcode=0
   if [ "x$prefix" = x ]; then
     stderr 'ERROR: --prefix is required but not provided.'
     errcode=5
@@ -154,12 +154,12 @@ validate_args() {
 }
 
 deref_symlink() {
-  local deref="`readlink "$1"`"
+  deref="`readlink "$1"`"
   if [ "x$deref" = x ]; then
     return 1
   fi
   if ! echo "$deref" | grep '^/' > /dev/null; then
-    local basepath="`dirname "$1"`"
+    basepath="`dirname "$1"`"
     deref="$basepath/$deref"
   fi
   if [ ! -e "$deref" ]; then
@@ -172,7 +172,7 @@ copy_links() {
   if [ "x$bin" = x ]; then
     return
   fi
-  local deref=""
+  deref=""
   echo "$links" | tr : '\n' | while read -r linkpath; do
     find "$linkpath" -maxdepth 1 -type l | while read -r linkfile; do
       # deref link or ignore dead links
@@ -190,9 +190,9 @@ parse_ldd() {
 }
 
 copy_with_links() {
-  local file="$1"
-  local recursion_limit=100
-  local rcount=0
+  file="$1"
+  recursion_limit=100
+  rcount=0
   # keep dereferencing recursively and copy destination links
   while [ ! "x$file" = x ]; do
     cp_lite "$file"
