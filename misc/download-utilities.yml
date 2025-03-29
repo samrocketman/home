@@ -1,16 +1,17 @@
 versions:
+  codeowners: 1.2.1
   crane: 0.20.3
-  docker-buildx: 0.20.1
-  docker-compose: 2.33.0
-  download-utilities.sh: "3.1"
-  gh: 2.67.0
+  docker-buildx: 0.22.0
+  docker-compose: 2.34.0
+  download-utilities.sh: "3.2"
+  gh: 2.69.0
   git-idm: 68c2ee1e406c2f2c72c8399e09564a970a025a0a
-  gitleaks: 8.23.3
+  gitleaks: 8.24.2
   goss: 0.4.9
   jq: 1.7.1
-  kind: 0.26.0
-  kubectl: 1.32.1
-  saml2aws: 2.36.18
+  kind: 0.27.0
+  kubectl: 1.32.3
+  saml2aws: 2.36.19
   shellcheck: 0.10.0
   yq: 4.45.1
 checksums:
@@ -23,34 +24,34 @@ checksums:
       x86_64: 675f3b2f1696c1f6bc55b1ef535163364119776999f3d1471e4558ed35bab548
   docker-buildx:
     darwin:
-      arm64: c2148c9d92df631e162b9b2ab5f61e866a31d99bb11e1b43566ad1356d9ab4ac
-      amd64: d8af275d61e770a8cf552d893e03ac4b5938517ea875fb5f7b7275e381358c92
+      arm64: 5898c338abb1f673107bc087997dc3cb63b4ea66d304ce4223472f57bd8d616e
+      amd64: 5221ad6b8acd2283f8fbbeebc79ae4b657e83519ca1c1e4cfbb9405230b3d933
     linux:
-      arm64: f7d867e9f1a3c00b32dd580f56594e229df05e3fb1b083b7099c91c2e7d2ce1e
-      amd64: 8c38f60308a895fa570f1410e453c5de11aafd65a99fa99965d96d24b6225a78
+      arm64: 6e9e455b5ec1c7ac708f2640a86c5cecce38c72e48acff6cb219dfdfa2dda781
+      amd64: 805195386fba0cea5a1487cf0d47da82a145ea0a792bd3fb477583e2dbcdcc2f
   docker-compose:
     darwin:
-      aarch64: 4b06d9b89a2eb5784acbabe89623043a5a016a18d8d048efb61ef7b04f8796bc
-      x86_64: 9fcfa37c587b569090bced7534bc23484cd4fb7ee0a443d487c8626675f0b5c1
+      aarch64: d3835ed0a2fa6895b8bf2bc513ae1999c8b93061d48bc8e3c6384ba4732a4373
+      x86_64: db5fe0e8ba306db5ff809730f882b8ddb96853c5b780d9fa6b56ed527b1e053a
     linux:
-      aarch64: 03a42a0fc0614ffc3c9ebca521cab75e02c427b68e45e3f6867d9510b9a28818
-      x86_64: 6395dbb256db6ea28d5c6695bc9bc33866c07ad1c93792f8d85857f1c21c34ee
-  download-utilities.sh: 23a9abea402078e27e0250a29830fb65feff7d9beeb99b3a275900aa8404a004
+      aarch64: cd1ef5eda1119edb9314c0224bac97cee14a9c31909a0f7aa0ddfe266e08adaa
+      x86_64: 94a416c6f2836a0a1ba5eb3feb00f2e700a9d98311f062c4c61494ccbf3cd457
+  download-utilities.sh: 716f80fb818fe801b2abc5b8c8bb22bdfc5159b9892b5707c82a41f915e32857
   gh:
     macOS:
-      arm64: bca73e6632495fab9857c63c477649d033650e38b7286c6c4ab30f9252c0e8b3
-      amd64: 865a278bdd91926228c26559fdd25f7c11107b5b46a862d0c7c134c8b3a2b755
+      arm64: 3ca3ab7ad35f1f1b4bef2d75bd0be6d6e966e33cbd76417eb9de8bd49f9d0e57
+      amd64: d9f59eb4cb802653a93ba60c1d6e60380a33d927758812f935cea6aefa5fbf1b
     linux:
-      arm64: b6a8b56fbaf641669c8b27bf1992924fc9d0bbf315ce664799e17d1d89575e30
-      amd64: 32ca129895be5c9843d059d0e6923325bf239efe18c415799ecde566b366af75
+      arm64: 74ba3f3ee5d9db177f5e925d26ddee01c1ed8eeae5ae002addbd62c81eef81cd
+      amd64: b06fb41099eff270153de6e1ad3758e369ceba6cf3dcb1f332e1728ec003045c
   git-idm: d99592623838932190083cd1f2c8bc47af9f97e8fa4b6dab580c80830d4e2071
   gitleaks:
     darwin:
-      arm64: c8559aa08409dec28bd9bb19b4db1d5b0aa32c49bd09a5dcacdd18324feb516f
-      x64: f8659d2e136953bbc267560e55b8d91af258f219c06d745a6a862c97401acfef
+      arm64: c75ea6f594e0a857efa1220fa08088b55e1465a32ab00cfc7aa2ec64cec031fe
+      x64: 3ee6a08d5e035aff0d595e137fecffde796dbb0520fa0dd0be9d38baaf62efa6
     linux:
-      arm64: df4270c74ff96b6a4e485e7fe8418952e6c2f1211c57b1bdf518c261c2ad098c
-      x64: 8d6265411c4d0589fd4bd58177893ef1d531219377e770afbff3410e223b69ea
+      arm64: 455494f14c34ee5394fa0eef6af986d0eebbabc16aca5be0bdc9bdd62518eb03
+      x64: 64805175c8f88959587ba6afc58210401088206a27ba582cfbb98791137d6208
   goss:
     darwin:
       arm64: 111d2ada89f8787838d176011de2fd0cfe8959c64c2698ce28feb587337d01fc
@@ -74,18 +75,18 @@ checksums:
       amd64: b543dca8440de4273be19ad818dcdfcf12ad1f767c962242fcccdb383dff893b
   kubectl:
     darwin:
-      arm64: 5b89f9598e2e7da04cc0b5dd6e8daca01d23855fd00c8ea259fd2aab993114db
-      amd64: 8bffe90f5a034d392a0ba6fd7ee16c0d40b1dba1ccc4350821102c5d5c56d846
+      arm64: a110af64fc31e2360dd0f18e4110430e6eedda1a64f96e9d89059740a7685bbd
+      amd64: b814c523071cd09e27c88d8c87c0e9b054ca0cf5c2b93baf3127750a4f194d5b
     linux:
-      arm64: 98206fd83a4fd17f013f8c61c33d0ae8ec3a7c53ec59ef3d6a0a9400862dc5b2
-      amd64: e16c80f1a9f94db31063477eb9e61a2e24c1a4eee09ba776b029048f5369db0c
+      arm64: 6c2c91e760efbf3fa111a5f0b99ba8975fb1c58bb3974eca88b6134bcf3717e2
+      amd64: ab209d0c5134b61486a0486585604a616a5bb2fc07df46d304b3c95817b2d79f
   saml2aws:
     darwin:
-      arm64: 1162e015e3a8816fc0ba46f065c87972a6dd86ef2276ad78bfebe41b6f4a99e8
-      amd64: 33c29e8ded4f76d66268918ca818cef7b8d06f3f77c7e4fba02b6cc1389db2e2
+      arm64: 2554c38ed8d0a92902943e6623ef16223e6e8536978c2bfc3301f7e6fc9b7eab
+      amd64: ca04b5a67ea852315c9c66acd460cb0501d7fac9aa345e86f1179ccec7c6f0c7
     linux:
-      arm64: f73fc2d3422cdf7ae2386bac98abf11b342cd373ebfd1faaffca1f2e37e7c1e0
-      amd64: 71a0d3c521fd7816fbc70c9e692ca71fc12e5f978e893660f0276aff4cb0f3f9
+      arm64: 039477d1bdbff940e5de067e7a56ab48dcf5303869ff4b74da9d1a5a87d9ac7b
+      amd64: ca8ec4da5566bef409c8c582da3cf9f22a8d5e18f7dcba25aeb9670f1ea98980
   shellcheck:
     darwin:
       aarch64: b9e420df8c78ec7d261d66277d5767cbd4cf6da4e4a9f8b02ea4811cd4cc1109
@@ -100,6 +101,13 @@ checksums:
     linux:
       arm64: ceea73d4c86f2e5c91926ee0639157121f5360da42beeb8357783d79c2cc6a1d
       amd64: 654d2943ca1d3be2024089eb4f270f4070f491a0610481d128509b2834870049
+  codeowners:
+    darwin:
+      arm64: 4dd03300edb5116a96c760804780e5bc2f866cddda75030baa7f2e5451edaaf4
+      amd64: 3eccd5ed9a09de0483cc418ffe40a8bdef278fb94aa63c14de5bf70e4eb45f5c
+    linux:
+      arm64: b49ff0dae28b64290e31bb0b5d7d905089a54ffb5bde40a1dcb40fc1a024de65
+      amd64: f5fa73add8f5d705f320a027bcfbb2d30dbbbf3ad928d3fc6dc8bb38e521417e
 
 # These utilities are installed by
 # https://github.com/samrocketman/yml-install-files
@@ -150,6 +158,10 @@ defaults: &defaults
         ;;
     esac
 utility:
+  codeowners:
+    <<: *defaults
+    download: https://github.com/hmarr/codeowners/releases/download/v${version}/codeowners_${version}_${os}_${arch}.tar.gz
+    extract: tar -xzC ${dest}/ --no-same-owner ${utility}
   crane:
     <<: *defaults
     # Darwin and Linux
