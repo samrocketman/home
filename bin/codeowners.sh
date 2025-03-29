@@ -1,23 +1,45 @@
 #!/bin/bash
 # Created by Sam Gleske
+# MIT Licensed Copyright 2025 Sam Gleske
+# https://github.com/samrocketman/home/blob/main/bin/codeowners.sh
 # Wed Mar 24 21:16:02 EDT 2025
 # Pop!_OS 22.04 LTS
 # Linux 6.9.3-76060903-generic x86_64
 # GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
 # git version 2.34.1
 # mawk: 1.3.4 (awk version)
-# codeowners 1.2.1
+# yq (https://github.com/mikefarah/yq/) version v4.45.1
+# codeowners 1.2.1 (https://github.com/hmarr/codeowners)
 #
 # DESCRIPTION
+#   This script will produce a human and machine readable version of CODEOWNERS
+#   ownership of a project.  It relies on `yq` and `codeonwers` CLI.
+#
 #   Converts output of codeowners CLI into YAML.  The YAML has two root keys.
 #     - overall_approvers (optional; commented out if no overall approvers)
-#     - codeowners_by_file (possibly null if no codeowners)
+#     - codeowners_by_file (possibly null if no files provided)
 #
 #   This script will create a codeowners.yaml file and determine overall
 #   approvers.
 #
 #   This script will exit non-zero if no CODEOWNERS is available.  This is the
 #   behavior of codeowners CLI.
+#
+# EXAMPLES
+#
+#   Get CODEOWNERS of current branch compared to origin/main
+#     codeowners.sh
+#
+#   Get files to evaluate with CODEOWNERS from stdin
+#     git diff --name-only HEAD~1 HEAD | bin/codeowners.sh -
+#
+#   Manually provide comparison ref for CODEOWNERS instead of origin/main.
+#     codeowners.sh upstream/main
+#     CODEOWNERS_REMOTE=upstream/main codeowners.sh
+#
+#   Evaluate specific files or paths for CODEOWNERS ownership.
+#     codeowners.sh "some file" "another file"
+
 
 set -euo pipefail
 
@@ -91,9 +113,13 @@ get_codeowners_yaml_with_overall_approvers() {
 }
 
 changed_files() {
-  git diff \
-    --name-only \
-    "$(git merge-base "$(get_remote)" HEAD)" HEAD
+  if [ "$read_stdin" = true ]; then
+    cat
+  else
+    git diff \
+      --name-only \
+      "$(git merge-base "$(get_remote)" HEAD)" HEAD
+  fi
 }
 
 codeowners_to_tsv() {
@@ -113,9 +139,18 @@ codeowners_to_yaml() {
 #
 # MAIN
 #
+export CODEOWNERS_REMOTE TMP_DIR read_stdin
+read_stdin=false
 TMP_DIR="$(mktemp -d)"
-export TMP_DIR
 trap '[ ! -d "$TMP_DIR" ] || rm -r "$TMP_DIR"' EXIT
+if [ "$#" -gt 0 ] && [ "$1" = '-' ]; then
+  read_stdin=true
+  shift
+fi
+if [ "$#" -gt 0 ] && git show-ref "$1" &> /dev/null; then
+  CODEOWNERS_REMOTE="$1"
+  shift
+fi
 (
   if [ "$#" -eq 0 ]; then
     changed_files | tr '\n' '\0' | xargs -0 codeowners | codeowners_to_yaml
