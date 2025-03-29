@@ -39,6 +39,15 @@
 #
 #   Evaluate specific files or paths for CODEOWNERS ownership.
 #     codeowners.sh "some file" "another file"
+#
+#   Read from stdin
+#     echo some_file | codeowners.sh -
+#
+#   Skip unowned files in CODEOWNERS review.
+#     codeowners.sh --skip-unowned-files
+#
+#   Read from stdin and skip unowned files.
+#     echo hello | codeowners.sh - --skip-unowned-files
 
 
 set -euo pipefail
@@ -74,10 +83,18 @@ BEGIN {
 EOF
 }
 
+codeowners_by_file_is_array() {
+  [ "$(yq '.codeowners_by_file | tag == "!!seq"' "$TMP_DIR"/codeowners.yaml)" = true ]
+}
+
 get_all_approvers_from_yaml() {
-  yq '.codeowners_by_file[].reviewers | .[]' \
-    | LC_ALL=C sort -u \
-    | grep -vF '(anyone_with_write_access)'
+  if codeowners_by_file_is_array; then
+    yq '.codeowners_by_file[].reviewers | .[]' \
+      | LC_ALL=C sort -u \
+      | grep -vF '(anyone_with_write_access)'
+  else
+    cat > /dev/null
+  fi
 }
 
 # This searches codeowners.yaml for overall approvers.
@@ -89,7 +106,9 @@ approver_can_approve_every_file() {
 
   # For each file, check if the provided approve can approver everything.
   # If so, the approver is considered an "overall approver".
-  yq ".codeowners_by_file | ${can_approve_all_files}" "$TMP_DIR"/codeowners.yaml
+  if codeowners_by_file_is_array; then
+    yq ".codeowners_by_file | ${can_approve_all_files}" "$TMP_DIR"/codeowners.yaml
+  fi
 }
 
 get_codeowners_yaml_with_overall_approvers() {
@@ -108,6 +127,9 @@ get_codeowners_yaml_with_overall_approvers() {
     done
   else
     echo '# overall_approvers: There are no overall approvers from CODEOWNERS.' > "$TMP_DIR"/overall.yaml
+  fi
+  if ! codeowners_by_file_is_array; then
+    echo 'codeowners_by_file: [] # no files require specific review from CODEOWNERS.' > "$TMP_DIR"/codeowners.yaml
   fi
   cat "$TMP_DIR"/overall.yaml "$TMP_DIR"/codeowners.yaml
 }
@@ -132,25 +154,53 @@ codeowners_to_tsv() {
 }
 
 codeowners_to_yaml() {
-  sed 's/(unowned)/(anyone_with_write_access)/g' | \
-  codeowners_to_tsv | awk "$(codeowners_awk_script)"
+  (
+    if [ "${skip_unowned}" = true ]; then
+      cat | (grep -vF '(unowned)' || true;)
+    else
+      cat
+    fi
+  ) | \
+    sed 's/(unowned)/(anyone_with_write_access)/g' | \
+    codeowners_to_tsv | awk "$(codeowners_awk_script)"
 }
 
 #
 # MAIN
 #
-export CODEOWNERS_REMOTE TMP_DIR read_stdin
+export CODEOWNERS_REMOTE TMP_DIR read_stdin skip_unowned
 read_stdin=false
+args_changed=true
+skip_unowned=false
 TMP_DIR="$(mktemp -d)"
 trap '[ ! -d "$TMP_DIR" ] || rm -r "$TMP_DIR"' EXIT
-if [ "$#" -gt 0 ] && [ "$1" = '-' ]; then
-  read_stdin=true
-  shift
-fi
-if [ "$#" -gt 0 ] && git show-ref "$1" &> /dev/null; then
-  CODEOWNERS_REMOTE="$1"
-  shift
-fi
+
+while [ "$#" -gt 0 ] && [ "$args_changed" = true ]; do
+  args_changed=false
+  for arg in "$@"; do
+    case "$arg" in
+      -)
+        read_stdin=true
+        shift
+        args_changed=true
+        continue
+        ;;
+      --skip-unowned-files)
+        skip_unowned=true
+        shift
+        args_changed=true
+        continue
+      ;;
+    esac
+    if git show-ref "$arg" &> /dev/null; then
+      CODEOWNERS_REMOTE="$1"
+      shift
+      args_changed=true
+      continue
+    fi
+  done
+done
+# process remaining args (potentially passed directly to codeowners CLI)
 (
   if [ "$#" -eq 0 ]; then
     changed_files | tr '\n' '\0' | xargs -0 codeowners | codeowners_to_yaml
