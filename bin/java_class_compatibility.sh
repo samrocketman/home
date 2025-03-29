@@ -49,14 +49,19 @@ EXAMPLE
       mkdir jar-folder
       cd jar-folder
       extract_file=../example.jar
-      unzip -q -o "\$extract_file" '*.class' '*.jar' '*.ear' '*.war' || ! [ "\$?" -gt 2 -a ! "\$?" -eq 11 ]
+      unzip -q -o "\$extract_file" '*.class' '*.jar' '*.ear' '*.war' '*.aar' '*.so' '*.dll' '*.dylib' || ! [ "\$?" -gt 2 -a ! "\$?" -eq 11 ]
       # extract child jars
       find . -type f \\( -name '*.jar' -o -name '*.ear' -o -name '*.war' \\) -print0 | \\
         xargs -x -0 -n1 -I{} \\
           /bin/bash -c \\
-            'file="{}";dir="\${file##*/}"; [ ! -d "\$dir" ] || exit 0; set -x; mkdir "\$dir"; unzip -q -o "\$file" "*.class" "*.jar" "*.ear" "*.war" -d "\$dir" || ! [ "\$?" -gt 2 -a ! "\$?" -eq 11 ]'
+            'file="{}";dir="\${file##*/}"; [ ! -d "\$dir" ] || exit 0; set -x; mkdir "\$dir"; unzip -q -o "\$file" "*.class" "*.jar" "*.ear" "*.war" "*.aar" "*.so" "*.dll" "*.dylib" -d "\$dir" || ! [ "\$?" -gt 2 -a ! "\$?" -eq 11 ]'
+
       # validate java byte code of classes (in batches of up to -n50k)
       find . -type f -name '*.class' -print0 | xargs -0 -n50000 -- ${0##*/} --validate --java 8
+
+      # find platform-dependent libraries
+      find . -type f \\( -name '*.so' -o -name '*.dll' -o -name '*.dylib' \\)
+
 
   Analyze the binary of a Java class file without this handy script.
   hexdump options explained:
