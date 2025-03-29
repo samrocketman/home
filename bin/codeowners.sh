@@ -17,7 +17,7 @@
 #
 #   Converts output of codeowners CLI into YAML.  The YAML has two root keys.
 #     - overall_approvers (optional; commented out if no overall approvers)
-#     - codeowners_by_file (possibly null if no files provided)
+#     - codeowners_by_file (A list of zero or more files)
 #
 #   This script will create a codeowners.yaml file and determine overall
 #   approvers.
@@ -49,8 +49,83 @@
 #   Read from stdin and skip unowned files.
 #     echo hello | codeowners.sh - --skip-unowned-files
 
-
 set -euo pipefail
+
+helpdoc() {
+cat <<'EOF'
+SYNOPSIS
+  codeowners.sh [--skip-unowned-files] [-] [git-ref] [PASSTHROUGH...]
+
+
+DESCRIPTION
+  This script will produce a human and machine readable version of CODEOWNERS
+  ownership of a project.  It relies on `yq` and `codeonwers` CLI.
+
+  Converts output of codeowners CLI into YAML.  The YAML has two root keys.
+
+    - overall_approvers (optional; commented out if no overall approvers)
+    - codeowners_by_file (A list of zero or more files)
+
+  This script will create a codeowners.yaml file and determine overall
+  approvers.
+
+  This script will exit non-zero if no CODEOWNERS is available.  This is the
+  behavior of codeowners CLI.
+
+
+ARGUMENTS
+  --skip-unowned-files
+    Skip files which are unowned (not covered by CODEOWNERS).
+
+  - (hyphen)
+    Read from stdin.  Ignored if PASSTHROUGH... provided.
+
+  git-ref
+    If no additinal args the git comparison will be against the provided
+    git-ref.  Ignored if PASSTHROUGH... provided.
+
+  PASSTHROUGH...
+    Pass through one or more options directly as arguments to codeowners CLI.
+    Additional arguments can be options for codeowners CLI or they can be files
+    and folders for codeowners CLI to evaluate.
+
+
+EXAMPLES
+
+  Get CODEOWNERS of current branch compared to origin/main
+    codeowners.sh
+
+  Get files to evaluate with CODEOWNERS from stdin
+    git diff --name-only HEAD~1 HEAD | bin/codeowners.sh -
+
+  Manually provide comparison ref for CODEOWNERS instead of origin/main.
+    codeowners.sh upstream/main
+    CODEOWNERS_REMOTE=upstream/main codeowners.sh
+
+  Evaluate specific files or paths for CODEOWNERS ownership.
+    codeowners.sh "some file" "another file"
+
+  Read from stdin
+    echo some_file | codeowners.sh -
+
+  Skip unowned files in CODEOWNERS review.
+    codeowners.sh --skip-unowned-files
+
+  Read from stdin and skip unowned files.
+    echo hello | codeowners.sh - --skip-unowned-files
+
+
+AUTHOR
+  codeowners.sh created by Sam Gleske
+  MIT Licensed
+
+
+SEE ALSO
+  https://github.com/samrocketman/home/blob/main/bin/codeowners.sh
+  https://github.com/mikefarah/yq
+  https://github.com/hmarr/codeowners
+EOF
+}
 
 get_remote() {
   if [ -n "${CODEOWNERS_REMOTE:-}" ]; then
@@ -190,6 +265,10 @@ while [ "$#" -gt 0 ] && [ "$args_changed" = true ]; do
         shift
         args_changed=true
         continue
+      ;;
+      -h|--help)
+      helpdoc
+      exit
       ;;
     esac
     if git show-ref "$arg" &> /dev/null; then
