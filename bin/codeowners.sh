@@ -54,7 +54,7 @@ set -euo pipefail
 helpdoc() {
 cat <<'EOF'
 SYNOPSIS
-  codeowners.sh [--skip-unowned-files] [-] [git-ref] [PASSTHROUGH...]
+  codeowners.sh [-] [--skip-unowned-files] [git-ref] [--] [PASSTHROUGH...]
 
 
 DESCRIPTION
@@ -74,15 +74,19 @@ DESCRIPTION
 
 
 ARGUMENTS
+  -- (double hyphen)
+    Stop all argument processing.  Any extra arguments are strictly considered
+    PASSTHROUGH options.
+
+  - (hyphen)
+    Read from stdin.  Ignored if PASSTHROUGH options provided.
+
   --skip-unowned-files
     Skip files which are unowned (not covered by CODEOWNERS).
 
-  - (hyphen)
-    Read from stdin.  Ignored if PASSTHROUGH... provided.
-
   git-ref
     If no additinal args the git comparison will be against the provided
-    git-ref.  Ignored if PASSTHROUGH... provided.
+    git-ref.  Ignored if PASSTHROUGH options provided.
 
   PASSTHROUGH...
     Pass through one or more options directly as arguments to codeowners CLI.
@@ -251,6 +255,10 @@ TMP_DIR="$(mktemp -d)"
 trap '[ ! -d "$TMP_DIR" ] || rm -r "$TMP_DIR"' EXIT
 
 while [ "$#" -gt 0 ] && [ "$args_changed" = true ]; do
+  if [ "$1" = '--' ]; then
+    shift
+    break
+  fi
   args_changed=false
   for arg in "$@"; do
     case "$arg" in
