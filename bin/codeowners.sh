@@ -61,7 +61,6 @@ ARGUMENTS
 
 
 EXAMPLES
-
   Get CODEOWNERS of current branch compared to origin/main
     codeowners.sh
 
