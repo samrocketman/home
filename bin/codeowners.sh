@@ -13,41 +13,7 @@
 #
 # DESCRIPTION
 #   This script will produce a human and machine readable version of CODEOWNERS
-#   ownership of a project.  It relies on `yq` and `codeonwers` CLI.
-#
-#   Converts output of codeowners CLI into YAML.  The YAML has two root keys.
-#     - overall_approvers (optional; commented out if no overall approvers)
-#     - codeowners_by_file (A list of zero or more files)
-#
-#   This script will create a codeowners.yaml file and determine overall
-#   approvers.
-#
-#   This script will exit non-zero if no CODEOWNERS is available.  This is the
-#   behavior of codeowners CLI.
-#
-# EXAMPLES
-#
-#   Get CODEOWNERS of current branch compared to origin/main
-#     codeowners.sh
-#
-#   Get files to evaluate with CODEOWNERS from stdin
-#     git diff --name-only HEAD~1 HEAD | bin/codeowners.sh -
-#
-#   Manually provide comparison ref for CODEOWNERS instead of origin/main.
-#     codeowners.sh upstream/main
-#     CODEOWNERS_REMOTE=upstream/main codeowners.sh
-#
-#   Evaluate specific files or paths for CODEOWNERS ownership.
-#     codeowners.sh "some file" "another file"
-#
-#   Read from stdin
-#     echo some_file | codeowners.sh -
-#
-#   Skip unowned files in CODEOWNERS review.
-#     codeowners.sh --skip-unowned-files
-#
-#   Read from stdin and skip unowned files.
-#     echo hello | codeowners.sh - --skip-unowned-files
+#   ownership of a project.  See helpdoc for details or codeowners.sh --help
 
 set -euo pipefail
 
