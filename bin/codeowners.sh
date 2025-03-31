@@ -167,7 +167,7 @@ get_codeowners_yaml_with_overall_approvers() {
     echo 'overall_approvers:' > "$TMP_DIR"/overall.yaml
     local x
     for x in "${overall_approvers[@]}"; do
-      echo "  - ${x}" >> "$TMP_DIR"/overall.yaml
+      echo "  - \"${x}\"" >> "$TMP_DIR"/overall.yaml
     done
   else
     echo '# overall_approvers: There are no overall approvers from CODEOWNERS.' > "$TMP_DIR"/overall.yaml
