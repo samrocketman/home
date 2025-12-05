@@ -29,6 +29,17 @@
 	doggie = push
 
 	#longer custom commands
+	shallow = "!set -x; git clone --depth=1"
+	unshallow = "!\
+		f() {\
+			if [ \"$(git rev-parse --is-shallow-repository)\" = false ]; then \
+				echo 'Not a shallow clone; skipped unshallow.' >&2; \
+				return; \
+			fi; \
+			set -x; \
+			git fetch --unshallow origin '+refs/heads/*:refs/remotes/origin/*' && \
+			git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'; \
+		}; f"
 	merge-pull-request = "!\
 		f() { \
 			if [ -n \"$1\" ]; then \
