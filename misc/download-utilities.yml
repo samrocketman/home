@@ -3,7 +3,7 @@ versions:
   crane: 0.20.7
   docker-buildx: 0.30.1
   docker-compose: 5.0.0
-  download-utilities.sh: "3.6"
+  download-utilities.sh: "3.7"
   gh: 2.83.1
   git-idm: 68c2ee1e406c2f2c72c8399e09564a970a025a0a
   gitleaks: 8.30.0
@@ -115,7 +115,7 @@ checksums:
     linux:
       arm64: e3e0ea487f0f42c236c0532af963dbc6818ecf6c417f3a1b7c75a805cf846aa5
       amd64: 41bb1f5d9329d964d43ceaab913fdf7350f836cbea8f6b468ee04fed8fc7e701
-  download-utilities.sh: a2fc1825b89e739ce6abd01b7fcb8ae7d1135bcdb3740003454349daf7893c10
+  download-utilities.sh: 3966c67f10d8b1cf9584140026c068829c11044f859650ae0382ebc7d9c9e370
 
 # These utilities are installed by
 # https://github.com/samrocketman/yml-install-files
