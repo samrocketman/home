@@ -1,4 +1,7 @@
 # SET UP SOME COMMON ALIASES
+function isMacOS() {
+  [ "$(uname)" = Darwin ]
+}
 function diskusage() (
   shopt -s dotglob
   {
@@ -22,7 +25,7 @@ if ! which vim &> /dev/null; then
   alias vim="vi"
 fi
 #Mac specific aliases
-if uname -rms | grep Darwin &> /dev/null; then
+if isMacOS; then
   alias flushdns='dscacheutil -flushcache'
   alias l.='ls -Gd .*'
   alias ll='ls -Gl'
@@ -79,7 +82,7 @@ fi
 ####################
 # FANCY PS1
 ####################
-if [ "$(uname)" = Darwin ]; then
+if isMacOS; then
   hostprompt=work
 else
   hostprompt="$HOSTNAME"
@@ -135,14 +138,17 @@ set -o vi
 #start running ssh-agent if it is not already.
 #unset SSH_AUTH_SOCK SSH_AGENT_PID
 if [ ! 'root' = "${USER}" -a ! -e '/vagrant' ]; then
-  if ! pgrep ssh-agent &> /dev/null && ! uname -rms | grep Darwin &> /dev/null; then
+  export SSH_AGENT_PID SSH_AUTH_SOCK
+  # PopOS cosmic uses wayland with gcr-ssh-agent
+  if pgrep -f /usr/libexec/gcr-ssh-agent > /dev/null; then
+    SSH_AGENT_PID="$(pgrep -f /usr/libexec/gcr-ssh-agent)"
+    if [ -n "${SSH_AGENT_PID:-}" ]; then
+      SSH_AUTH_SOCK="$(awk 'BEGIN {RS="\0"; FS="="}; $1 == "SSH_AUTH_SOCK" {print $2; exit}' /proc/"$SSH_AGENT_PID"/environ)"
+    fi
+  elif ! pgrep ssh-agent &> /dev/null && ! isMacOS; then
     eval "$(ssh-agent -t 3600)" > /dev/null
   fi
-  if ! uname -rms | grep Darwin &> /dev/null; then
-    #Mac is a special little snow flake
-    #SSH_AUTH_SOCK="$(lsof -p "$(pgrep ssh-agent | tr '\n' ',')" | grep "${USER}" | grep -e "launch-.*/Listeners" | tr ' ' '\n' | tail -n1)"
-    #SSH_AGENT_PID="$(pgrep ssh-agent | head -n1 )"
-  #else
+  if ! isMacOS; then
     if [ -z "${SSH_AUTH_SOCK}" -o -z "${SSH_AGENT_PID}" ]; then
         #first time failed so try again.
         SSH_AUTH_SOCK="$(ls -l /tmp/ssh-*/agent.* 2> /dev/null | grep "${USER}" | awk '{print $9}' | tail -n1)"
@@ -153,8 +159,6 @@ if [ ! 'root' = "${USER}" -a ! -e '/vagrant' ]; then
       SSH_AGENT_PID="$(echo "${SSH_AUTH_SOCK}" | cut -d. -f2)"
     fi
   fi
-  [ -n "${SSH_AUTH_SOCK}" ] && export SSH_AUTH_SOCK
-  [ -n "${SSH_AGENT_PID}" ] && export SSH_AGENT_PID
 fi
 
 export recipient_list=7257E65F
@@ -168,7 +172,7 @@ function retrygit() (
 )
 
 function open() (
-  if [ "$(uname)" = Darwin ]; then
+  if isMacOS; then
     command open "$@"
   elif type -P xdg-open &> /dev/null; then
     xdg-open "$@"
