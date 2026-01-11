@@ -1,6 +1,6 @@
 #!/bin/bash
 # Created by Sam Gleske
-# MIT Licensed Copyright 2025 Sam Gleske
+# MIT Licensed Copyright 2025-2026 Sam Gleske
 # https://github.com/samrocketman/home/blob/main/bin/codeowners.sh
 # Wed Mar 24 21:16:02 EDT 2025
 # Pop!_OS 22.04 LTS

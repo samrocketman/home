@@ -36,7 +36,7 @@ EOF
 function script_kill_day_old_jobs() {
   cat <<'EOF'
 /*
-    Copyright (c) 2015-2017 Sam Gleske - https://github.com/samrocketman/jenkins-script-console-scripts
+    Copyright (c) 2015-2026 Sam Gleske - https://github.com/samrocketman/jenkins-script-console-scripts
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
