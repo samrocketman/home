@@ -235,8 +235,9 @@ color_script() {
 helptext() {
 cat <<EOF
 $(color_section "SYNOPSIS:")
-  $(color_script "${0##*/}") $(color_example "[-r|--requests] [--] [FILE...]")
-  $(color_script "${0##*/}") $(color_example "[-l LIMIT] [-s FIELD] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-f FIELD=VALUE] [-r|--requests] [-y] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-b] [-c] [-l LIMIT] [-s FIELD] [-t COUNT] [-y] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-h|--help]")
 
 $(color_section "DESCRIPTION:")
   Processes a Sonatype Nexus request log and attempts to make sense of a large
@@ -254,13 +255,12 @@ $(color_section "INPUT OPTIONS:")
     Stop processing options and treat all remaining arguments as files.
 
 $(color_section "REQUEST OPTIONS:")
-  $(color_example "-r, --requests")
-    Print raw YAML of requests and exit.  Ignores all other options except for
-    $(color_example "--filter-by").
-
   $(color_example "-f FIELD=VALUE, --filter-by FIELD=VALUE")
-    Filter requests by a value in a particular field.  Only applies to
+    Filter requests by a value in a particular field and exit.  Implies
     $(color_example "--requests").
+
+  $(color_example "-r, --requests")
+    Print raw YAML of requests and exit.
 
 $(color_section "OUTPUT OPTIONS:")
   $(color_example "-s FIELD, --sumarize-by FIELD")
@@ -351,31 +351,11 @@ while [ "$#" -gt 0 ]; do
     -c|--count-requests)
       count_by=requests
       ;;
-    -y|--yaml)
-      yaml_input=true
-      ;;
-    -r|--requests)
-      options_processed=true
-      raw_requests=true
-      ;;
     -f|--filter-by)
+      options_processed=true
       summary_field="${2%%=*}"
       filter_value="${2#*=}"
-      shift
-      ;;
-    -t|--threshold)
-      options_processed=true
-      threshold_min="$2"
-      shift
-      ;;
-    -l|--limit-summary)
-      options_processed=true
-      max_limit="$2"
-      shift
-      ;;
-    -s|--summarize-by)
-      options_processed=true
-      summary_field="$2"
+      raw_requests=true
       shift
       ;;
     -h|--help)
@@ -387,6 +367,28 @@ while [ "$#" -gt 0 ]; do
         fi
       }
       exit 1
+      ;;
+    -l|--limit-summary)
+      options_processed=true
+      max_limit="$2"
+      shift
+      ;;
+    -r|--requests)
+      options_processed=true
+      raw_requests=true
+      ;;
+    -s|--summarize-by)
+      options_processed=true
+      summary_field="$2"
+      shift
+      ;;
+    -t|--threshold)
+      options_processed=true
+      threshold_min="$2"
+      shift
+      ;;
+    -y|--yaml)
+      yaml_input=true
       ;;
     --)
       shift
