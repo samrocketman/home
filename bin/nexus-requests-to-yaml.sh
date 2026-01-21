@@ -201,11 +201,27 @@ default_summary() {
 }
 
 filter_requests_by() {
-    local field="$1"
-    local value="$2"
-    echo 'requests:'
-    VALUE="$value" yq ".requests[] | select(.$field == env(VALUE)) | [.]" | \
-      sed 's/^/  /'
+    local method="${1:-literal}"
+    local field="$2"
+    local value="$3"
+
+    case "$method" in
+      literal)
+        echo 'requests:'
+        VALUE="$value" yq ".requests[] | select(.$field == env(VALUE)) | [.]" | \
+          sed 's/^/  /'
+        ;;
+      regex)
+        echo 'requests:'
+        VALUE="$value" yq ".requests[] | select(.$field | test(env(VALUE))) | [.]" | \
+          sed 's/^/  /'
+        ;;
+      *)
+        echo "Unknown filter method: $method" >&2
+        echo "Supported methods: literal, regex" >&2
+        return 1
+        ;;
+    esac
 }
 
 color_example() {
@@ -236,6 +252,7 @@ helptext() {
 cat <<EOF
 $(color_section "SYNOPSIS:")
   $(color_script "${0##*/}") $(color_example "[-f FIELD=VALUE] [-r|--requests] [-y] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-g FIELD=VALUE] [-r|--requests] [-y] [--] [FILE...]")
   $(color_script "${0##*/}") $(color_example "[-b] [-c] [-l LIMIT] [-s FIELD] [-t COUNT] [-y] [--] [FILE...]")
   $(color_script "${0##*/}") $(color_example "[-h|--help]")
 
@@ -256,7 +273,11 @@ $(color_section "INPUT OPTIONS:")
 
 $(color_section "REQUEST OPTIONS:")
   $(color_example "-f FIELD=VALUE, --filter-by FIELD=VALUE")
-    Filter requests by a value in a particular field and exit.  Implies
+    Filter requests by a literal value in a particular field and exit.  Implies
+    $(color_example "--requests").
+
+  $(color_example "-g FIELD=VALUE, --filter-regex FIELD=VALUE")
+    Filter requests by partial or regex in a particular field and exit.  Implies
     $(color_example "--requests").
 
   $(color_example "-r, --requests")
@@ -343,6 +364,7 @@ options_processed=false
 bytes_only=false
 filter_value=""
 yaml_input=false
+filter_method=literal
 while [ "$#" -gt 0 ]; do
   case "${1:-}" in
     -b|--bytes-only)
@@ -356,6 +378,15 @@ while [ "$#" -gt 0 ]; do
       summary_field="${2%%=*}"
       filter_value="${2#*=}"
       raw_requests=true
+      filter_method=literal
+      shift
+      ;;
+    -g|--filter-regex)
+      options_processed=true
+      summary_field="${2%%=*}"
+      filter_value="${2#*=}"
+      raw_requests=true
+      filter_method=regex
       shift
       ;;
     -h|--help)
@@ -444,7 +475,7 @@ fi
 
 if [ "$raw_requests" = true ]; then
   if [ -n "${filter_value:-}" ]; then
-    filter_requests_by "$summary_field" "$filter_value" < "$TMP_DIR"/requests.yaml
+    filter_requests_by "$filter_method" "$summary_field" "$filter_value" < "$TMP_DIR"/requests.yaml
   else
     cat "$TMP_DIR"/requests.yaml
   fi
