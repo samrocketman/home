@@ -16,11 +16,13 @@
 # You can modify the behavior of shellcheck with `.shellcheckrc`.
 #     https://github.com/koalaman/shellcheck/blob/d3001f337aa3f7653a621b302261f4eac01890d0/shellcheck.1.md#rc-files
 #
-# Before running examples set the following environment variables.  Note that
-# the CHANGE_URL usually populates from a GitHub pull request within Jenkins so
-# this script will auto-trim the PR from the end of the URL.
-#     export HEAD_LONG_COMMIT="$(git rev-parse HEAD)"
-#     export CHANGE_URL=https://github.com/org/repo/
+# The following environment variables are auto-detected when running from a git
+# repository.  You can override them if needed:
+#     HEAD_LONG_COMMIT - defaults to `git rev-parse HEAD`
+#     CHANGE_URL - defaults to upstream or origin remote URL converted to HTTPS
+#
+# Note that CHANGE_URL usually populates from a GitHub pull request within
+# Jenkins so this script will auto-trim the PR from the end of the URL.
 #
 # EXAMPLE for one script and exit non-zero on any shellcheck issue found.
 # ERROR_LEVEL=1-4 ; default 2
@@ -61,7 +63,74 @@
 import json
 import os
 import re
+import subprocess
 import sys
+
+
+def run_git_command(args):
+    """Run a git command and return the output, or None if it fails."""
+    try:
+        result = subprocess.run(
+            ["git"] + args,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def git_remote_url_to_https(git_url):
+    """Convert a git remote URL to https://github.com/org/repo format."""
+    if git_url is None:
+        return None
+
+    # Remove .git suffix if present
+    git_url = re.sub(r"\.git$", "", git_url)
+
+    # Handle SSH format: git@github.com:org/repo
+    ssh_match = re.match(r"^git@([^:]+):(.+)$", git_url)
+    if ssh_match:
+        host, path = ssh_match.groups()
+        return f"https://{host}/{path}"
+
+    # Handle git:// protocol: git://github.com/org/repo
+    git_proto_match = re.match(r"^git://([^/]+)/(.+)$", git_url)
+    if git_proto_match:
+        host, path = git_proto_match.groups()
+        return f"https://{host}/{path}"
+
+    # Handle https:// or http:// - already in correct format
+    if re.match(r"^https?://", git_url):
+        return git_url
+
+    return None
+
+
+def get_head_commit():
+    """Get HEAD commit hash from environment or git."""
+    commit = os.getenv("HEAD_LONG_COMMIT")
+    if commit:
+        return commit
+    return run_git_command(["rev-parse", "HEAD"])
+
+
+def get_repo_url():
+    """Get repository URL from environment or git remotes."""
+    change_url = os.getenv("CHANGE_URL")
+    if change_url:
+        return change_url
+
+    # Try upstream remote first, then fall back to origin
+    for remote in ["upstream", "origin"]:
+        remote_url = run_git_command(["config", f"remote.{remote}.url"])
+        if remote_url:
+            https_url = git_remote_url_to_https(remote_url)
+            if https_url:
+                return https_url
+
+    return None
 
 # error on any shellcheck issues
 ERROR_LEVEL_DEFAULT = "2"
@@ -81,13 +150,19 @@ if shellcheck_results is None or len(shellcheck_results) == 0:
     # No feedback found and JSON null means no results returned
     sys.exit(0)
 
-if os.getenv("CHANGE_URL") is None or os.getenv("HEAD_LONG_COMMIT") is None:
-    print("ERROR: CHANGE_URL or HEAD_LONG_COMMIT environment variable not defined.")
+COMMIT = get_head_commit()
+CHANGE_URL = get_repo_url()
+
+if CHANGE_URL is None or COMMIT is None:
+    print("ERROR: Could not determine repository URL or HEAD commit.")
+    print("  Set CHANGE_URL and HEAD_LONG_COMMIT environment variables, or run from a git repository.")
     sys.exit(1)
 
 see_also = {}
-REPO_URL = re.sub("pull/[0-9]+$", "", os.getenv("CHANGE_URL"))
-COMMIT = os.getenv("HEAD_LONG_COMMIT")
+REPO_URL = re.sub("pull/[0-9]+$", "", CHANGE_URL)
+# Ensure REPO_URL ends with a trailing slash for URL construction
+if not REPO_URL.endswith("/"):
+    REPO_URL += "/"
 
 print(
     """\
