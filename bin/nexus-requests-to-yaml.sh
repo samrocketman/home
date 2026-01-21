@@ -64,10 +64,16 @@ s/^
 (\/[^/]+\/([^/]+)[^ ]+) [^"]+" +
 
 # http code
-([0-9]+)
+([0-9]+) +
+
+# unknown
+[-0-9]+ +
 
 # download and upload bytes
-[^0-9]+([0-9]+) ([0-9]+)
+([0-9]+) ([0-9]+) +
+
+# useragent
+"([^"]*)"
 
 # everything else
 .*
@@ -82,6 +88,8 @@ s/^
     http_code: \6\n
     download_bytes: \7\n
     upload_bytes: \8\n
+    useragent: >-\n
+      \9\n
 /
 EOF
   } | grep -v '^#' | tr -d '\n'
@@ -93,7 +101,7 @@ replace() {
     #  gsed -r "$@"
     #elif [ "$(uname)" = Darwin ]; then
     if [ "$(uname)" = Darwin ]; then
-      sed -E "$@"
+      sed -E -e 's/\\"/\x01/g' -e "$@" -e 's/\x01/"/g'
     else
       sed -r "$@"
     fi
@@ -464,7 +472,8 @@ done
   if [ "$yaml_input" = true ]; then
     cat
   else
-    requests_to_yaml
+    requests_to_yaml | \
+      yq 'with(.requests[]; .useragent_id = (.useragent | @base64 | sub("=", "") | sub("^(.{0,10}).*$"; "${1}")))'
   fi
 } > "$TMP_DIR"/requests.yaml
 
