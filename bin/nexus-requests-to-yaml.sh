@@ -9,13 +9,18 @@
 #
 #   Converts a Sonatype Nexus request log into YAML.
 #   See --help for more details and options.
+# REQUIREMENTS
+#   BSD or GNU coreutils
+#   BSD or GNU awk
+#   jq - https://jqlang.org/
+#   yq - https://github.com/mikefarah/yq
 set -euo pipefail
 export TMP_DIR
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
 missing=( )
-for x in jq yq awk sed grep cat; do
+for x in awk cat grep jq sed yq; do
   if ! type -P "$x" &> /dev/null; then
     missing+=( "$x" )
   fi
@@ -27,6 +32,13 @@ if [ "${#missing[@]}" -gt 0 ]; then
       echo "  - $x"
     done
   } | LC_ALL=C sort | cat >&2
+cat <<'EOF'
+REQUIREMENTS
+  BSD or GNU coreutils
+  BSD or GNU awk
+  jq - https://jqlang.org/
+  yq - https://github.com/mikefarah/yq
+EOF
   exit 1
 fi
 unset missing
@@ -277,7 +289,11 @@ $(color_section "OUTPUT OPTIONS:")
 $(color_section "EXAMPLES:")
   Summarize a particular day or hour in a request log.
 
-    $(color_example "grep 'some timestamp' path/to/log |") $(color_script "${0##*/}")
+    $(color_example "grep 'some timestamp' path/to/requests.log |") $(color_script "${0##*/}")
+
+  Get a spread of HTTP methods used by request count.
+
+    $(color_script "${0##*/}") $(color_example "-s http_method -c path/to/requests.log")
 
   Show all IP addresses which transferred more than 1GB without limit.
 
