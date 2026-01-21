@@ -212,16 +212,21 @@ filter_requests_by() {
     local method="${1:-literal}"
     local field="$2"
     local value="$3"
+    local invert_opt=""
+
+    if [ "${invert_filter:-}" = true ]; then
+      invert_opt=" | not"
+    fi
 
     case "$method" in
       literal)
         echo 'requests:'
-        VALUE="$value" yq ".requests[] | select(.$field == env(VALUE)) | [.]" | \
+        VALUE="$value" yq ".requests[] | select((.$field == env(VALUE))${invert_opt:-}) | [.]" | \
           sed 's/^/  /'
         ;;
       regex)
         echo 'requests:'
-        VALUE="$value" yq ".requests[] | select(.$field | test(env(VALUE))) | [.]" | \
+        VALUE="$value" yq ".requests[] | select(.$field | test(env(VALUE))${invert_opt:-}) | [.]" | \
           sed 's/^/  /'
         ;;
       *)
@@ -259,8 +264,8 @@ color_script() {
 helptext() {
 cat <<EOF
 $(color_section "SYNOPSIS:")
-  $(color_script "${0##*/}") $(color_example "[-f FIELD=VALUE] [-r|--requests] [-y] [--] [FILE...]")
-  $(color_script "${0##*/}") $(color_example "[-g FIELD=VALUE] [-r|--requests] [-y] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-f FIELD=VALUE] [-i] [-r|--requests] [-y] [--] [FILE...]")
+  $(color_script "${0##*/}") $(color_example "[-g FIELD=VALUE] [-i] [-r|--requests] [-y] [--] [FILE...]")
   $(color_script "${0##*/}") $(color_example "[-b] [-c] [-l LIMIT] [-s FIELD] [-t COUNT] [-y] [--] [FILE...]")
   $(color_script "${0##*/}") $(color_example "[-h|--help]")
 
@@ -280,13 +285,16 @@ $(color_section "INPUT OPTIONS:")
     Stop processing options and treat all remaining arguments as files.
 
 $(color_section "REQUEST OPTIONS:")
-  $(color_example "-f FIELD=VALUE, --filter-by FIELD=VALUE")
+  $(color_example "-f FIELD=VALUE, --filter-value FIELD=VALUE")
     Filter requests by a literal value in a particular field and exit.  Implies
     $(color_example "--requests").
 
   $(color_example "-g FIELD=VALUE, --filter-regex FIELD=VALUE")
     Filter requests by partial or regex in a particular field and exit.  Implies
     $(color_example "--requests").
+
+  $(color_example "-i, --invert-filter")
+    Invert matching when using $(color_example "--filter-regex") or $(color_example "--filter-value").
 
   $(color_example "-r, --requests")
     Print raw YAML of requests and exit.
@@ -373,6 +381,7 @@ bytes_only=false
 filter_value=""
 yaml_input=false
 filter_method=literal
+invert_filter=false
 while [ "$#" -gt 0 ]; do
   case "${1:-}" in
     -b|--bytes-only)
@@ -381,7 +390,7 @@ while [ "$#" -gt 0 ]; do
     -c|--count-requests)
       count_by=requests
       ;;
-    -f|--filter-by)
+    -f|--filter-value)
       options_processed=true
       summary_field="${2%%=*}"
       filter_value="${2#*=}"
@@ -396,6 +405,9 @@ while [ "$#" -gt 0 ]; do
       raw_requests=true
       filter_method=regex
       shift
+      ;;
+    -i|--invert-filter)
+      invert_filter=true
       ;;
     -h|--help)
       helptext | {
@@ -472,6 +484,7 @@ done
   if [ "$yaml_input" = true ]; then
     cat
   else
+    # shellcheck disable=SC2016
     requests_to_yaml | \
       yq 'with(.requests[]; .useragent_id = (.useragent | @base64 | sub("=", "") | sub("^(.{0,10}).*$"; "${1}")))'
   fi
