@@ -82,7 +82,7 @@
 			elif [ \"$#\" -eq 1 ]; then \
 				git diff --name-status $(git merge-base $1 HEAD) HEAD; \
 			else \
-				echo 'Call with one or two args'; \
+				git diff --name-status $(git merge-base HEAD~1 HEAD) HEAD; \
 			fi \
 		}; f"
 	pop = "stash pop"
