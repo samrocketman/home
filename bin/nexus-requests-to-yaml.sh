@@ -1,7 +1,7 @@
 #!/bin/bash
 # Created by Sam Gleske
 # Tue Jan 20 21:49:46 EST 2026
-# MIT Licensed
+# MIT Licensed - Copyright 2026 Sam Gleske - https://github.com/samrocketman
 # DESCRIPTION
 #   Processes a Sonatype Nexus request log and attempts to make sense of a
 #   large volume of requests.  Intended to help track down sources of request
@@ -324,7 +324,7 @@ $(color_section "EXAMPLES:")
       $(color_example "yq -P")
 
 $(color_section "AUTHOR:")
-  Created by Sam Gleske (@samrocketman)
+  Created by Sam Gleske (https://github.com/samrocketman)
   MIT Licensed
 EOF
 }
