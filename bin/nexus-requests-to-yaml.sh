@@ -189,7 +189,7 @@ human_readable_bytes() {
 
 requests_to_yaml() {
   echo 'requests:'
-  grep -F '/repository/' | replace "$(filter)"
+  grep -F '/repository/' | replace "$(filter)" | clf_to_unix
 }
 
 help_summarize() {
@@ -210,8 +210,8 @@ default_summary() {
 
 filter_requests_by() {
     local method="${1:-literal}"
-    local field="$2"
-    local value="$3"
+    local field="${2:-}"
+    local value="${3:-}"
     local invert_opt=""
 
     if [ "${invert_filter:-}" = true ]; then
@@ -229,12 +229,118 @@ filter_requests_by() {
         VALUE="$value" yq ".requests[] | select(.$field | test(env(VALUE))${invert_opt:-}) | [.]" | \
           sed 's/^/  /'
         ;;
+      timestamp)
+        echo 'requests:'
+        local conditions=()
+        if [ -n "${timestamp_after:-}" ]; then
+          conditions+=(".unix_time >= (env(TIMESTAMP_AFTER) | tonumber)")
+        fi
+        if [ -n "${timestamp_before:-}" ]; then
+          conditions+=(".unix_time <= (env(TIMESTAMP_BEFORE) | tonumber)")
+        fi
+        local filter
+        # join filters separated by " and "; IFS only supports one character.
+        filter=$(IFS='%'; echo "${conditions[*]}" | sed 's/%/ and /g')
+
+        TIMESTAMP_AFTER="${timestamp_after:-}" TIMESTAMP_BEFORE="${timestamp_before:-}" \
+          yq ".requests[] | select((${filter})${invert_opt:-}) | [.]" | \
+          sed 's/^/  /'
+        ;;
       *)
         echo "Unknown filter method: $method" >&2
-        echo "Supported methods: literal, regex" >&2
+        echo "Supported methods: literal, regex, timestamp" >&2
         return 1
         ;;
     esac
+}
+
+clf_to_timestamp_python_script() {
+cat << 'PYTHON_EOF'
+from __future__ import print_function
+import sys
+import re
+import calendar
+from datetime import datetime, timedelta
+
+# Common CLF timestamp pattern components
+CLF_DATETIME = r'\d{1,2}/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2}'
+CLF_TIMEZONE = r'([+-])(\d{2})(\d{2})'
+
+# Pattern for Unix timestamp (integer)
+unix_pattern = re.compile(r'^[0-9]+$')
+
+# Pattern for YAML format: timestamp: 'DD/Mon/YYYY:HH:MM:SS +ZZZZ'
+yaml_pattern = re.compile(
+    r"^(\s*)(timestamp:\s*)['\"]?\s?(" + CLF_DATETIME + r")\s+" + CLF_TIMEZONE + r"['\"]?(.*)$"
+)
+
+# Pattern for raw CLF timestamp: DD/Mon/YYYY:HH:MM:SS +ZZZZ
+raw_clf_pattern = re.compile(
+    r"^\s*(" + CLF_DATETIME + r")\s+" + CLF_TIMEZONE + r"\s*$"
+)
+
+def clf_to_unix_ts(ts_datetime, tz_sign, tz_hours, tz_mins):
+    """Convert CLF timestamp components to Unix timestamp."""
+    dt = datetime.strptime(ts_datetime, '%d/%b/%Y:%H:%M:%S')
+    offset_seconds = (tz_hours * 3600) + (tz_mins * 60)
+    if tz_sign == '+':
+        dt = dt - timedelta(seconds=offset_seconds)
+    else:
+        dt = dt + timedelta(seconds=offset_seconds)
+    return calendar.timegm(dt.timetuple())
+
+for line in sys.stdin:
+    line = line.rstrip('\n\r')
+
+    # Check for Unix timestamp first (exit early)
+    if unix_pattern.match(line):
+        print(line)
+        continue
+
+    # Check for YAML format: timestamp: '...'
+    yaml_match = yaml_pattern.match(line)
+    if yaml_match:
+        print(line)
+        indent = yaml_match.group(1)
+        ts_datetime = yaml_match.group(3)
+        tz_sign = yaml_match.group(4)
+        tz_hours = int(yaml_match.group(5))
+        tz_mins = int(yaml_match.group(6))
+        try:
+            unix_ts = clf_to_unix_ts(ts_datetime, tz_sign, tz_hours, tz_mins)
+            print('{0}unix_time: {1}'.format(indent, unix_ts))
+        except ValueError:
+            pass
+        continue
+
+    # Check for raw CLF timestamp
+    raw_match = raw_clf_pattern.match(line)
+    if raw_match:
+        ts_datetime = raw_match.group(1)
+        tz_sign = raw_match.group(2)
+        tz_hours = int(raw_match.group(3))
+        tz_mins = int(raw_match.group(4))
+        try:
+            unix_ts = clf_to_unix_ts(ts_datetime, tz_sign, tz_hours, tz_mins)
+            print(unix_ts)
+        except ValueError:
+            print(line)
+        continue
+
+    # Default: passthrough
+    print(line)
+PYTHON_EOF
+}
+
+clf_to_unix() {
+  # Read Common Log Format (CLF) timestamp and append `unix_time:` timestamp.
+  local python_cmd
+  if command -v python3 &>/dev/null; then
+    python_cmd=python3
+  else
+    python_cmd=python
+  fi
+  "$python_cmd" <(clf_to_timestamp_python_script)
 }
 
 color_example() {
@@ -277,29 +383,42 @@ $(color_section "DESCRIPTION:")
   Converts a Sonatype Nexus request log into YAML.
 
 $(color_section "INPUT OPTIONS:")
+  Changes input processing behavior.
+
   $(color_example "-y, --yaml")
-    Assume YAML input has already been processed by this script.  Useful for
-    getting summaries by filtered fields.
+    Force assuming YAML input.  Skips request log preprocessing to YAML.  This
+    option may only be required if you're assembling your own YAML and the
+    binary header is not "requests:".
 
   $(color_example "--")
     Stop processing options and treat all remaining arguments as files.
 
-$(color_section "REQUEST OPTIONS:")
+$(color_section "REQUEST OUTPUT OPTIONS:")
+  Dumps request log as YAML output.  Running this script reading a request log
+  already converted to YAML cuts run time by roughly half.  These options
+  always result in a YAML dump of requests.
+
+  $(color_example "-a TIMESTAMP, --after TIMESTAMP")
+    Filter requests occurring after (inclusive) the $(color_example "TIMESTAMP").  $(color_example "TIMESTAMP") can
+    be either a Common Log Format (CLF) $(color_example "timestamp") or a $(color_example "unix_time") timestamp.
+
+  $(color_example "-b TIMESTAMP, --before TIMESTAMP")
+    Filter requests occurring before (inclusive) the $(color_example "TIMESTAMP").  $(color_example "TIMESTAMP") can
+    be either a Common Log Format (CLF) $(color_example "timestamp") or a $(color_example "unix_time") timestamp.
+
   $(color_example "-f FIELD=VALUE, --filter-value FIELD=VALUE")
-    Filter requests by a literal value in a particular field and exit.  Implies
-    $(color_example "--requests").
+    Filter requests by a literal value in a particular field and exit.
 
   $(color_example "-g FIELD=VALUE, --filter-regex FIELD=VALUE")
-    Filter requests by partial or regex in a particular field and exit.  Implies
-    $(color_example "--requests").
+    Filter requests by partial or regex in a particular field and exit.
 
   $(color_example "-i, --invert-filter")
     Invert matching when using $(color_example "--filter-regex") or $(color_example "--filter-value").
 
   $(color_example "-r, --requests")
-    Print raw YAML of requests and exit.
+    Print raw YAML of requests and exit.  Other options may filter output.
 
-$(color_section "OUTPUT OPTIONS:")
+$(color_section "SUMMARIZING DATA OPTIONS:")
   $(color_example "-s FIELD, --sumarize-by FIELD")
     Print a summary grouped by a particular request $(color_example "FIELD").
     Default: $(color_example "repository")
@@ -318,7 +437,7 @@ $(color_section "OUTPUT OPTIONS:")
     Disable with: $(color_example "--limit-summary 0")
     Default: $(color_example "10") (or 10 entries)
 
-  $(color_example "-b, --bytes-only")
+  $(color_example "-n, --bytes-only")
     By default, this script will convert bytes to human readable bytes like KB,
     MB, GB, or TB.  If this options is passed only the raw bytes value is
     output in a summary of upload/download bytes.
@@ -382,10 +501,29 @@ filter_value=""
 yaml_input=false
 filter_method=literal
 invert_filter=false
+timestamp_after=""
+timestamp_before=""
 while [ "$#" -gt 0 ]; do
   case "${1:-}" in
-    -b|--bytes-only)
-      bytes_only=true
+    -a|--after)
+      options_processed=true
+      raw_requests=true
+      timestamp_after="$(clf_to_unix <<< "${2:-}")"
+      if ! { grep '^[0-9]\+$' <<< "${timestamp_after:-}" &> /dev/null; }; then
+        echo 'ERROR: --after timestamp must be CLF timestamp or unix timestamp.' >&2
+        exit 1
+      fi
+      shift
+      ;;
+    -b|--before)
+      options_processed=true
+      raw_requests=true
+      timestamp_before="$(clf_to_unix <<< "${2}")"
+      if ! { grep '^[0-9]\+$' <<< "${timestamp_before:-}" &> /dev/null; }; then
+        echo 'ERROR: --before timestamp must be CLF timestamp or unix timestamp.' >&2
+        exit 1
+      fi
+      shift
       ;;
     -c|--count-requests)
       count_by=requests
@@ -423,6 +561,9 @@ while [ "$#" -gt 0 ]; do
       options_processed=true
       max_limit="$2"
       shift
+      ;;
+    -n|--bytes-only)
+      bytes_only=true
       ;;
     -r|--requests)
       options_processed=true
@@ -462,6 +603,15 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
+if {
+  [ -n "${timestamp_after:-}" ] && \
+    [ -n "${timestamp_before:-}" ] && \
+    [ "${timestamp_after}" -gt "${timestamp_before}" ]
+}; then
+  echo 'ERROR: --after timestamp must be earlier than --before timestamp.' >&2
+  exit 1
+fi
+
 # process the rest of arguments as files
 while [ "$#" -gt 0 ]; do
   if [ ! -f "$1" ]; then
@@ -481,13 +631,24 @@ done
     cat "${files[@]}"
   fi
 } | {
-  if [ "$yaml_input" = true ]; then
-    cat
-  else
-    # shellcheck disable=SC2016
-    requests_to_yaml | \
-      yq 'with(.requests[]; .useragent_id = (.useragent | @base64 | sub("=", "") | sub("^(.{0,10}).*$"; "${1}")))'
+  # auto-detect --yaml in first 9 bytes i.e. 9 characters of 'requests:'
+  dd of="${TMP_DIR}"/header count=1 bs=9 status=none
+  if [ "$(< "${TMP_DIR}"/header)" = 'requests:' ]; then
+    yaml_input=true
   fi
+  {
+    # write the 9-byte header to stdout and resume dump of all data with cat
+    dd if="${TMP_DIR}"/header count=1 bs=9 status=none
+    cat
+  } | {
+    if [ "$yaml_input" = true ]; then
+      cat
+    else
+      # shellcheck disable=SC2016
+      requests_to_yaml | \
+        yq 'with(.requests[]; .useragent_id = (.useragent | @base64 | sub("=", "") | sub("^(.{0,10}).*$"; "${1}")))'
+    fi
+  }
 } > "$TMP_DIR"/requests.yaml
 
 if [ "$options_processed" = false ]; then
@@ -496,11 +657,22 @@ if [ "$options_processed" = false ]; then
 fi
 
 if [ "$raw_requests" = true ]; then
-  if [ -n "${filter_value:-}" ]; then
-    filter_requests_by "$filter_method" "$summary_field" "$filter_value" < "$TMP_DIR"/requests.yaml
-  else
-    cat "$TMP_DIR"/requests.yaml
-  fi
+  {
+    if [ -n "${filter_value:-}" ]; then
+      filter_requests_by "$filter_method" "$summary_field" "$filter_value" < "$TMP_DIR"/requests.yaml
+    else
+      cat "$TMP_DIR"/requests.yaml
+    fi
+  } | {
+    if {
+      [ -n "${timestamp_after:-}" ] || \
+      [ -n "${timestamp_before:-}" ]
+    }; then
+      filter_requests_by timestamp
+    else
+      cat
+    fi
+  }
   exit
 fi
 
