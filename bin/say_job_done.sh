@@ -23,7 +23,7 @@ fi
 
 if [ -z "${SILENT:-}" ]; then
   if type -P espeak &> /dev/null;then
-    espeak -v "${FORCE_VOICE:-en-german}" 2> /dev/null <<< "${PHRASE}"
+    espeak -v "${FORCE_VOICE:-en+f5}" 2> /dev/null <<< "${PHRASE}"
   elif type -P say &> /dev/null;then
     say -v "${FORCE_VOICE:-Daniel}" "${PHRASE}"
   else
