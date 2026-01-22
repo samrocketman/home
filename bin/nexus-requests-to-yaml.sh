@@ -14,17 +14,21 @@
 #   BSD or GNU awk
 #   jq - https://jqlang.org/
 #   yq - https://github.com/mikefarah/yq
+#   Python 2.7 or higher
 set -euo pipefail
 export TMP_DIR
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
 missing=( )
-for x in awk cat grep jq sed yq; do
+for x in awk cat dd grep jq sed yq; do
   if ! type -P "$x" &> /dev/null; then
     missing+=( "$x" )
   fi
 done
+if ! { command -v python || command -v python3; } &> /dev/null; then
+  missing+=( "python or python3" )
+fi
 if [ "${#missing[@]}" -gt 0 ]; then
   echo 'ERROR: Missing required utilities.' >&2
   {
@@ -443,9 +447,19 @@ $(color_section "SUMMARIZING DATA OPTIONS:")
     output in a summary of upload/download bytes.
 
 $(color_section "EXAMPLES:")
+  Usage examples which help you make the most of this utility.  It is designed
+  to process input from Nexus request logs or its own YAML.
+
+  Convert a large request log to YAML for analyzing further.
+
+    $(color_script "${0##*/}") $(color_example "-r path/to/requests.log > /tmp/requests.yaml")
+    # summarize the output (all examples work with requests.yaml)
+    $(color_script "${0##*/}") $(color_example "/tmp/requests.yaml")
+
   Summarize a particular day or hour in a request log.
 
-    $(color_example "grep 'some timestamp' path/to/requests.log |") $(color_script "${0##*/}")
+    $(color_script "grep") $(color_example "'some timestamp' path/to/requests.log |") \\
+      $(color_script "${0##*/}")
 
   Get a spread of HTTP methods used by request count.
 
@@ -477,7 +491,7 @@ $(color_section "EXAMPLES:")
 
     $(color_script "${0##*/}") $(color_example "-r -f repository=example path/to/requests.log | \\")
       $(color_script "${0##*/}") $(color_example "-y -c -s path -l 20 | \\")
-      $(color_example "yq -P")
+      $(color_script "yq") $(color_example "-P")
 
 $(color_section "AUTHOR:")
   Created by Sam Gleske (https://github.com/samrocketman)
