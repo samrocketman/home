@@ -231,3 +231,5 @@ alias deadlock='xdg-open steam://connect/play.deadlock.com:1333'
 function highpriority() {
   pgrep -f "${1}" | xargs -n1 -- sudo -- renice -n -1
 }
+
+export YQ_OPTIONS='--yaml-fix-merge-anchor-to-spec'
