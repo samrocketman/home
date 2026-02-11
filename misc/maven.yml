@@ -1,0 +1,32 @@
+versions:
+  maven: 3.9.11
+checksums:
+  maven: 4b7195b6a4f5c81af4c0212677a32ee8143643401bc6e1e8412e6b06ea82beac
+
+utility:
+  maven:
+    dest: ${HOME}/usr/share
+    # ignore the only condition if an upgrade is being performed
+    skip_if: |
+      [ -d "${dest}/apache-maven-${version}" ] && \
+      grep -qF "${checksum}" "${dest}/apache-maven-${version}"/checksum.txt
+    #download: https://dlcdn.apache.org/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz
+    pre_command: rm -rf "${dest}/apache-maven-${version}"
+    download: https://repo1.maven.org/maven2/org/apache/maven/apache-maven/${version}/apache-maven-${version}-bin.tar.gz
+    post_command: |
+      cd "${dest}"
+      tar -xzf "${dest}/${utility}"
+      if [ -z "${skip_symlink:-}" ]; then
+        ln -fs "${dest}/apache-maven-${version}" "${dest}"/../bin/mvn
+      fi
+      echo "${checksum}" > "${dest}/apache-maven-${version}"/checksum.txt
+      rm -f "${dest}/${utility}"
+    update: |
+      # get update for maven-3
+      download=https://repo1.maven.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml
+      # cat will read from stdin and print to stdout
+      extract=cat
+      export download extract
+      # Do more advanced extraction outside of the eval via bash piped commands
+      eval "${default_download_extract}" |
+      yq -p=xml '.metadata.versioning.versions[] | join("\n")' | grep -v -- - | sort -Vr | head -n1
