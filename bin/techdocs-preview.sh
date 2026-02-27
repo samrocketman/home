@@ -26,11 +26,22 @@ cleanup_on() {
   fi
   # delete tmp as last step
   rm -rf "${TMP_DIR}"
+  if [ ! "${1:-}" = 0 ]; then
+cat >&2 <<'EOF'
+
+Your command appears to have failed.  This is usually due to missing mkdocs
+plugins.  This script supports adding additional plugins.
+
+Example:
+  techdocs-preview.sh add_plugins mkdocs-macros-plugin
+
+EOF
+  fi
 }
 TMP_DIR="$(mktemp -d)"
 mkdir "${TMP_DIR}/site"
 export TMP_DIR
-trap cleanup_on EXIT
+trap 'cleanup_on $?' EXIT
 
 # merges user provided plugins in mkdocs.yml with techdocs-preview.sh plugins
 merge_user_plugins() {
@@ -194,6 +205,7 @@ SYNOPSIS
   techdocs-preview.sh build [additional mkdocs options]
   techdocs-preview.sh serve --help
   techdocs-preview.sh serve [additional mkdocs options]
+  techdocs-preview.sh uninstall
   techdocs-preview.sh upgrade
 
 DESCRIPTION
@@ -212,8 +224,11 @@ SUB_COMMANDS
     build.
 
   serve
-    Runs mkdocs serve (same as techdocs-preview.sh with no arguments).
-    Additional options will be passed through to mkdocs serve.
+    Runs mkdocs serve.  Additional options will be passed through to mkdocs
+    serve.
+
+  uninstall
+    Deletes ~/.techdocs directory.  Where the virtualenv is stored.
 
   upgrade
     pip install mkdocs packages again in case there's upgrades within this
@@ -239,18 +254,25 @@ EOF
     exit
     ;;
 esac
-install_techdocs
 if [ "${1:-}" = add_plugins ]; then
   shift
+  install_techdocs
   add_plugins "$@"
 elif [ "${1:-}" = upgrade ]; then
   FORCE_UPDATE=1 install_techdocs
 elif [ "${1:-}" = build ]; then
   shift
+  install_techdocs
   build "$@"
+elif [ "${1:-}" = uninstall ]; then
+  (
+    set -x
+    rm -rf ~/.techdocs
+  )
 else
   if [ "${1:-}" = serve ]; then
     shift
   fi
+  install_techdocs
   serve "$@"
 fi
