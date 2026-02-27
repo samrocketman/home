@@ -66,6 +66,7 @@ get_user_plugins() {
   if [ -z "${1:-}" ]; then
     exclude="[]"
   else
+    # shellcheck disable=SC2001
     exclude="[\"$(echo "$1" | sed 's/,/", "/g')\"]"
   fi
   echo "$input" | \
@@ -80,11 +81,14 @@ get_user_plugins() {
 }
 
 install_techdocs() (
-  if [ -d ~/.techdocs/python3 ]; then
+  if [ -n "${FORCE_UPDATE:-}" ]; then
+    true
+  elif [ -d ~/.techdocs/python3 ]; then
     exit
+  else
+    mkdir -p ~/.techdocs
+    python3 -m venv ~/.techdocs/python3
   fi
-  mkdir -p ~/.techdocs
-  python3 -m venv ~/.techdocs/python3
   # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
   pip install \
@@ -168,6 +172,7 @@ add_plugins() (
     echo 'ERROR: No pypi packages provided; at least one arg required.' >&2
     exit 1
   fi
+  # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
   set -x
   pip install "$@"
@@ -185,17 +190,35 @@ case "${1:-}" in
 SYNOPSIS
   techdocs-preview.sh
   techdocs-preview.sh add_plugins [mkdocs-pypi-package...]
-  techdocs-preview.sh install
   techdocs-preview.sh build --help
   techdocs-preview.sh build [additional mkdocs options]
   techdocs-preview.sh serve --help
   techdocs-preview.sh serve [additional mkdocs options]
+  techdocs-preview.sh upgrade
 
 DESCRIPTION
   Run techdocs or create a techdocs preview using a lightweight python
   environment.
 
   With no options "serve" is the default and a browser link will be opened.
+
+SUB_COMMANDS
+  add_plugins
+    pip install new plugins.  If uv available, then uv pip install.  Additional
+    options will be passed through to "pip install" or "uv pip install".
+
+  build
+    Runs mkdocs build.  Additional options will be passed through to mkdocs
+    build.
+
+  serve
+    Runs mkdocs serve (same as techdocs-preview.sh with no arguments).
+    Additional options will be passed through to mkdocs serve.
+
+  upgrade
+    pip install mkdocs packages again in case there's upgrades within this
+    script.  If uv available, then uv pip install will be run to upgrade mkdocs
+    packages.
 
 EXAMPLES
   Render a mkdocs site.
@@ -220,6 +243,8 @@ install_techdocs
 if [ "${1:-}" = add_plugins ]; then
   shift
   add_plugins "$@"
+elif [ "${1:-}" = upgrade ]; then
+  FORCE_UPDATE=1 install_techdocs
 elif [ "${1:-}" = build ]; then
   shift
   build "$@"
