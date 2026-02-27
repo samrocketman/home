@@ -98,7 +98,11 @@ install_techdocs() (
     exit
   else
     mkdir -p ~/.techdocs
-    python3 -m venv ~/.techdocs/python3
+    if type -P uv > /dev/null; then
+      uv venv --python 3.13 ~/.techdocs/python3
+    else
+      python3 -m venv ~/.techdocs/python3
+    fi
   fi
   # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
