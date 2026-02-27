@@ -11,6 +11,14 @@ TECHDOCS_PORT="${TECHDOCS_PORT:-8000}"
 TECHDOCS_WEBSOCKET_PORT="${TECHDOCS_WEBSOCKET_PORT:-8484}"
 export TECHDOCS_HOST TECHDOCS_PORT TECHDOCS_WEBSOCKET_PORT
 
+pip() (
+  if [ -z "${FORCE_PIP:-}" ] && type -P uv > /dev/null; then
+    uv pip "$@"
+  else
+    command pip "$@"
+  fi
+)
+
 cleanup_on() {
   if [ -f "${TMP_DIR}"/original-mkdocs.yml ]; then
     mv "${TMP_DIR}"/original-mkdocs.yml mkdocs.yml
