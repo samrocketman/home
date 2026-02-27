@@ -155,6 +155,16 @@ EOF
   fi
 }
 
+add_plugins() (
+  if [ "$#" -lt 1 ]; then
+    echo 'ERROR: No pypi packages provided; at least one arg required.' >&2
+    exit 1
+  fi
+  source ~/.techdocs/python3/bin/activate
+  set -x
+  pip install "$@"
+)
+
 #
 # MAIN
 #
@@ -166,6 +176,7 @@ case "${1:-}" in
     cat<<'EOF'
 SYNOPSIS
   techdocs-preview.sh
+  techdocs-preview.sh add_plugins [mkdocs-pypi-package...]
   techdocs-preview.sh install
   techdocs-preview.sh build --help
   techdocs-preview.sh build [additional mkdocs options]
@@ -177,13 +188,30 @@ DESCRIPTION
   environment.
 
   With no options "serve" is the default and a browser link will be opened.
+
+EXAMPLES
+  Render a mkdocs site.
+
+    techdocs-preview.sh
+
+  If there's errors, then you may need to add extra mkdocs plugins from pypi.
+
+    techdocs-preview.sh add_plugins \
+      mdx_breakless_lists mkdocs-awesome-pages-plugin \
+      mkdocs-exclude mkdocs-macros-plugin
+
+  You can also upgrade existing python dependencies if the ones provided by
+  this script are not new enough for you.  It's a pass-through to pip install.
+
+    techdocs-preview.sh add_plugins --upgrade mkdocs
 EOF
     exit
     ;;
 esac
 install_techdocs
-if [ "${1:-}" = install ]; then
-  install_techdocs
+if [ "${1:-}" = add_plugins ]; then
+  shift
+  add_plugins "$@"
 elif [ "${1:-}" = build ]; then
   shift
   build "$@"
