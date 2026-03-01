@@ -117,6 +117,9 @@ install_techdocs() (
 
   # live-edit
   pip install websockets==16.0 git+https://github.com/samrocketman/mkdocs-live-edit-plugin
+
+  # live-edit wysiwyg
+  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.12
 )
 
 serve() (
@@ -173,6 +176,7 @@ plugins:
       use_pymdownx_blocks: true
   - live-edit:
       user_docs_dir: "${PWD}/docs"
+  - live-wysiwyg
 EOF
   add_admonition_if_missing "${TMP_DIR}"/rendered-mkdocs.yml
   if [ -f "${TMP_DIR}"/user-plugins.yml ]; then
@@ -219,6 +223,9 @@ DESCRIPTION
   With no options "serve" is the default and a browser link will be opened.
 
 SUB_COMMANDS
+  add_plugin
+    Alias to add_plugins.
+
   add_plugins
     pip install new plugins.  If uv available, then uv pip install.  Additional
     options will be passed through to "pip install" or "uv pip install".
@@ -258,7 +265,7 @@ EOF
     exit
     ;;
 esac
-if [ "${1:-}" = add_plugins ]; then
+if [ "${1:-}" = add_plugins ] || [ "${1:-}" = add_plugin ]; then
   shift
   install_techdocs
   add_plugins "$@"
