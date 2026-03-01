@@ -73,7 +73,7 @@
 	amend = commit --amend -aC HEAD
 	checkpoint = "!\
 		cp() { \
-			git add -A && git commit -m checkpoint; \
+			git add -A && git commit -m \"${1:-checkpoint}\"; \
 		} ; cp"
 	files = "!\
 		f() { \
