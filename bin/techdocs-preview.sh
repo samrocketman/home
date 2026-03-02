@@ -119,7 +119,7 @@ install_techdocs() (
   pip install websockets==16.0 git+https://github.com/samrocketman/mkdocs-live-edit-plugin
 
   # live-edit wysiwyg
-  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.19
+  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.23
 )
 
 serve() (
@@ -146,7 +146,7 @@ mkdocs_config() {
   cp -a mkdocs.yml "${TMP_DIR}"/original-mkdocs.yml
   if ! {
     # get user plugins excluding search, etc
-    get_user_plugins "search,techdocs-core,live-edit" \
+    get_user_plugins "search,techdocs-core,live-edit,live-wysiwyg" \
       < "${TMP_DIR}"/original-mkdocs.yml \
       > "${TMP_DIR}"/user-plugins.yml
   } &> /dev/null; then
