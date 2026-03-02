@@ -119,7 +119,7 @@ install_techdocs() (
   pip install websockets==16.0 git+https://github.com/samrocketman/mkdocs-live-edit-plugin
 
   # live-edit wysiwyg
-  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.27
+  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.28
 )
 
 serve() (
