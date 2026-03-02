@@ -26,7 +26,7 @@ cleanup_on() {
   fi
   # delete tmp as last step
   rm -rf "${TMP_DIR}"
-  if [ ! "${1:-}" = 0 ]; then
+  if [ ! "${1:-}" = 0 ] && [ -n "${expanded_help:-}" ]; then
 cat >&2 <<'EOF'
 
 Your command appears to have failed.  This is usually due to missing mkdocs
@@ -265,6 +265,15 @@ EOF
     exit
     ;;
 esac
+if [ ! -f mkdocs.yml ]; then
+  echo 'mkdocs.yml is not available in the current directory' >&2
+  exit 1
+fi
+if [ ! -d docs ]; then
+  echo 'docs directory is not available in the current directory' >&2
+  exit 1
+fi
+export expanded_help=1
 if [ "${1:-}" = add_plugins ] || [ "${1:-}" = add_plugin ]; then
   shift
   install_techdocs
