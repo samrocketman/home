@@ -33,7 +33,7 @@ Your command appears to have failed.  This is usually due to missing mkdocs
 plugins.  This script supports adding additional plugins.
 
 Example:
-  techdocs-preview.sh add_plugins mkdocs-macros-plugin
+  techdocs-preview.sh add_plugins mkdocs-some-python-plugin
 
 EOF
   fi
