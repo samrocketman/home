@@ -20,7 +20,10 @@ pip() (
 )
 
 cleanup_on() {
-  if [ -f "${TMP_DIR}"/original-mkdocs.yml ]; then
+  if [ -n "${MKDOCS_YML_AUTO_GENERATED:-}" ]; then
+    rm -f mkdocs.yml
+    echo mkdocs.yml removed (was auto-generated). >&2
+  elif [ -f "${TMP_DIR}"/original-mkdocs.yml ]; then
     mv "${TMP_DIR}"/original-mkdocs.yml mkdocs.yml
     echo mkdocs.yml restored. >&2
   fi
@@ -272,10 +275,24 @@ EOF
     ;;
 esac
 if [ ! -f mkdocs.yml ]; then
-  echo 'mkdocs.yml is not available in the current directory' >&2
-  exit 1
+  if [ "${1:-}" = add_plugins ] || [ "${1:-}" = add_plugin ] || [ "${1:-}" = upgrade ] || [ "${1:-}" = uninstall ]; then
+    echo 'mkdocs.yml is not available in the current directory' >&2
+    exit 1
+  fi
+  # Generate minimal mkdocs.yml for serve/build; will be removed on exit
+  printf 'site_name: "%s"\ndocs_dir: docs\n' "${PWD##*/}" > mkdocs.yml
+  export MKDOCS_YML_AUTO_GENERATED=1
 fi
-if [ ! -d docs ]; then
+if [ ! -d docs ] && {
+  case "${1:-}" in
+    uninstall|add_plugin*)
+      false
+      ;;
+    *)
+      true
+      ;;
+  esac
+}; then
   echo 'docs directory is not available in the current directory' >&2
   exit 1
 fi
