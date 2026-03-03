@@ -22,10 +22,10 @@ pip() (
 cleanup_on() {
   if [ -n "${MKDOCS_YML_AUTO_GENERATED:-}" ]; then
     rm -f mkdocs.yml
-    echo mkdocs.yml removed (was auto-generated). >&2
+    echo 'mkdocs.yml removed (was auto-generated).' >&2
   elif [ -f "${TMP_DIR}"/original-mkdocs.yml ]; then
     mv "${TMP_DIR}"/original-mkdocs.yml mkdocs.yml
-    echo mkdocs.yml restored. >&2
+    echo 'mkdocs.yml restored.' >&2
   fi
   # delete tmp as last step
   rm -rf "${TMP_DIR}"
@@ -57,16 +57,16 @@ add_markdown_extension_if_missing() {
   local config="$2"
   # Add markdown_extensions if missing
   if ! yq -e 'has("markdown_extensions")' "$config" &>/dev/null; then
-    yq -i --arg ext "$ext" '.markdown_extensions = [$ext]' "$config"
+    yq -i '.markdown_extensions = ["'"$ext"'"]' "$config"
     return
   fi
   # Only add if extension (string or map) is not already present
   if ! {
-    yq --arg ext "$ext" '.markdown_extensions[] | select(. == $ext or (tag == "!!map" and has($ext)))' \
+    yq '.markdown_extensions[] | select(. == "'"$ext"'" or (tag == "!!map" and has("'"$ext"'")))' \
       "$config" 2>/dev/null | \
       grep -q .
   }; then
-    yq -i --arg ext "$ext" '.markdown_extensions = ((.markdown_extensions // []) + [$ext])' "$config"
+    yq -i '.markdown_extensions = ((.markdown_extensions // []) + ["'"$ext"'"])' "$config"
   fi
 }
 
