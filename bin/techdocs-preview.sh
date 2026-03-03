@@ -126,7 +126,7 @@ install_techdocs() (
   pip install websockets==16.0 ${GIT_UPSTREAM}/mkdocs-live-edit-plugin
 
   # live-edit wysiwyg (not published to pypi, yet)
-  pip install ${GIT_UPSTREAM}/mkdocs-live-wysiwyg-plugin.git@v0.1.28
+  pip install mkdocs-live-wysiwyg-plugin==0.1.31
 )
 
 serve() (
