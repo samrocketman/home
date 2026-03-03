@@ -48,20 +48,22 @@ merge_user_plugins() {
   yq '.plugins = .plugins + (load("'"${1}"'") | .plugins)'
 }
 
-# Filters for !!! notes
-add_admonition_if_missing() {
+# Add a markdown extension if not already present (as string or map key)
+add_markdown_extension_if_missing() {
+  local ext="$1"
+  local config="$2"
   # Add markdown_extensions if missing
-  if ! yq -e 'has("markdown_extensions")' "$1" &>/dev/null; then
-    yq -i '.markdown_extensions = ["admonition"]' "$1"
+  if ! yq -e 'has("markdown_extensions")' "$config" &>/dev/null; then
+    yq -i --arg ext "$ext" '.markdown_extensions = [$ext]' "$config"
     return
   fi
-  # Only add if admonition (string or map) is not already present
+  # Only add if extension (string or map) is not already present
   if ! {
-    yq '.markdown_extensions[] | select(. == "admonition" or (tag == "!!map" and has("admonition")))' \
-      "$1" 2>/dev/null | \
+    yq --arg ext "$ext" '.markdown_extensions[] | select(. == $ext or (tag == "!!map" and has($ext)))' \
+      "$config" 2>/dev/null | \
       grep -q .
   }; then
-    yq -i '.markdown_extensions = ((.markdown_extensions // []) + ["admonition"])' "$1"
+    yq -i --arg ext "$ext" '.markdown_extensions = ((.markdown_extensions // []) + [$ext])' "$config"
   fi
 }
 
@@ -115,11 +117,13 @@ install_techdocs() (
     mkdocs-nav-weight==0.3.0 \
     griffe==1.6.0
 
-  # live-edit
-  pip install websockets==16.0 git+https://github.com/samrocketman/mkdocs-live-edit-plugin
+  GIT_UPSTREAM="git+https://github.com/samrocketman"
 
-  # live-edit wysiwyg
-  pip install git+https://github.com/samrocketman/mkdocs-live-wysiwyg-plugin.git@v0.1.28
+  # live-edit (unmerged patches)
+  pip install websockets==16.0 ${GIT_UPSTREAM}/mkdocs-live-edit-plugin
+
+  # live-edit wysiwyg (not published to pypi, yet)
+  pip install ${GIT_UPSTREAM}/mkdocs-live-wysiwyg-plugin.git@v0.1.28
 )
 
 serve() (
@@ -178,7 +182,9 @@ plugins:
       user_docs_dir: "${PWD}/docs"
   - live-wysiwyg
 EOF
-  add_admonition_if_missing "${TMP_DIR}"/rendered-mkdocs.yml
+  add_markdown_extension_if_missing admonition "${TMP_DIR}"/rendered-mkdocs.yml
+  add_markdown_extension_if_missing pymdownx.details "${TMP_DIR}"/rendered-mkdocs.yml
+  add_markdown_extension_if_missing pymdownx.superfences "${TMP_DIR}"/rendered-mkdocs.yml
   if [ -f "${TMP_DIR}"/user-plugins.yml ]; then
     merge_user_plugins "${TMP_DIR}"/user-plugins.yml < "${TMP_DIR}"/rendered-mkdocs.yml
   else
