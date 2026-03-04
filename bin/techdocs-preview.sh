@@ -120,13 +120,10 @@ install_techdocs() (
     mkdocs-nav-weight==0.3.0 \
     griffe==1.6.0
 
-  GIT_UPSTREAM="git+https://github.com/samrocketman"
+  pip install websockets==16.0 \
+    mkdocs-live-edit-plugin==0.4.0 \
+    mkdocs-live-wysiwyg-plugin==0.1.34
 
-  # live-edit (unmerged patches)
-  pip install websockets==16.0 ${GIT_UPSTREAM}/mkdocs-live-edit-plugin
-
-  # live-edit wysiwyg (not published to pypi, yet)
-  pip install mkdocs-live-wysiwyg-plugin==0.1.31
 )
 
 serve() (
