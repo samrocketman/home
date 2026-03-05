@@ -5,6 +5,10 @@
 # Python 3.13.1
 
 set -euo pipefail
+
+# since rapidly developing I'll track this at the top for now
+WYSIWYG_VERSION=0.1.37
+
 # set SKIP_NEXUS=1 if you don't want to download from Nexus on VPN.
 TECHDOCS_HOST="${TECHDOCS_HOST:-127.0.0.1}"
 TECHDOCS_PORT="${TECHDOCS_PORT:-8000}"
@@ -122,7 +126,7 @@ install_techdocs() (
 
   pip install websockets==16.0 \
     mkdocs-live-edit-plugin==0.4.0 \
-    mkdocs-live-wysiwyg-plugin==0.1.34
+    mkdocs-live-wysiwyg-plugin=="$WYSIWYG_VERSION"
 
 )
 
@@ -271,11 +275,16 @@ EOF
     exit
     ;;
 esac
-if [ ! -f mkdocs.yml ]; then
-  if [ "${1:-}" = add_plugins ] || [ "${1:-}" = add_plugin ] || [ "${1:-}" = upgrade ] || [ "${1:-}" = uninstall ]; then
-    echo 'mkdocs.yml is not available in the current directory' >&2
-    exit 1
-  fi
+if {
+  case "${1:-}" in
+    add_plugin*|upgrade|uninstall)
+      false
+      ;;
+    *)
+      [ ! -f mkdocs.yml ]
+      ;;
+  esac
+}; then
   # Generate minimal mkdocs.yml for serve/build; will be removed on exit
   printf 'site_name: "%s"\ndocs_dir: docs\n' "${PWD##*/}" > mkdocs.yml
   export MKDOCS_YML_AUTO_GENERATED=1
