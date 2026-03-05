@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # since rapidly developing I'll track this at the top for now
-WYSIWYG_VERSION=0.1.37
+WYSIWYG_VERSION=0.1.38
 
 # set SKIP_NEXUS=1 if you don't want to download from Nexus on VPN.
 TECHDOCS_HOST="${TECHDOCS_HOST:-127.0.0.1}"
