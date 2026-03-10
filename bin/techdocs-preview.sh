@@ -157,8 +157,7 @@ serve() (
 build() (
   # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
-  mkdocs_config > "${TMP_DIR}"/mkdocs.yml
-  mkdocs build -f "${TMP_DIR}"/mkdocs.yml "$@"
+  mkdocs_config | TMPDIR="${TMP_DIR}" mkdocs build -f - "$@"
 )
 
 mkdocs_config() {
