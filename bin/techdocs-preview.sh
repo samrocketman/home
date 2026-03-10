@@ -208,16 +208,12 @@ THEME
   fi
   # Merge: theme.yml defaults as base, user theme settings override
   if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    yq eval-all '{"theme": select(fileIndex == 0).theme * select(fileIndex == 1).theme}' \
-      "${TMP_DIR}"/theme.yml "${TMP_DIR}"/rendered-mkdocs.yml \
-      > "${TMP_DIR}"/merged-theme.yml
+    yq '{"theme": (.theme * load("'"${TMP_DIR}"'/rendered-mkdocs.yml").theme)}' \
+      "${TMP_DIR}"/theme.yml > "${TMP_DIR}"/merged-theme.yml
   else
     cp "${TMP_DIR}"/theme.yml "${TMP_DIR}"/merged-theme.yml
   fi
-  yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' \
-    "${TMP_DIR}"/rendered-mkdocs.yml "${TMP_DIR}"/merged-theme.yml \
-    > "${TMP_DIR}"/tmp-rendered.yml
-  mv "${TMP_DIR}"/tmp-rendered.yml "${TMP_DIR}"/rendered-mkdocs.yml
+  yq -i '. * load("'"${TMP_DIR}"'/merged-theme.yml")' "${TMP_DIR}"/rendered-mkdocs.yml
   # techdocs-core unconditionally wipes theme.palette in on_config;
   # save the merged palette and restore it via a post-plugin hook
   yq '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml > "${TMP_DIR}"/theme-palette.yml
