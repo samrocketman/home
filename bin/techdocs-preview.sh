@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # since rapidly developing I'll track this at the top for now
-WYSIWYG_VERSION=0.2.1
+WYSIWYG_VERSION=0.2.4
 
 # set SKIP_NEXUS=1 if you don't want to download from Nexus on VPN.
 TECHDOCS_HOST="${TECHDOCS_HOST:-127.0.0.1}"
@@ -24,6 +24,17 @@ pip() (
 )
 
 cleanup_on() {
+  if [ -n "${DOCS_DIR_AUTO_GENERATED:-}" ]; then
+    for _doc in docs/*.md; do
+      [ -f "$_doc" ] || continue
+      _title="$(sed -n '2s/^title: //p' "$_doc")"
+      if [ -n "$_title" ]; then
+        tail -n +4 "$_doc" > "$_title"
+      fi
+    done
+    rm -rf docs
+    echo 'docs/ removed (was auto-generated). Markdown files restored.' >&2
+  fi
   if [ -n "${MKDOCS_YML_AUTO_GENERATED:-}" ]; then
     rm -f mkdocs.yml
     echo 'mkdocs.yml removed (was auto-generated).' >&2
@@ -317,6 +328,11 @@ DESCRIPTION
 
   With no options "serve" is the default and a browser link will be opened.
 
+  If no docs/ directory exists, one is auto-generated from top-level *.md
+  files (e.g. README.md).  Each file gets a title: frontmatter header
+  preserving its filename.  On exit, edited files are restored to the
+  project root with frontmatter stripped and docs/ is removed.
+
 OPTIONS
   --theme
     Prioritize the theme defined in your mkdocs.yml.  Without this flag the
@@ -391,8 +407,20 @@ if [ ! -d docs ] && {
       ;;
   esac
 }; then
-  echo 'docs directory is not available in the current directory' >&2
-  exit 1
+  # Auto-generate docs/ from top-level *.md files
+  # shellcheck disable=SC2046
+  set -- $(printf '%s\n' *.md)
+  if [ "$1" = '*.md' ]; then
+    echo 'No docs directory and no *.md files found in the current directory.' >&2
+    exit 1
+  fi
+  mkdir docs
+  for _md in "$@"; do
+    printf -- '---\ntitle: %s\n---\n' "$_md" | cat - "$_md" > docs/"$_md"
+  done
+  unset _md
+  set --
+  export DOCS_DIR_AUTO_GENERATED=1
 fi
 export expanded_help=1
 if [ "${1:-}" = add_plugins ] || [ "${1:-}" = add_plugin ]; then
