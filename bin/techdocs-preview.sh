@@ -193,6 +193,21 @@ plugins:
   - live-edit:
       user_docs_dir: "${PWD}/docs"
   - live-wysiwyg
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7 # Sun icon
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4 # Moon icon
+        name: Switch to light mode
 EOF
   # Ensure theme.name is set; default to material if not specified
   if ! yq -e '.theme.name' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null && \
@@ -202,6 +217,26 @@ EOF
     else
       yq -i '.theme = "material"' "${TMP_DIR}"/rendered-mkdocs.yml
     fi
+  fi
+  # techdocs-core unconditionally wipes theme.palette in on_config;
+  # save it and restore via a post-plugin hook
+  if yq -e '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+    yq '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml > "${TMP_DIR}"/theme-palette.yml
+    cat > "${TMP_DIR}"/restore_theme_palette.py <<'PYEOF'
+import os
+import yaml
+
+def on_config(config):
+    palette_file = os.path.join(os.environ.get('TMP_DIR', ''), 'theme-palette.yml')
+    if os.path.exists(palette_file):
+        with open(palette_file) as f:
+            palette = yaml.safe_load(f)
+        if palette is not None:
+            config['theme']['palette'] = palette
+    return config
+PYEOF
+    yq -i '.hooks = ((.hooks // []) + ["'"${TMP_DIR}"'/restore_theme_palette.py"])' \
+      "${TMP_DIR}"/rendered-mkdocs.yml
   fi
   add_markdown_extension_if_missing admonition "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing pymdownx.details "${TMP_DIR}"/rendered-mkdocs.yml
