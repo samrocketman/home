@@ -125,7 +125,7 @@ install_techdocs() (
     griffe==1.6.0
 
   pip install websockets==16.0 \
-    mkdocs-live-edit-plugin==0.4.0 \
+    mkdocs-live-edit-plugin==0.4.1 \
     mkdocs-live-wysiwyg-plugin=="$WYSIWYG_VERSION"
 
 )
@@ -135,19 +135,27 @@ serve() (
   source ~/.techdocs/python3/bin/activate
   mkdocs_config > "${TMP_DIR}"/mkdocs.yml
   mv "${TMP_DIR}"/mkdocs.yml mkdocs.yml
+  local theme_args=(--livereload)
+  if ! yq -e '.theme' mkdocs.yml &>/dev/null; then
+    theme_args=(-t material)
+  fi
+  set -x
   TMPDIR="${TMP_DIR}" mkdocs serve \
     -f mkdocs.yml \
     -a "${TECHDOCS_HOST}:${TECHDOCS_PORT}" \
-    -t material \
-    --livereload \
+    "${theme_args[@]}" \
     --open \
     "$@"
 )
 build() (
   # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
-  mkdocs_config | \
-    mkdocs build -f - -t material "$@"
+  mkdocs_config > "${TMP_DIR}"/mkdocs.yml
+  local theme_args=()
+  if ! yq -e '.theme' "${TMP_DIR}"/mkdocs.yml &>/dev/null; then
+    theme_args=(-t material)
+  fi
+  mkdocs build -f "${TMP_DIR}"/mkdocs.yml "${theme_args[@]}" "$@"
 )
 
 mkdocs_config() {
@@ -186,6 +194,15 @@ plugins:
       user_docs_dir: "${PWD}/docs"
   - live-wysiwyg
 EOF
+  # Ensure theme.name is set; default to material if not specified
+  if ! yq -e '.theme.name' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null && \
+     ! yq -e '.theme == "material"' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+    if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+      yq -i '.theme.name = "material"' "${TMP_DIR}"/rendered-mkdocs.yml
+    else
+      yq -i '.theme = "material"' "${TMP_DIR}"/rendered-mkdocs.yml
+    fi
+  fi
   add_markdown_extension_if_missing admonition "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing pymdownx.details "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing pymdownx.superfences "${TMP_DIR}"/rendered-mkdocs.yml
