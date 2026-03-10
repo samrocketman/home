@@ -162,14 +162,14 @@ mkdocs_config() {
   elif [ "$(yq '.plugins | length' "${TMP_DIR}"/user-plugins.yml)" -lt 1 ]; then
     rm "${TMP_DIR}"/user-plugins.yml
   fi
-  # Resolve user theme name (before rendering) to decide plugin set
-  local user_theme_name
-  if yq -e '.theme | tag == "!!str"' "${TMP_DIR}"/original-mkdocs.yml &>/dev/null; then
-    user_theme_name="$(yq '.theme' "${TMP_DIR}"/original-mkdocs.yml)"
-  elif yq -e '.theme.name' "${TMP_DIR}"/original-mkdocs.yml &>/dev/null; then
-    user_theme_name="$(yq '.theme.name' "${TMP_DIR}"/original-mkdocs.yml)"
-  else
-    user_theme_name=material
+  # Resolve effective theme name
+  local user_theme_name=material
+  if [ -n "${USE_USER_THEME:-}" ]; then
+    if yq -e '.theme | tag == "!!str"' "${TMP_DIR}"/original-mkdocs.yml &>/dev/null; then
+      user_theme_name="$(yq '.theme' "${TMP_DIR}"/original-mkdocs.yml)"
+    elif yq -e '.theme.name' "${TMP_DIR}"/original-mkdocs.yml &>/dev/null; then
+      user_theme_name="$(yq '.theme.name' "${TMP_DIR}"/original-mkdocs.yml)"
+    fi
   fi
   # Build plugins section; techdocs-core is material-only
   local plugins_block
@@ -200,35 +200,42 @@ cat > "${TMP_DIR}"/rendered-mkdocs.yml <<EOF
 $(yq 'del(.plugins)' < "${TMP_DIR}"/original-mkdocs.yml)
 ${plugins_block}
 EOF
-  # Default theme; user mkdocs.yml settings override these defaults
-  cat > "${TMP_DIR}"/theme.yml <<'THEME'
+  if [ -n "${USE_USER_THEME:-}" ]; then
+    # --theme: merge user theme on top of material defaults
+    cat > "${TMP_DIR}"/theme.yml <<'THEME'
 theme:
   name: material
 THEME
-  # Normalize string theme (e.g. "theme: material") to map form
-  if yq -e '.theme | tag == "!!str"' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    yq -i '.theme = {"name": .theme}' "${TMP_DIR}"/rendered-mkdocs.yml
-  fi
-  # Merge: theme.yml defaults as base, user theme settings override
-  if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    yq '{"theme": (.theme * load("'"${TMP_DIR}"'/rendered-mkdocs.yml").theme)}' \
-      "${TMP_DIR}"/theme.yml > "${TMP_DIR}"/merged-theme.yml
+    # Normalize string theme (e.g. "theme: material") to map form
+    if yq -e '.theme | tag == "!!str"' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+      yq -i '.theme = {"name": .theme}' "${TMP_DIR}"/rendered-mkdocs.yml
+    fi
+    if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+      yq '{"theme": (.theme * load("'"${TMP_DIR}"'/rendered-mkdocs.yml").theme)}' \
+        "${TMP_DIR}"/theme.yml > "${TMP_DIR}"/merged-theme.yml
+    else
+      cp "${TMP_DIR}"/theme.yml "${TMP_DIR}"/merged-theme.yml
+    fi
+    yq -i '. * load("'"${TMP_DIR}"'/merged-theme.yml")' "${TMP_DIR}"/rendered-mkdocs.yml
+    # Default palette only if material and user hasn't defined one
+    if [ "$user_theme_name" = "material" ] && \
+       ! yq -e '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+      yq -i '.theme.palette = [
+        {"media": "(prefers-color-scheme: light)", "scheme": "default", "toggle": {"icon": "material/brightness-7", "name": "Switch to dark mode"}},
+        {"media": "(prefers-color-scheme: dark)", "scheme": "slate", "toggle": {"icon": "material/brightness-4", "name": "Switch to light mode"}}
+      ]' "${TMP_DIR}"/rendered-mkdocs.yml
+    fi
   else
-    cp "${TMP_DIR}"/theme.yml "${TMP_DIR}"/merged-theme.yml
+    # No --theme: force material with default palette
+    yq -i '.theme = {
+      "name": "material",
+      "palette": [
+        {"media": "(prefers-color-scheme: light)", "scheme": "default", "toggle": {"icon": "material/brightness-7", "name": "Switch to dark mode"}},
+        {"media": "(prefers-color-scheme: dark)", "scheme": "slate", "toggle": {"icon": "material/brightness-4", "name": "Switch to light mode"}}
+      ]
+    }' "${TMP_DIR}"/rendered-mkdocs.yml
   fi
-  yq -i '. * load("'"${TMP_DIR}"'/merged-theme.yml")' "${TMP_DIR}"/rendered-mkdocs.yml
-  # Default palette for material theme (light/dark toggle);
-  # only injected when theme.name is material and user hasn't defined a palette
-  if [ "$(yq '.theme.name' "${TMP_DIR}"/rendered-mkdocs.yml)" = "material" ] && \
-     ! yq -e '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    yq -i '.theme.palette = [
-      {"media": "(prefers-color-scheme: light)", "scheme": "default", "toggle": {"icon": "material/brightness-7", "name": "Switch to dark mode"}},
-      {"media": "(prefers-color-scheme: dark)", "scheme": "slate", "toggle": {"icon": "material/brightness-4", "name": "Switch to light mode"}}
-    ]' "${TMP_DIR}"/rendered-mkdocs.yml
-  fi
-  # techdocs-core overrides the theme in on_config: it replaces the entire
-  # Theme object when name != material, and wipes palette to {} unconditionally.
-  # Hook is only needed when techdocs-core is in the plugin list.
+  # techdocs-core overrides the theme in on_config; restore hook needed when present
   if [ "$user_theme_name" = "material" ]; then
     yq '.theme' "${TMP_DIR}"/rendered-mkdocs.yml > "${TMP_DIR}"/theme-config.yml
     cat > "${TMP_DIR}"/restore_theme.py <<'PYEOF'
@@ -278,16 +285,29 @@ add_plugins() (
 if [ -n "${SKIP_NEXUS:-}" ]; then
   unset pip
 fi
+# Parse --theme flag (prioritize user's mkdocs.yml theme over material default)
+USE_USER_THEME=
+_filtered_args=()
+for _arg in "$@"; do
+  if [ "$_arg" = "--theme" ]; then
+    USE_USER_THEME=1
+  else
+    _filtered_args+=("$_arg")
+  fi
+done
+set -- ${_filtered_args[@]+"${_filtered_args[@]}"}
+unset _filtered_args _arg
+export USE_USER_THEME
 case "${1:-}" in
   -h|--help|help)
     cat<<'EOF'
 SYNOPSIS
-  techdocs-preview.sh
+  techdocs-preview.sh [--theme]
+  techdocs-preview.sh [--theme] serve [additional mkdocs options]
+  techdocs-preview.sh [--theme] build [additional mkdocs options]
   techdocs-preview.sh add_plugins [mkdocs-pypi-package...]
   techdocs-preview.sh build --help
-  techdocs-preview.sh build [additional mkdocs options]
   techdocs-preview.sh serve --help
-  techdocs-preview.sh serve [additional mkdocs options]
   techdocs-preview.sh uninstall
   techdocs-preview.sh upgrade
 
@@ -296,6 +316,13 @@ DESCRIPTION
   environment.
 
   With no options "serve" is the default and a browser link will be opened.
+
+OPTIONS
+  --theme
+    Prioritize the theme defined in your mkdocs.yml.  Without this flag the
+    Material theme with a default light/dark palette is always used regardless
+    of mkdocs.yml settings.  With this flag, your mkdocs.yml theme.name,
+    theme.palette, and other theme options take precedence.
 
 SUB_COMMANDS
   add_plugin
