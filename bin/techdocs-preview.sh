@@ -135,15 +135,11 @@ serve() (
   source ~/.techdocs/python3/bin/activate
   mkdocs_config > "${TMP_DIR}"/mkdocs.yml
   mv "${TMP_DIR}"/mkdocs.yml mkdocs.yml
-  local theme_args=(--livereload)
-  if ! yq -e '.theme' mkdocs.yml &>/dev/null; then
-    theme_args=(-t material)
-  fi
   set -x
   TMPDIR="${TMP_DIR}" mkdocs serve \
     -f mkdocs.yml \
     -a "${TECHDOCS_HOST}:${TECHDOCS_PORT}" \
-    "${theme_args[@]}" \
+    --livereload \
     --open \
     "$@"
 )
@@ -151,11 +147,7 @@ build() (
   # shellcheck disable=SC1090
   source ~/.techdocs/python3/bin/activate
   mkdocs_config > "${TMP_DIR}"/mkdocs.yml
-  local theme_args=()
-  if ! yq -e '.theme' "${TMP_DIR}"/mkdocs.yml &>/dev/null; then
-    theme_args=(-t material)
-  fi
-  mkdocs build -f "${TMP_DIR}"/mkdocs.yml "${theme_args[@]}" "$@"
+  mkdocs build -f "${TMP_DIR}"/mkdocs.yml "$@"
 )
 
 mkdocs_config() {
@@ -193,36 +185,43 @@ plugins:
   - live-edit:
       user_docs_dir: "${PWD}/docs"
   - live-wysiwyg
+EOF
+  # Default theme; user mkdocs.yml settings override these defaults
+  cat > "${TMP_DIR}"/theme.yml <<'THEME'
 theme:
   name: material
   palette:
-    # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       toggle:
-        icon: material/brightness-7 # Sun icon
+        icon: material/brightness-7
         name: Switch to dark mode
-    # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       toggle:
-        icon: material/brightness-4 # Moon icon
+        icon: material/brightness-4
         name: Switch to light mode
-EOF
-  # Ensure theme.name is set; default to material if not specified
-  if ! yq -e '.theme.name' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null && \
-     ! yq -e '.theme == "material"' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-      yq -i '.theme.name = "material"' "${TMP_DIR}"/rendered-mkdocs.yml
-    else
-      yq -i '.theme = "material"' "${TMP_DIR}"/rendered-mkdocs.yml
-    fi
+THEME
+  # Normalize string theme (e.g. "theme: material") to map form
+  if yq -e '.theme | tag == "!!str"' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+    yq -i '.theme = {"name": .theme}' "${TMP_DIR}"/rendered-mkdocs.yml
   fi
+  # Merge: theme.yml defaults as base, user theme settings override
+  if yq -e '.theme' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
+    yq eval-all '{"theme": select(fileIndex == 0).theme * select(fileIndex == 1).theme}' \
+      "${TMP_DIR}"/theme.yml "${TMP_DIR}"/rendered-mkdocs.yml \
+      > "${TMP_DIR}"/merged-theme.yml
+  else
+    cp "${TMP_DIR}"/theme.yml "${TMP_DIR}"/merged-theme.yml
+  fi
+  yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' \
+    "${TMP_DIR}"/rendered-mkdocs.yml "${TMP_DIR}"/merged-theme.yml \
+    > "${TMP_DIR}"/tmp-rendered.yml
+  mv "${TMP_DIR}"/tmp-rendered.yml "${TMP_DIR}"/rendered-mkdocs.yml
   # techdocs-core unconditionally wipes theme.palette in on_config;
-  # save it and restore via a post-plugin hook
-  if yq -e '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml &>/dev/null; then
-    yq '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml > "${TMP_DIR}"/theme-palette.yml
-    cat > "${TMP_DIR}"/restore_theme_palette.py <<'PYEOF'
+  # save the merged palette and restore it via a post-plugin hook
+  yq '.theme.palette' "${TMP_DIR}"/rendered-mkdocs.yml > "${TMP_DIR}"/theme-palette.yml
+  cat > "${TMP_DIR}"/restore_theme_palette.py <<'PYEOF'
 import os
 import yaml
 
@@ -235,9 +234,8 @@ def on_config(config):
             config['theme']['palette'] = palette
     return config
 PYEOF
-    yq -i '.hooks = ((.hooks // []) + ["'"${TMP_DIR}"'/restore_theme_palette.py"])' \
-      "${TMP_DIR}"/rendered-mkdocs.yml
-  fi
+  yq -i '.hooks = ((.hooks // []) + ["'"${TMP_DIR}"'/restore_theme_palette.py"])' \
+    "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing admonition "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing pymdownx.details "${TMP_DIR}"/rendered-mkdocs.yml
   add_markdown_extension_if_missing pymdownx.superfences "${TMP_DIR}"/rendered-mkdocs.yml
