@@ -3,6 +3,9 @@
 
 "this should be first always according to help docs if going to set it
 set nocompatible
+"open files without executing any automatic vim commands within the file.
+set nomodeline
+set modelines=0
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " Navigating folds (collapsed code sections).  Run from normal mode.
@@ -238,3 +241,8 @@ endif
 
 " Silly Mac OS vim bug fix https://github.com/vim/vim/issues/7280
 set re=0
+
+"open files without executing any automatic vim commands within the file.
+"called again in case any plugins set the options
+set nomodeline
+set modelines=0
