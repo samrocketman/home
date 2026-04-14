@@ -153,7 +153,7 @@ echo 'See also'
 echo '--------'
 echo
 for issue in "${TMP_DIR}"/*;do
-  echo "- [${issue##*/}][${issue##*/}] $(description "$issue")"
+  echo "- [${issue##*/}] $(description "$issue")"
 done
 echo
 
