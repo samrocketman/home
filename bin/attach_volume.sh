@@ -149,6 +149,10 @@ if [[ -z "${VOLUME_ID}" || "${VOLUME_ID}" = null ]]; then
     die "A VOLUME_ID could not be determined with the given --volume-tags ${tags[*]:-}"
 fi
 
+# A controller being replaced may not immediately release its volume, so
+# waiting for the volume to no longer be in-use.
+wait_for_volume_detachment "${VOLUME_ID}"
+
 aws ec2 attach-volume --instance-id "${INSTANCE_ID}" --device "${DEVICE_PATH}" --volume-id "${VOLUME_ID}"
 wait_for_volume_attachment "${VOLUME_ID}"
 echo 'Waiting for disk to become available.'
