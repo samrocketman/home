@@ -1,0 +1,38 @@
+#!/bin/bash
+# Created by Sam Gleske
+# Sun Sep 27 02:37:42 PM EDT 2026
+# Ubuntu 26.04.1 LTS
+# Linux 7.0.0-34-generic x86_64
+# GNU bash, version 5.3.9(1)-release (x86_64-pc-linux-gnu)
+################################################################################
+# ~/.config/systemd/user/lmstudio.service
+################################################################################
+#[Unit]
+#Description=LM Studio Server
+#After=network.target
+#
+#[Service]
+#Type=forking
+#ExecStartPre=-/home/sam/.lmstudio/bin/lms daemon down
+#ExecStartPre=/home/sam/.lmstudio/bin/lms daemon up
+#ExecStart=/home/sam/.lmstudio/bin/lms server start
+#ExecStop=/home/sam/.lmstudio/bin/lms server stop
+#ExecStopPost=/home/sam/.lmstudio/bin/lms daemon down
+#RemainAfterExit=yes
+#
+#[Install]
+#WantedBy=default.target
+################################################################################
+# Optional:
+################################################################################
+#systemctl --user daemon-reload
+#systemctl --user enable lmstudio.service
+#systemctl --user start lmstudio.service
+################################################################################
+
+if [ "$#" = 1 ] && [ ! "$1" = start ] && [ ! "$1" = stop ]; then
+  echo ERROR must be start or stop as first arg. >&2
+  exit 1
+fi
+
+systemctl --user "$1" lmstudio.service

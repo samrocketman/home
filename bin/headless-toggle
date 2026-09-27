@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$(sudo systemctl get-default)" = graphical.target ]; then
+  sudo systemctl set-default multi-user.target
+  echo 'Headless on next reboot.'
+else
+  sudo systemctl set-default graphical.target
+  echo 'Graphical on next reboot.'
+fi
+
+# Enabled VPN by
+# nmcli connection show
+# nmcli connection modify <connection-uuid> connection.autoconnect yes
