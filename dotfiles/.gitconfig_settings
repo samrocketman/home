@@ -23,6 +23,7 @@
 	#shorthand for git tree
 	t = "!git tree"
 	fu = fetch upstream
+	rd = "!git richdiff"
 
 	# fun commands `git pug`, `feed doggie`.  In shell `alias feed=git`
 	pug = fetch
